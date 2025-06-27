@@ -327,13 +327,15 @@
     const refreshButton = document.getElementById('refreshButton');
     const fullscreenButton = document.getElementById('fullscreenButton');
     const audio = document.getElementById('audio');
-    const starfieldContainer = document.getElementById('starfield-container'); // Contenedor para las estrellas
-    let audioCtx, source, analyser, dataArray, audioInitialized = false;
+    const starfieldContainer = document.getElementById('starfield-container');
+    let audioCtx = null; // Inicializar como null
+    let source, analyser, dataArray;
+    let audioInitialized = false;
     let fetchIntervalId;
 
     // --- Three.js para el Fondo de Estrellas ---
     const starfieldScene = new THREE.Scene();
-    starfieldScene.background = new THREE.Color(0x0a0a0a); // Fondo muy oscuro
+    starfieldScene.background = new THREE.Color(0x0a0a0a);
 
     const starfieldCamera = new THREE.PerspectiveCamera(75, starfieldContainer.clientWidth / starfieldContainer.clientHeight, 0.1, 1000);
     const starfieldRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -343,14 +345,14 @@
     const starsGeometry = new THREE.BufferGeometry();
     const starsMaterial = new THREE.PointsMaterial({
         color: 0xffffff,
-        size: 1.5, // Tamaño base de las estrellas
+        size: 1.5,
         transparent: true,
-        opacity: 0.8, // Opacidad base
+        opacity: 0.8,
         blending: THREE.AdditiveBlending,
     });
 
     const starVertices = [];
-    for (let i = 0; i < 5000; i++) { // Mantener un buen número de estrellas
+    for (let i = 0; i < 5000; i++) {
         const x = (Math.random() - 0.5) * 2000;
         const y = (Math.random() - 0.5) * 2000;
         const z = (Math.random() - 0.5) * 2000;
@@ -369,23 +371,21 @@
     }
     window.addEventListener('resize', onStarfieldResize, false);
 
-    // Bucle principal de animación que renderiza las estrellas
     function animate() {
       requestAnimationFrame(animate);
 
       let avg = 0;
-      if (analyser && dataArray) {
+      // Solo intenta obtener datos del analizador si AudioContext está activo y el analizador existe
+      if (audioInitialized && analyser && audioCtx && audioCtx.state === 'running') {
         analyser.getByteFrequencyData(dataArray);
         avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
       }
 
       // --- Parte del Fondo de Estrellas (reacción al audio) ---
-      // Calcular la velocidad base, ajustada por la intensidad del audio
       const minSpeed = 0.5;
       const maxSpeed = 3.0;
       const speedFactor = minSpeed + (avg / 255) * (maxSpeed - minSpeed);
 
-      // Ajustar la velocidad de movimiento en Z (profundidad)
       const positions = stars.geometry.attributes.position.array;
       for (let i = 2; i < positions.length; i += 3) {
           positions[i] -= speedFactor;
@@ -395,52 +395,59 @@
       }
       stars.geometry.attributes.position.needsUpdate = true;
 
-      // Ajustar la velocidad de rotación de las estrellas
       const rotationSpeed = 0.00005 + (avg / 255) * 0.0005;
       stars.rotation.x += rotationSpeed / 2;
       stars.rotation.y += rotationSpeed;
 
-      // --- NUEVA FUNCIONALIDAD: Brillo de las estrellas ---
-      // El brillo de las estrellas reacciona a la intensidad del audio.
-      // avg_normalized va de 0 a 1, reflejando la "energía" de la música.
+      // --- Brillo de las estrellas ---
+      // Si el AudioContext no está corriendo, las estrellas tendrán un brillo base.
+      // Si sí está corriendo y hay música, reaccionarán.
       const avg_normalized = avg / 255;
-      const minOpacity = 0.6; // Opacidad mínima de las estrellas
-      const maxOpacity = 1.0; // Opacidad máxima
-      const minSize = 1.0;   // Tamaño mínimo
-      const maxSize = 2.5;   // Tamaño máximo
+      const baseOpacity = 0.6; // Opacidad base cuando no hay audio o es muy bajo
+      const maxOpacity = 1.0;  // Opacidad máxima con música alta
+      const baseSize = 1.5;    // Tamaño base
+      const maxSize = 3.0;     // Tamaño máximo con música alta (ajustado para ser más notorio)
 
-      // La opacidad y el tamaño ahora oscilan con la música
-      starsMaterial.opacity = minOpacity + avg_normalized * (maxOpacity - minOpacity);
-      starsMaterial.size = minSize + avg_normalized * (maxSize - minSize);
-
-      starsMaterial.needsUpdate = true; // Importante para que los cambios en el material se apliquen
+      if (audioInitialized && audioCtx && audioCtx.state === 'running') {
+          starsMaterial.opacity = baseOpacity + avg_normalized * (maxOpacity - baseOpacity);
+          starsMaterial.size = baseSize + avg_normalized * (maxSize - baseSize);
+      } else {
+          // Si no hay audio o no está inicializado, mantienen un estado base
+          starsMaterial.opacity = baseOpacity;
+          starsMaterial.size = baseSize;
+      }
+      starsMaterial.needsUpdate = true;
 
       starfieldRenderer.render(starfieldScene, starfieldCamera);
     }
 
+    // Modificación clave: Inicializar AudioContext en esta función que es llamada por un clic
     function initAudio() {
-      if (audioCtx && audioCtx.state !== 'closed') {
-          audioCtx.close().then(() => {
-              console.log('AudioContext anterior cerrado.');
-              createAndPlayAudio();
-          }).catch(e => console.error("Error al cerrar AudioContext:", e));
-      } else {
-          createAndPlayAudio();
-      }
-      trackInfo.style.display = 'none';
-    }
-
-    function createAndPlayAudio() {
+      // Si AudioContext no ha sido creado o está en estado 'closed', lo creamos.
+      if (!audioCtx || audioCtx.state === 'closed') {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         source = audioCtx.createMediaElementSource(audio);
         analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256; // 256 es suficiente para obtener el promedio
-        dataArray = new Uint8Array(analyser.frequencyBinCount); // Array para almacenar los datos de frecuencia
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
         source.connect(analyser);
         analyser.connect(audioCtx.destination);
+      }
 
+      // Reanudar el AudioContext si está suspendido (común en móviles)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+          console.log('AudioContext reanudado.');
+          playAudioAndSetup();
+        }).catch(e => console.error("Error al reanudar AudioContext:", e));
+      } else {
+        playAudioAndSetup();
+      }
+    }
+
+    function playAudioAndSetup() {
         audio.play().then(() => {
-            console.log("Audio reproduciéndose.");
+            console.log("Audio reproduciéndose. AudioContext state:", audioCtx.state);
             audioInitialized = true;
             startButton.style.display = 'none';
             stopButton.style.display = 'inline-block';
@@ -450,7 +457,7 @@
             fetchIntervalId = setInterval(fetchNowPlaying, 10000);
         }).catch(e => {
             console.error("Error al reproducir audio:", e);
-            trackInfo.textContent = 'Error al iniciar la radio (requiere interacción)';
+            trackInfo.textContent = 'Error al iniciar la radio (requiere interacción).';
             trackInfo.style.display = 'block';
             startButton.style.display = 'inline-block';
             stopButton.style.display = 'none';
@@ -463,14 +470,15 @@
       trackInfo.textContent = 'Radio Detenida';
       startButton.style.display = 'inline-block';
       stopButton.style.display = 'none';
-      audioInitialized = false;
+      audioInitialized = false; // Desactivar la inicialización del audio
       if (fetchIntervalId) {
           clearInterval(fetchIntervalId);
           fetchIntervalId = null;
       }
       trackInfo.style.display = 'block';
-      if (audioCtx && audioCtx.state !== 'closed') {
-          audioCtx.close().then(() => console.log('AudioContext cerrado.'));
+      // Suspender AudioContext en lugar de cerrarlo, para una reanudación más rápida
+      if (audioCtx && audioCtx.state === 'running') {
+          audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
       }
     }
 
@@ -482,7 +490,6 @@
         location.reload();
     }
 
-    // Funciones para Pantalla Completa
     function toggleFullscreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(err => {
@@ -496,13 +503,14 @@
     async function fetchNowPlaying() {
       try {
         const response = await fetch('https://stream.zeno.fm/udgoxuccigfuv/nowplaying');
-        if (!response.ok) throw new Error('Sin respuesta');
+        if (!response.ok) throw new Error('Sin respuesta del stream.');
         const data = await response.json();
         const title = data?.title || 'Título Desconocido';
         const artist = data?.artist || 'Artista Desconocido';
         trackInfo.textContent = artist ? `${artist} - ${title}` : title;
         document.title = artist ? `${artist} - ${title} | Total Music Radio` : `${title} | Total Music Radio`;
       } catch (e) {
+        console.error("Error al obtener información de la canción:", e);
         trackInfo.textContent = 'Conectando a la Radio...';
         document.title = 'Total Music Radio';
       }
