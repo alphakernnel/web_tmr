@@ -58,10 +58,22 @@
       font-weight: 600;
     }
 
+    /* Estilos para el logo de la radio */
+    #radioLogo {
+      position: absolute;
+      top: 150px; /* Ajusta esta posición para que quede bien con tu header */
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 200px; /* Tamaño máximo del logo para escritorio */
+      height: auto;
+      z-index: 3;
+      filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); /* Sombra para que destaque */
+    }
+
     /* El trackInfo vuelve a su posición original */
     #trackInfo {
       position: absolute;
-      top: 180px; /* Posicionado debajo del header */
+      top: 360px; /* Ajusta esta posición para que quede debajo del logo */
       left: 50%;
       transform: translateX(-50%);
       background-color: transparent; /* Fondo transparente */
@@ -80,21 +92,9 @@
       font-family: 'Montserrat', sans-serif; /* Fuente del cuerpo */
     }
 
+    /* Visualizador ahora es solo el contenedor vacío, ya no renderiza */
     #visualizer {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 60vw; /* 60% del ancho de la ventana */
-      height: 60vh; /* 60% de la altura de la ventana */
-      border: 2px solid #ff9800; /* Borde naranja intenso */
-      box-shadow: 0 0 20px rgba(255, 152, 0, 0.7); /* Sombra para el efecto brillo */
-      z-index: 0;
-    }
-
-    #visualizer canvas {
-      width: 100% !important; /* Asegura que el canvas se ajuste al visualizador */
-      height: 100% !important;
+      display: none; /* Ocultamos el visualizador ya que no se usará */
     }
 
     .bottom-ui {
@@ -139,8 +139,9 @@
       box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
     }
 
-    /* Estilo específico para el botón de refrescar si es diferente */
-    .controls #refreshButton {
+    /* Estilo específico para el botón de refrescar y pantalla completa */
+    .controls #refreshButton,
+    .controls #fullscreenButton {
       padding: 12px 20px; /* Ajuste para el ícono */
       font-size: 1.2em;
     }
@@ -216,16 +217,16 @@
         font-size: 1.2em; /* Reducir tamaño del subtítulo */
       }
 
+      #radioLogo {
+        top: 120px; /* Ajuste para móviles */
+        max-width: 150px; /* Tamaño del logo para móviles */
+      }
+
       #trackInfo {
-        top: 150px; /* Ajustar posición */
+        top: 280px; /* Ajustar posición debajo del logo en móviles */
         font-size: 1.1em;
         padding: 10px 20px;
         min-width: unset; /* Permitir que se encoja más */
-      }
-
-      #visualizer {
-        width: 80vw; /* Hacer el visualizador más grande en relación a la pantalla */
-        height: 80vh;
       }
 
       .bottom-ui {
@@ -270,15 +271,15 @@
         font-size: 1em;
       }
 
-      #trackInfo {
-        top: 120px;
-        font-size: 0.9em;
-        padding: 8px 15px;
+      #radioLogo {
+        top: 90px;
+        max-width: 120px;
       }
 
-      #visualizer {
-        width: 90vw; /* Aún más grande en móviles muy pequeños */
-        height: 70vh; /* Ajuste de altura */
+      #trackInfo {
+        top: 220px;
+        font-size: 0.9em;
+        padding: 8px 15px;
       }
 
       .bottom-ui {
@@ -310,6 +311,8 @@
     <h2>La radio chilena del rockero</h2>
   </div>
 
+  <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
+
   <div id="trackInfo" style="display:none;"></div> <div id="visualizer"></div>
 
   <div class="bottom-ui">
@@ -318,6 +321,7 @@
       <button id="stopButton" style="display:none">Detener Radio</button>
       <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1">
       <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
+      <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
     </div>
   </div>
 
@@ -347,122 +351,15 @@
     const stopButton = document.getElementById('stopButton');
     const volumeControl = document.getElementById('volumeControl');
     const refreshButton = document.getElementById('refreshButton');
+    const fullscreenButton = document.getElementById('fullscreenButton');
     const audio = document.getElementById('audio');
-    const visualizerContainer = document.getElementById('visualizer');
+    const starfieldContainer = document.getElementById('starfield-container'); // Contenedor para las estrellas
     let audioCtx, source, analyser, dataArray, audioInitialized = false;
     let fetchIntervalId;
 
-    // --- Three.js para el Visualizador Principal (Túnel y Rayos) ---
-    const visualizerScene = new THREE.Scene();
-
-    const visualizerCamera = new THREE.PerspectiveCamera(75, visualizerContainer.clientWidth / visualizerContainer.clientHeight, 0.1, 1000);
-    const visualizerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    visualizerRenderer.setSize(visualizerContainer.clientWidth, visualizerContainer.clientHeight);
-    if (visualizerContainer.firstChild) {
-      if (visualizerContainer.firstChild.tagName === 'CANVAS') {
-        visualizerContainer.removeChild(visualizerContainer.firstChild);
-      }
-    }
-    visualizerContainer.appendChild(visualizerRenderer.domElement);
-
-    const segments = 200;
-    const radius = 10;
-    const length = 400;
-    const geometry = new THREE.CylinderGeometry(radius, radius, length, 32, segments, true);
-    const material = new THREE.MeshBasicMaterial({
-      side: THREE.BackSide,
-      wireframe: true,
-      color: 0x00ffff,
-      transparent: true,
-      opacity: 0.8
-    });
-    const tunnel = new THREE.Mesh(geometry, material);
-    tunnel.rotation.x = Math.PI / 2;
-    tunnel.position.z = -length / 2 + visualizerCamera.position.z;
-    visualizerScene.add(tunnel);
-
-    const rays = [];
-    const rayMaterial = new THREE.LineBasicMaterial({
-        color: 0xff00ff,
-        linewidth: 2,
-        transparent: true,
-        opacity: 0.7
-    });
-
-    visualizerCamera.position.z = 20;
-
-    function onVisualizerResize() {
-        visualizerCamera.aspect = visualizerContainer.clientWidth / visualizerContainer.clientHeight;
-        visualizerCamera.updateProjectionMatrix();
-        visualizerRenderer.setSize(visualizerContainer.clientWidth, visualizerContainer.clientHeight);
-    }
-    window.addEventListener('resize', onVisualizerResize, false);
-
-    function animateVisualizer(avg) {
-        const time = Date.now() * 0.001;
-
-        if (tunnel) {
-            const position = tunnel.geometry.attributes.position;
-            const scaleFactor = 0.001 + (avg / 255) * 0.005;
-            for (let i = 0; i < position.count; i++) {
-                const originalX = geometry.attributes.position.getX(i);
-                const originalY = geometry.attributes.position.getY(i);
-                const originalZ = geometry.attributes.position.getZ(i);
-                const angle = Math.atan2(originalY, originalX);
-                const dist = Math.sqrt(originalX * originalX + originalY * originalY);
-                const distortion = Math.sin(originalZ * 0.1 + time * 5 + avg * 0.01) * avg * scaleFactor;
-                const newDist = dist + distortion;
-                position.setX(i, newDist * Math.cos(angle));
-                position.setY(i, newDist * Math.sin(angle));
-                position.setZ(i, originalZ);
-            }
-            position.needsUpdate = true;
-            const hue = (avg / 255) * 0.1 + 0.9;
-            tunnel.material.color.setHSL(hue, 1, 0.6);
-        }
-
-        visualizerCamera.position.z -= 0.1 + (avg / 255) * 0.2;
-        if (visualizerCamera.position.z < -length / 2) {
-            visualizerCamera.position.z = length / 2;
-        }
-
-        if (avg > 90) {
-            const rayCount = Math.floor(avg / 50);
-            for (let r = 0; r < rayCount; r++) {
-                const startPoint = new THREE.Vector3(
-                    (Math.random() - 0.5) * radius * 0.5,
-                    (Math.random() - 0.5) * radius * 0.5,
-                    visualizerCamera.position.z + 5
-                );
-                const endPoint = new THREE.Vector3(
-                    (Math.random() - 0.5) * radius * 2,
-                    (Math.random() - 0.5) * radius * 2,
-                    visualizerCamera.position.z - (Math.random() * length / 4 + 20)
-                );
-
-                const rayGeometry = new THREE.BufferGeometry().setFromPoints([startPoint, endPoint]);
-                const line = new THREE.Line(rayGeometry, rayMaterial.clone());
-                line.material.color.setHSL(Math.random() * 0.1 + 0.9, 1, 0.7);
-                visualizerScene.add(line);
-                rays.push(line);
-            }
-        }
-
-        for (let i = 0; i < rays.length; i++) {
-            rays[i].material.opacity -= 0.008;
-            rays[i].position.z += 0.2;
-            if (rays[i].material.opacity <= 0 || rays[i].position.z > visualizerCamera.position.z + length / 2) {
-                visualizerScene.remove(rays[i]);
-                rays.splice(i, 1);
-                i--;
-            }
-        }
-    }
-
     // --- Three.js para el Fondo de Estrellas ---
-    const starfieldContainer = document.getElementById('starfield-container');
     const starfieldScene = new THREE.Scene();
-    starfieldScene.background = new THREE.Color(0x0a0a0a);
+    starfieldScene.background = new THREE.Color(0x0a0a0a); // Fondo muy oscuro
 
     const starfieldCamera = new THREE.PerspectiveCamera(75, starfieldContainer.clientWidth / starfieldContainer.clientHeight, 0.1, 1000);
     const starfieldRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -479,7 +376,7 @@
     });
 
     const starVertices = [];
-    for (let i = 0; i < 5000; i++) {
+    for (let i = 0; i < 5000; i++) { // Mantener un buen número de estrellas
         const x = (Math.random() - 0.5) * 2000;
         const y = (Math.random() - 0.5) * 2000;
         const z = (Math.random() - 0.5) * 2000;
@@ -498,32 +395,42 @@
     }
     window.addEventListener('resize', onStarfieldResize, false);
 
-    // Bucle principal de animación que renderiza ambas escenas
+    // Bucle principal de animación que renderiza las estrellas
     function animate() {
       requestAnimationFrame(animate);
 
-      // --- Parte del Visualizador de Audio ---
       let avg = 0;
       if (analyser && dataArray) {
         analyser.getByteFrequencyData(dataArray);
         avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
       }
-      animateVisualizer(avg);
-      visualizerRenderer.render(visualizerScene, visualizerCamera);
 
-      // --- Parte del Fondo de Estrellas ---
-      stars.rotation.x += 0.0001;
-      stars.rotation.y += 0.00005;
+      // --- Parte del Fondo de Estrellas (ahora con reacción al audio) ---
+      // Calcular la velocidad base, ajustada por la intensidad del audio
+      // avg va de 0 a 255. Normalizamos a un rango más manejable.
+      // Velocidad mínima (silencio) y máxima (música fuerte)
+      const minSpeed = 0.5; // Velocidad mínima de las estrellas
+      const maxSpeed = 3.0; // Velocidad máxima de las estrellas (puede ajustarse)
+      const speedFactor = minSpeed + (avg / 255) * (maxSpeed - minSpeed);
 
+      // Ajustar la velocidad de movimiento en Z (profundidad)
       const positions = stars.geometry.attributes.position.array;
       for (let i = 2; i < positions.length; i += 3) {
-          positions[i] -= 0.5;
+          positions[i] -= speedFactor; // Mover estrellas hacia adelante (simula movimiento)
+          // Si una estrella se mueve demasiado lejos, la reposicionamos al inicio
           if (positions[i] < starfieldCamera.position.z - 1000) {
               positions[i] = starfieldCamera.position.z + 1000;
           }
+          // Pequeño pulso de opacidad para que titilen
           starsMaterial.opacity = 0.7 + Math.sin(Date.now() * 0.0005 + i) * 0.1;
       }
       stars.geometry.attributes.position.needsUpdate = true;
+
+      // Ajustar la velocidad de rotación de las estrellas
+      const rotationSpeed = 0.00005 + (avg / 255) * 0.0005; // Rotación mínima + ajustada por audio
+      stars.rotation.x += rotationSpeed / 2; // Rotación en X y Y para un efecto 3D
+      stars.rotation.y += rotationSpeed;
+
       starfieldRenderer.render(starfieldScene, starfieldCamera);
     }
 
@@ -543,8 +450,8 @@
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         source = audioCtx.createMediaElementSource(audio);
         analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.fftSize = 256; // 256 es suficiente para obtener el promedio
+        dataArray = new Uint8Array(analyser.frequencyBinCount); // Array para almacenar los datos de frecuencia
         source.connect(analyser);
         analyser.connect(audioCtx.destination);
 
@@ -591,6 +498,17 @@
         location.reload();
     }
 
+    // Funciones para Pantalla Completa
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error(`Error al intentar activar pantalla completa: ${err.message} (${err.name})`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
     async function fetchNowPlaying() {
       try {
         const response = await fetch('https://stream.zeno.fm/udgoxuccigfuv/nowplaying');
@@ -606,11 +524,14 @@
       }
     }
 
+    // Inicializar listeners
     startButton.addEventListener('click', initAudio);
     stopButton.addEventListener('click', stopAudio);
     volumeControl.addEventListener('input', setVolume);
     refreshButton.addEventListener('click', refreshPage);
+    fullscreenButton.addEventListener('click', toggleFullscreen);
 
+    // Iniciar el bucle de animación para el campo de estrellas
     animate();
   </script>
 </body>
