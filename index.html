@@ -30,32 +30,8 @@
     }
 
     .header {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      z-index: 3;
-      color: #ff9800; /* Naranja/ámbar como color secundario */
-      font-family: 'Roboto Condensed', sans-serif; /* Fuente contundente para el header */
-      text-shadow: 0 0 5px #ff9800, 0 0 10px #ff9800; /* Efecto brillo */
-      width: 90%; /* Asegura que no se desborde en pantallas pequeñas */
-      box-sizing: border-box; /* Incluye padding y borde en el ancho */
-    }
-
-    .header h1 {
-      font-size: 3.5em;
-      margin: 0;
-      letter-spacing: 2px; /* Menos espaciado para un look más sólido */
-      font-weight: 700; /* Negrita para impacto */
-    }
-
-    .header h2 {
-      font-size: 1.6em;
-      margin: 5px 0 0; /* Un poco más de espacio debajo del h1 */
-      color: #f44336; /* Rojo para el subtítulo */
-      text-shadow: 0 0 3px #f44336;
-      font-weight: 600;
+      /* Esta sección ya no tiene el título ni el subtítulo */
+      display: none; /* Oculta completamente el contenedor del header si no tiene contenido */
     }
 
     /* Estilos para el logo de la radio */
@@ -307,9 +283,7 @@
 </head>
 <body>
   <div id="starfield-container"></div> <div class="header">
-    <h1>Total Music Radio</h1>
-    <h2>La radio chilena del rockero</h2>
-  </div>
+    </div>
 
   <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
 
@@ -369,9 +343,9 @@
     const starsGeometry = new THREE.BufferGeometry();
     const starsMaterial = new THREE.PointsMaterial({
         color: 0xffffff,
-        size: 1.5,
+        size: 1.5, // Tamaño base de las estrellas
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.8, // Opacidad base
         blending: THREE.AdditiveBlending,
     });
 
@@ -405,31 +379,41 @@
         avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
       }
 
-      // --- Parte del Fondo de Estrellas (ahora con reacción al audio) ---
+      // --- Parte del Fondo de Estrellas (reacción al audio) ---
       // Calcular la velocidad base, ajustada por la intensidad del audio
-      // avg va de 0 a 255. Normalizamos a un rango más manejable.
-      // Velocidad mínima (silencio) y máxima (música fuerte)
-      const minSpeed = 0.5; // Velocidad mínima de las estrellas
-      const maxSpeed = 3.0; // Velocidad máxima de las estrellas (puede ajustarse)
+      const minSpeed = 0.5;
+      const maxSpeed = 3.0;
       const speedFactor = minSpeed + (avg / 255) * (maxSpeed - minSpeed);
 
       // Ajustar la velocidad de movimiento en Z (profundidad)
       const positions = stars.geometry.attributes.position.array;
       for (let i = 2; i < positions.length; i += 3) {
-          positions[i] -= speedFactor; // Mover estrellas hacia adelante (simula movimiento)
-          // Si una estrella se mueve demasiado lejos, la reposicionamos al inicio
+          positions[i] -= speedFactor;
           if (positions[i] < starfieldCamera.position.z - 1000) {
               positions[i] = starfieldCamera.position.z + 1000;
           }
-          // Pequeño pulso de opacidad para que titilen
-          starsMaterial.opacity = 0.7 + Math.sin(Date.now() * 0.0005 + i) * 0.1;
       }
       stars.geometry.attributes.position.needsUpdate = true;
 
       // Ajustar la velocidad de rotación de las estrellas
-      const rotationSpeed = 0.00005 + (avg / 255) * 0.0005; // Rotación mínima + ajustada por audio
-      stars.rotation.x += rotationSpeed / 2; // Rotación en X y Y para un efecto 3D
+      const rotationSpeed = 0.00005 + (avg / 255) * 0.0005;
+      stars.rotation.x += rotationSpeed / 2;
       stars.rotation.y += rotationSpeed;
+
+      // --- NUEVA FUNCIONALIDAD: Brillo de las estrellas ---
+      // El brillo de las estrellas reacciona a la intensidad del audio.
+      // avg_normalized va de 0 a 1, reflejando la "energía" de la música.
+      const avg_normalized = avg / 255;
+      const minOpacity = 0.6; // Opacidad mínima de las estrellas
+      const maxOpacity = 1.0; // Opacidad máxima
+      const minSize = 1.0;   // Tamaño mínimo
+      const maxSize = 2.5;   // Tamaño máximo
+
+      // La opacidad y el tamaño ahora oscilan con la música
+      starsMaterial.opacity = minOpacity + avg_normalized * (maxOpacity - minOpacity);
+      starsMaterial.size = minSize + avg_normalized * (maxSize - minSize);
+
+      starsMaterial.needsUpdate = true; // Importante para que los cambios en el material se apliquen
 
       starfieldRenderer.render(starfieldScene, starfieldCamera);
     }
