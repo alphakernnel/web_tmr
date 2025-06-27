@@ -44,6 +44,17 @@
       height: auto;
       z-index: 3;
       filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); /* Sombra para que destaque */
+      cursor: pointer; /* Añadimos cursor pointer para indicar que es clickeable */
+      transition: transform 0.2s ease-out; /* Transición suave para el efecto de clic */
+    }
+
+    #radioLogo.playing {
+        animation: pulseLogo 1.5s infinite alternate; /* Animación de pulsación cuando la música está sonando */
+    }
+
+    @keyframes pulseLogo {
+        from { transform: translateX(-50%) scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
+        to { transform: translateX(-50%) scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
     }
 
     /* El trackInfo vuelve a su posición original */
@@ -327,11 +338,15 @@
     const refreshButton = document.getElementById('refreshButton');
     const fullscreenButton = document.getElementById('fullscreenButton');
     const audio = document.getElementById('audio');
+    const radioLogo = document.getElementById('radioLogo'); // Nuevo: Referencia al logo
     const starfieldContainer = document.getElementById('starfield-container');
-    let audioCtx = null; // Inicializar como null
+    let audioCtx = null;
     let source, analyser, dataArray;
     let audioInitialized = false;
     let fetchIntervalId;
+
+    // Detección de dispositivo móvil
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
 
     // --- Three.js para el Fondo de Estrellas ---
     const starfieldScene = new THREE.Scene();
@@ -375,7 +390,6 @@
       requestAnimationFrame(animate);
 
       let avg = 0;
-      // Solo intenta obtener datos del analizador si AudioContext está activo y el analizador existe
       if (audioInitialized && analyser && audioCtx && audioCtx.state === 'running') {
         analyser.getByteFrequencyData(dataArray);
         avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
@@ -400,19 +414,16 @@
       stars.rotation.y += rotationSpeed;
 
       // --- Brillo de las estrellas ---
-      // Si el AudioContext no está corriendo, las estrellas tendrán un brillo base.
-      // Si sí está corriendo y hay música, reaccionarán.
       const avg_normalized = avg / 255;
-      const baseOpacity = 0.6; // Opacidad base cuando no hay audio o es muy bajo
-      const maxOpacity = 1.0;  // Opacidad máxima con música alta
-      const baseSize = 1.5;    // Tamaño base
-      const maxSize = 3.0;     // Tamaño máximo con música alta (ajustado para ser más notorio)
+      const baseOpacity = 0.6;
+      const maxOpacity = 1.0;
+      const baseSize = 1.5;
+      const maxSize = 3.0;
 
       if (audioInitialized && audioCtx && audioCtx.state === 'running') {
           starsMaterial.opacity = baseOpacity + avg_normalized * (maxOpacity - baseOpacity);
           starsMaterial.size = baseSize + avg_normalized * (maxSize - baseSize);
       } else {
-          // Si no hay audio o no está inicializado, mantienen un estado base
           starsMaterial.opacity = baseOpacity;
           starsMaterial.size = baseSize;
       }
@@ -449,8 +460,12 @@
         audio.play().then(() => {
             console.log("Audio reproduciéndose. AudioContext state:", audioCtx.state);
             audioInitialized = true;
-            startButton.style.display = 'none';
-            stopButton.style.display = 'inline-block';
+            startButton.style.display = 'none'; // Ocultar el botón de inicio
+            stopButton.style.display = 'inline-block'; // Mostrar el botón de detener
+
+            // Activar la clase 'playing' en el logo
+            radioLogo.classList.add('playing');
+
             trackInfo.style.display = 'block';
             fetchNowPlaying();
             if (fetchIntervalId) clearInterval(fetchIntervalId);
@@ -470,16 +485,26 @@
       trackInfo.textContent = 'Radio Detenida';
       startButton.style.display = 'inline-block';
       stopButton.style.display = 'none';
-      audioInitialized = false; // Desactivar la inicialización del audio
+      audioInitialized = false;
       if (fetchIntervalId) {
           clearInterval(fetchIntervalId);
           fetchIntervalId = null;
       }
       trackInfo.style.display = 'block';
-      // Suspender AudioContext en lugar de cerrarlo, para una reanudación más rápida
+      radioLogo.classList.remove('playing'); // Remover la clase 'playing' del logo
+
       if (audioCtx && audioCtx.state === 'running') {
           audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
       }
+    }
+
+    // NUEVA FUNCIÓN: Toggle Play/Pause para móviles (y PCs también, si lo deseamos)
+    function togglePlayPause() {
+        if (audio.paused) {
+            initAudio(); // Reanudar o iniciar el audio y AudioContext
+        } else {
+            stopAudio(); // Detener el audio y suspender AudioContext
+        }
     }
 
     function setVolume(e) {
@@ -518,10 +543,49 @@
 
     // Inicializar listeners
     startButton.addEventListener('click', initAudio);
-    stopButton.addEventListener('click', stopAudio);
+    stopButton.addEventListener('click', stopAudio); // El botón de stop sigue funcionando
     volumeControl.addEventListener('input', setVolume);
     refreshButton.addEventListener('click', refreshPage);
     fullscreenButton.addEventListener('click', toggleFullscreen);
+
+    // NUEVO: Listener para el logo que actúa como Play/Pause
+    radioLogo.addEventListener('click', function() {
+        if (isMobile) { // Solo si es móvil, el logo actúa como Play/Pause después del primer inicio
+            if (audioInitialized) { // Si ya se ha inicializado el audio una vez
+                togglePlayPause();
+            } else {
+                // Si aún no se ha inicializado, un clic en el logo también lo inicia
+                initAudio();
+            }
+        } else { // En PC, el logo solo actúa como Play/Pause si ya está reproduciendo
+            if (audioInitialized && !audio.paused) { // Solo pausa si ya está reproduciendo
+                stopAudio();
+            } else if (audio.paused) { // Si está en pausa, reanuda
+                initAudio();
+            } else { // Si no ha iniciado, lo inicia
+                initAudio();
+            }
+        }
+    });
+
+
+    // Lógica para mostrar/ocultar botones al inicio según el dispositivo
+    window.onload = function() {
+        if (isMobile) {
+            // En móviles, mostrar el botón de inicio al principio
+            startButton.style.display = 'inline-block';
+            stopButton.style.display = 'none'; // Ocultar el botón de detener inicialmente
+            trackInfo.textContent = 'Toca el logo o el botón para iniciar'; // Mensaje inicial
+            trackInfo.style.display = 'block';
+        } else {
+            // En PC, también se inicia con el botón principal, o el logo si está configurado
+            startButton.style.display = 'inline-block';
+            stopButton.style.display = 'none';
+            trackInfo.textContent = 'Haz clic en "Iniciar Radio" para comenzar';
+            trackInfo.style.display = 'block';
+        }
+    };
+
 
     // Iniciar el bucle de animación para el campo de estrellas
     animate();
