@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Total Music Radio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* Fuentes para un estilo rock/metal moderno */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Esto oculta el scroll de la página */
+      background: #121212; /* Fondo negro intenso */
+      color: #f44336; /* Rojo intenso como color primario */
+      font-family: 'Montserrat', sans-serif; /* Fuente moderna y legible para el cuerpo */
+    }
+
+    /* Contenedor del fondo de estrellas - aseguramos que cubra toda la página */
+    #starfield-container {
+      position: fixed; /* Lo fija en el viewport */
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1; /* Lo coloca detrás de todo lo demás */
+    }
+
+    .header {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 3;
+      color: #ff9800; /* Naranja/ámbar como color secundario */
+      font-family: 'Roboto Condensed', sans-serif; /* Fuente contundente para el header */
+      text-shadow: 0 0 5px #ff9800, 0 0 10px #ff9800; /* Efecto brillo */
+      width: 90%; /* Asegura que no se desborde en pantallas pequeñas */
+      box-sizing: border-box; /* Incluye padding y borde en el ancho */
+    }
+
+    .header h1 {
+      font-size: 3.5em;
+      margin: 0;
+      letter-spacing: 2px; /* Menos espaciado para un look más sólido */
+      font-weight: 700; /* Negrita para impacto */
+    }
+
+    .header h2 {
+      font-size: 1.6em;
+      margin: 5px 0 0; /* Un poco más de espacio debajo del h1 */
+      color: #f44336; /* Rojo para el subtítulo */
+      text-shadow: 0 0 3px #f44336;
+      font-weight: 600;
+    }
+
+    /* El trackInfo vuelve a su posición original */
+    #trackInfo {
+      position: absolute;
+      top: 180px; /* Posicionado debajo del header */
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: transparent; /* Fondo transparente */
+      border: none; /* Sin borde */
+      box-shadow: none; /* Sin sombra de caja */
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 1.3em;
+      text-align: center;
+      min-width: 320px;
+      max-width: 90%; /* Hace que sea responsivo */
+      box-sizing: border-box; /* Incluye padding en el ancho */
+      z-index: 3;
+      color: #fff; /* Texto blanco para la información de la canción */
+      text-shadow: 0 0 2px #fff; /* Sombra para legibilidad */
+      font-family: 'Montserrat', sans-serif; /* Fuente del cuerpo */
+    }
+
+    #visualizer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60vw; /* 60% del ancho de la ventana */
+      height: 60vh; /* 60% de la altura de la ventana */
+      border: 2px solid #ff9800; /* Borde naranja intenso */
+      box-shadow: 0 0 20px rgba(255, 152, 0, 0.7); /* Sombra para el efecto brillo */
+      z-index: 0;
+    }
+
+    #visualizer canvas {
+      width: 100% !important; /* Asegura que el canvas se ajuste al visualizador */
+      height: 100% !important;
+    }
+
+    .bottom-ui {
+      position: absolute;
+      bottom: 120px; /* Ajustado para dejar espacio para las redes sociales */
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      z-index: 2;
+      width: 90%; /* Controla el ancho en pantallas pequeñas */
+      box-sizing: border-box;
+    }
+
+    .controls {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+      justify-content: center; /* Centra los botones cuando se envuelven */
+    }
+
+    .controls button,
+    .controls input[type="range"] {
+      padding: 12px 25px;
+      font-size: 1.1em;
+      background-color: #f44336; /* Botones rojos vibrantes */
+      color: #fff; /* Texto blanco en botones */
+      border: 2px solid #d32f2f; /* Borde rojo oscuro */
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Roboto Condensed', sans-serif; /* Fuente de los botones */
+      font-weight: 700;
+      box-shadow: 0 0 8px rgba(244, 67, 54, 0.6); /* Sombra de brillo para los botones */
+      transition: background-color 0.3s, box-shadow 0.3s;
+      flex-shrink: 0; /* Evita que los botones se encojan demasiado */
+    }
+
+    .controls button:hover {
+      background-color: #d32f2f; /* Rojo más oscuro al pasar el ratón */
+      box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
+    }
+
+    /* Estilo específico para el botón de refrescar si es diferente */
+    .controls #refreshButton {
+      padding: 12px 20px; /* Ajuste para el ícono */
+      font-size: 1.2em;
+    }
+
+    .controls input[type="range"] {
+      width: 250px;
+      -webkit-appearance: none;
+      height: 10px;
+      background: #424242; /* Barra de volumen gris oscuro */
+      outline: none;
+      border-radius: 5px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .controls input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #ff9800; /* Pulgar naranja brillante */
+      border: 2px solid #f57c00; /* Borde naranja oscuro */
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
+    }
+
+    /* Estilos para las redes sociales */
+    .social-links {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 4;
+      background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid #616161; /* Borde gris oscuro */
+      box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
+      flex-wrap: wrap; /* Permite que los iconos se envuelvan */
+      justify-content: center; /* Centra los iconos cuando se envuelven */
+      width: 90%; /* Limita el ancho en pantallas pequeñas */
+      box-sizing: border-box;
+      max-width: 450px; /* Ancho máximo para no ser demasiado grande */
+    }
+
+    .social-links a {
+      color: #fff; /* Iconos blancos por defecto */
+      font-size: 2.2em;
+      transition: color 0.3s, transform 0.3s;
+      text-decoration: none;
+    }
+
+    .social-links a:hover {
+      color: #ff9800; /* Naranja brillante al pasar el mouse */
+      transform: scale(1.2);
+    }
+
+    /* Estilos específicos para algunos iconos con sus colores de marca */
+    .social-links .fa-instagram:hover { color: #E1306C; }
+    .social-links .fa-facebook:hover { color: #3b5998; }
+    .social-links .fa-whatsapp:hover { color: #25D366; }
+    .social-links .fa-coffee:hover { color: #FFDD00; } /* Ko-fi */
+
+    /* --- MEDIA QUERIES PARA RESPONSIVIDAD --- */
+
+    /* Para pantallas medianas y celulares (hasta 768px de ancho) */
+    @media screen and (max-width: 768px) {
+      .header h1 {
+        font-size: 2.5em; /* Reducir tamaño del título */
+      }
+      .header h2 {
+        font-size: 1.2em; /* Reducir tamaño del subtítulo */
+      }
+
+      #trackInfo {
+        top: 150px; /* Ajustar posición */
+        font-size: 1.1em;
+        padding: 10px 20px;
+        min-width: unset; /* Permitir que se encoja más */
+      }
+
+      #visualizer {
+        width: 80vw; /* Hacer el visualizador más grande en relación a la pantalla */
+        height: 80vh;
+      }
+
+      .bottom-ui {
+        bottom: 100px; /* Subir un poco la UI de abajo */
+        gap: 10px;
+      }
+
+      .controls {
+        flex-direction: column; /* Apilar los botones verticalmente */
+        gap: 10px;
+      }
+
+      .controls button,
+      .controls input[type="range"] {
+        width: 80%; /* Hacer que los botones y el slider ocupen más ancho */
+        max-width: 300px; /* Limitar el ancho máximo */
+        padding: 10px 20px;
+        font-size: 1em;
+      }
+
+      .controls input[type="range"] {
+        width: 80%; /* Asegurar que el slider también se ajuste */
+      }
+
+      .social-links {
+        gap: 15px; /* Reducir el espacio entre iconos */
+        padding: 8px 15px;
+        bottom: 10px; /* Subir un poco las redes sociales */
+      }
+
+      .social-links a {
+        font-size: 1.8em; /* Reducir el tamaño de los iconos */
+      }
+    }
+
+    /* Para celulares pequeños (hasta 480px de ancho) */
+    @media screen and (max-width: 480px) {
+      .header h1 {
+        font-size: 2em;
+      }
+      .header h2 {
+        font-size: 1em;
+      }
+
+      #trackInfo {
+        top: 120px;
+        font-size: 0.9em;
+        padding: 8px 15px;
+      }
+
+      #visualizer {
+        width: 90vw; /* Aún más grande en móviles muy pequeños */
+        height: 70vh; /* Ajuste de altura */
+      }
+
+      .bottom-ui {
+        bottom: 80px;
+      }
+
+      .controls button,
+      .controls input[type="range"] {
+        width: 90%; /* Casi el ancho completo */
+        padding: 8px 15px;
+        font-size: 0.9em;
+      }
+
+      .social-links {
+        gap: 10px;
+        padding: 5px 10px;
+      }
+
+      .social-links a {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+</head>
+<body>
+  <div id="starfield-container"></div> <div class="header">
+    <h1>Total Music Radio</h1>
+    <h2>La radio chilena del rockero</h2>
+  </div>
+
+  <div id="trackInfo" style="display:none;"></div> <div id="visualizer"></div>
+
+  <div class="bottom-ui">
+    <div class="controls" id="controlPanel">
+      <button id="startButton">Iniciar Radio</button>
+      <button id="stopButton" style="display:none">Detener Radio</button>
+      <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1">
+      <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
+    </div>
+  </div>
+
+  <audio id="audio" src="https://stream.zeno.fm/udgoxuccigfuv" crossorigin="anonymous" controls hidden></audio>
+
+  <div class="social-links">
+    <a href="https://linktr.ee/tmradio.cl" target="_blank" aria-label="Web Linktree">
+      <i class="fas fa-link"></i>
+    </a>
+    <a href="https://www.instagram.com/totalmusicradio.cl/" target="_blank" aria-label="Instagram">
+      <i class="fab fa-instagram"></i>
+    </a>
+    <a href="https://www.facebook.com/profile.php?id=61556476971552" target="_blank" aria-label="Facebook">
+      <i class="fab fa-facebook"></i>
+    </a>
+    <a href="https://chat.whatsapp.com/EtQV0kcISR7IAYA6BhlGwb" target="_blank" aria-label="WhatsApp Community">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+    <a href="https://ko-fi.com/tmradio" target="_blank" aria-label="Donate a Coffee on Ko-fi">
+      <i class="fas fa-coffee"></i>
+    </a>
+  </div>
+
+  <script>
+    const trackInfo = document.getElementById('trackInfo');
+    const startButton = document.getElementById('startButton');
+    const stopButton = document.getElementById('stopButton');
+    const volumeControl = document.getElementById('volumeControl');
+    const refreshButton = document.getElementById('refreshButton');
+    const audio = document.getElementById('audio');
+    const visualizerContainer = document.getElementById('visualizer');
+    let audioCtx, source, analyser, dataArray, audioInitialized = false;
+    let fetchIntervalId;
+
+    // --- Three.js para el Visualizador Principal (Túnel y Rayos) ---
+    const visualizerScene = new THREE.Scene();
+
+    const visualizerCamera = new THREE.PerspectiveCamera(75, visualizerContainer.clientWidth / visualizerContainer.clientHeight, 0.1, 1000);
+    const visualizerRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    visualizerRenderer.setSize(visualizerContainer.clientWidth, visualizerContainer.clientHeight);
+    if (visualizerContainer.firstChild) {
+      if (visualizerContainer.firstChild.tagName === 'CANVAS') {
+        visualizerContainer.removeChild(visualizerContainer.firstChild);
+      }
+    }
+    visualizerContainer.appendChild(visualizerRenderer.domElement);
+
+    const segments = 200;
+    const radius = 10;
+    const length = 400;
+    const geometry = new THREE.CylinderGeometry(radius, radius, length, 32, segments, true);
+    const material = new THREE.MeshBasicMaterial({
+      side: THREE.BackSide,
+      wireframe: true,
+      color: 0x00ffff,
+      transparent: true,
+      opacity: 0.8
+    });
+    const tunnel = new THREE.Mesh(geometry, material);
+    tunnel.rotation.x = Math.PI / 2;
+    tunnel.position.z = -length / 2 + visualizerCamera.position.z;
+    visualizerScene.add(tunnel);
+
+    const rays = [];
+    const rayMaterial = new THREE.LineBasicMaterial({
+        color: 0xff00ff,
+        linewidth: 2,
+        transparent: true,
+        opacity: 0.7
+    });
+
+    visualizerCamera.position.z = 20;
+
+    function onVisualizerResize() {
+        visualizerCamera.aspect = visualizerContainer.clientWidth / visualizerContainer.clientHeight;
+        visualizerCamera.updateProjectionMatrix();
+        visualizerRenderer.setSize(visualizerContainer.clientWidth, visualizerContainer.clientHeight);
+    }
+    window.addEventListener('resize', onVisualizerResize, false);
+
+    function animateVisualizer(avg) {
+        const time = Date.now() * 0.001;
+
+        if (tunnel) {
+            const position = tunnel.geometry.attributes.position;
+            const scaleFactor = 0.001 + (avg / 255) * 0.005;
+            for (let i = 0; i < position.count; i++) {
+                const originalX = geometry.attributes.position.getX(i);
+                const originalY = geometry.attributes.position.getY(i);
+                const originalZ = geometry.attributes.position.getZ(i);
+                const angle = Math.atan2(originalY, originalX);
+                const dist = Math.sqrt(originalX * originalX + originalY * originalY);
+                const distortion = Math.sin(originalZ * 0.1 + time * 5 + avg * 0.01) * avg * scaleFactor;
+                const newDist = dist + distortion;
+                position.setX(i, newDist * Math.cos(angle));
+                position.setY(i, newDist * Math.sin(angle));
+                position.setZ(i, originalZ);
+            }
+            position.needsUpdate = true;
+            const hue = (avg / 255) * 0.1 + 0.9;
+            tunnel.material.color.setHSL(hue, 1, 0.6);
+        }
+
+        visualizerCamera.position.z -= 0.1 + (avg / 255) * 0.2;
+        if (visualizerCamera.position.z < -length / 2) {
+            visualizerCamera.position.z = length / 2;
+        }
+
+        if (avg > 90) {
+            const rayCount = Math.floor(avg / 50);
+            for (let r = 0; r < rayCount; r++) {
+                const startPoint = new THREE.Vector3(
+                    (Math.random() - 0.5) * radius * 0.5,
+                    (Math.random() - 0.5) * radius * 0.5,
+                    visualizerCamera.position.z + 5
+                );
+                const endPoint = new THREE.Vector3(
+                    (Math.random() - 0.5) * radius * 2,
+                    (Math.random() - 0.5) * radius * 2,
+                    visualizerCamera.position.z - (Math.random() * length / 4 + 20)
+                );
+
+                const rayGeometry = new THREE.BufferGeometry().setFromPoints([startPoint, endPoint]);
+                const line = new THREE.Line(rayGeometry, rayMaterial.clone());
+                line.material.color.setHSL(Math.random() * 0.1 + 0.9, 1, 0.7);
+                visualizerScene.add(line);
+                rays.push(line);
+            }
+        }
+
+        for (let i = 0; i < rays.length; i++) {
+            rays[i].material.opacity -= 0.008;
+            rays[i].position.z += 0.2;
+            if (rays[i].material.opacity <= 0 || rays[i].position.z > visualizerCamera.position.z + length / 2) {
+                visualizerScene.remove(rays[i]);
+                rays.splice(i, 1);
+                i--;
+            }
+        }
+    }
+
+    // --- Three.js para el Fondo de Estrellas ---
+    const starfieldContainer = document.getElementById('starfield-container');
+    const starfieldScene = new THREE.Scene();
+    starfieldScene.background = new THREE.Color(0x0a0a0a);
+
+    const starfieldCamera = new THREE.PerspectiveCamera(75, starfieldContainer.clientWidth / starfieldContainer.clientHeight, 0.1, 1000);
+    const starfieldRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    starfieldRenderer.setSize(starfieldContainer.clientWidth, starfieldContainer.clientHeight);
+    starfieldContainer.appendChild(starfieldRenderer.domElement);
+
+    const starsGeometry = new THREE.BufferGeometry();
+    const starsMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 1.5,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending,
+    });
+
+    const starVertices = [];
+    for (let i = 0; i < 5000; i++) {
+        const x = (Math.random() - 0.5) * 2000;
+        const y = (Math.random() - 0.5) * 2000;
+        const z = (Math.random() - 0.5) * 2000;
+        starVertices.push(x, y, z);
+    }
+    starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    starfieldScene.add(stars);
+
+    starfieldCamera.position.z = 500;
+
+    function onStarfieldResize() {
+        starfieldCamera.aspect = starfieldContainer.clientWidth / starfieldContainer.clientHeight;
+        starfieldCamera.updateProjectionMatrix();
+        starfieldRenderer.setSize(starfieldContainer.clientWidth, starfieldContainer.clientHeight);
+    }
+    window.addEventListener('resize', onStarfieldResize, false);
+
+    // Bucle principal de animación que renderiza ambas escenas
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // --- Parte del Visualizador de Audio ---
+      let avg = 0;
+      if (analyser && dataArray) {
+        analyser.getByteFrequencyData(dataArray);
+        avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+      }
+      animateVisualizer(avg);
+      visualizerRenderer.render(visualizerScene, visualizerCamera);
+
+      // --- Parte del Fondo de Estrellas ---
+      stars.rotation.x += 0.0001;
+      stars.rotation.y += 0.00005;
+
+      const positions = stars.geometry.attributes.position.array;
+      for (let i = 2; i < positions.length; i += 3) {
+          positions[i] -= 0.5;
+          if (positions[i] < starfieldCamera.position.z - 1000) {
+              positions[i] = starfieldCamera.position.z + 1000;
+          }
+          starsMaterial.opacity = 0.7 + Math.sin(Date.now() * 0.0005 + i) * 0.1;
+      }
+      stars.geometry.attributes.position.needsUpdate = true;
+      starfieldRenderer.render(starfieldScene, starfieldCamera);
+    }
+
+    function initAudio() {
+      if (audioCtx && audioCtx.state !== 'closed') {
+          audioCtx.close().then(() => {
+              console.log('AudioContext anterior cerrado.');
+              createAndPlayAudio();
+          }).catch(e => console.error("Error al cerrar AudioContext:", e));
+      } else {
+          createAndPlayAudio();
+      }
+      trackInfo.style.display = 'none';
+    }
+
+    function createAndPlayAudio() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        source = audioCtx.createMediaElementSource(audio);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+
+        audio.play().then(() => {
+            console.log("Audio reproduciéndose.");
+            audioInitialized = true;
+            startButton.style.display = 'none';
+            stopButton.style.display = 'inline-block';
+            trackInfo.style.display = 'block';
+            fetchNowPlaying();
+            if (fetchIntervalId) clearInterval(fetchIntervalId);
+            fetchIntervalId = setInterval(fetchNowPlaying, 10000);
+        }).catch(e => {
+            console.error("Error al reproducir audio:", e);
+            trackInfo.textContent = 'Error al iniciar la radio (requiere interacción)';
+            trackInfo.style.display = 'block';
+            startButton.style.display = 'inline-block';
+            stopButton.style.display = 'none';
+        });
+    }
+
+    function stopAudio() {
+      audio.pause();
+      audio.currentTime = 0;
+      trackInfo.textContent = 'Radio Detenida';
+      startButton.style.display = 'inline-block';
+      stopButton.style.display = 'none';
+      audioInitialized = false;
+      if (fetchIntervalId) {
+          clearInterval(fetchIntervalId);
+          fetchIntervalId = null;
+      }
+      trackInfo.style.display = 'block';
+      if (audioCtx && audioCtx.state !== 'closed') {
+          audioCtx.close().then(() => console.log('AudioContext cerrado.'));
+      }
+    }
+
+    function setVolume(e) {
+      audio.volume = e.target.value;
+    }
+
+    function refreshPage() {
+        location.reload();
+    }
+
+    async function fetchNowPlaying() {
+      try {
+        const response = await fetch('https://stream.zeno.fm/udgoxuccigfuv/nowplaying');
+        if (!response.ok) throw new Error('Sin respuesta');
+        const data = await response.json();
+        const title = data?.title || 'Título Desconocido';
+        const artist = data?.artist || 'Artista Desconocido';
+        trackInfo.textContent = artist ? `${artist} - ${title}` : title;
+        document.title = artist ? `${artist} - ${title} | Total Music Radio` : `${title} | Total Music Radio`;
+      } catch (e) {
+        trackInfo.textContent = 'Conectando a la Radio...';
+        document.title = 'Total Music Radio';
+      }
+    }
+
+    startButton.addEventListener('click', initAudio);
+    stopButton.addEventListener('click', stopAudio);
+    volumeControl.addEventListener('input', setVolume);
+    refreshButton.addEventListener('click', refreshPage);
+
+    animate();
+  </script>
+</body>
+</html>
