@@ -322,7 +322,7 @@
             const nextImageSrc = imageFolderPath + images[currentImageIndex] + '?raw=true';
             imageCarousel.src = nextImageSrc; // Cambia la fuente de la imagen
 
-            // Forzar un "reflow" para reiniciar la transición
+            // === AÑADIDO: FORZAR REFLOW PARA ACTIVAR LA TRANSICIÓN ===
             void imageCarousel.offsetWidth;
 
             imageCarousel.classList.add('active'); // Mostrar la nueva imagen con fade in
@@ -333,17 +333,18 @@
     function startImageLoop() {
         if (imageLoopIntervalId) clearInterval(imageLoopIntervalId); // Limpiar cualquier intervalo anterior
 
-        // Inicia la primera imagen (sin espera inicial)
+        // Inicia la primera imagen (sin espera inicial de fade-out)
         if (images.length > 0) {
             currentImageIndex = Math.floor(Math.random() * images.length);
             const initialImageSrc = imageFolderPath + images[currentImageIndex] + '?raw=true';
             imageCarousel.src = initialImageSrc;
+            // === AÑADIDO: FORZAR REFLOW PARA LA PRIMERA IMAGEN TAMBIÉN ===
+            void imageCarousel.offsetWidth;
             imageCarousel.classList.add('active'); // Muestra la primera imagen con fade in
         }
 
         // El intervalo completo es el tiempo de fade in + tiempo de fade out.
-        // Después de la primera imagen (90s fade-in), se espera 90s para el fade-out,
-        // Y luego se inicia el ciclo completo de 180s para las siguientes.
+        // Se llama a showNextImage cada 180 segundos para el ciclo completo.
         imageLoopIntervalId = setInterval(showNextImage, 180 * 1000); // 90s fade in + 90s fade out = 180 segundos
     }
 
