@@ -111,9 +111,9 @@
       top: 70%; /* Ajustado para móviles, debajo del carrusel */
       left: 50%;
       transform: translateX(-50%);
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
       border: none;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: 0 0 10px rgba(0,0,0,0.5); /* Sombra para que se vea */
       padding: 10px 20px;
       border-radius: 8px;
       font-size: 1.1em;
@@ -175,7 +175,7 @@
     }
 
     .controls #volumeControl {
-        display: none !important;
+        display: none !important; /* Oculta el control de volumen */
     }
 
     .social-links {
@@ -303,53 +303,47 @@
 
     const imageFolderPath = 'https://github.com/alphakernnel/web_tmr/blob/main/portada%20movil%2025/'; // Ruta a la carpeta de imágenes en GitHub Pages
     let currentImageIndex = -1; // Para llevar el control de la imagen actual
-    let currentImageElement = null; // Para la imagen actual
 
     // Función para mostrar la siguiente imagen con fade in/out
     function showNextImage() {
         if (images.length === 0) return;
 
         // Ocultar la imagen actual si existe, con fade out
-        if (currentImageElement) {
-            currentImageElement.classList.remove('active');
-            // Esperar el tiempo de fade out antes de cambiar la imagen
-            setTimeout(() => {
-                // Seleccionar una imagen aleatoria que no sea la actual (si es posible)
-                let newIndex;
-                do {
-                    newIndex = Math.floor(Math.random() * images.length);
-                } while (newIndex === currentImageIndex && images.length > 1); // Evitar la misma imagen si hay más de una
+        imageCarousel.classList.remove('active');
+        // Esperar el tiempo de fade out antes de cambiar la imagen
+        setTimeout(() => {
+            // Seleccionar una imagen aleatoria que no sea la actual (si es posible)
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * images.length);
+            } while (newIndex === currentImageIndex && images.length > 1); // Evitar la misma imagen si hay más de una
 
-                currentImageIndex = newIndex;
-                const nextImageSrc = imageFolderPath + images[currentImageIndex] + '?raw=true';
-                imageCarousel.src = nextImageSrc; // Cambia la fuente de la imagen
-
-                // Forzar un "reflow" para reiniciar la transición
-                void imageCarousel.offsetWidth;
-
-                imageCarousel.classList.add('active'); // Mostrar la nueva imagen con fade in
-            }, 90 * 1000); // Esperar 90 segundos para el fade out
-        } else {
-             // Primera vez que se muestra una imagen
-            currentImageIndex = Math.floor(Math.random() * images.length);
+            currentImageIndex = newIndex;
             const nextImageSrc = imageFolderPath + images[currentImageIndex] + '?raw=true';
-            imageCarousel.src = nextImageSrc;
-            imageCarousel.classList.add('active'); // Mostrar la primera imagen con fade in
-        }
+            imageCarousel.src = nextImageSrc; // Cambia la fuente de la imagen
+
+            // Forzar un "reflow" para reiniciar la transición
+            void imageCarousel.offsetWidth;
+
+            imageCarousel.classList.add('active'); // Mostrar la nueva imagen con fade in
+        }, 90 * 1000); // Esperar 90 segundos para el fade out
     }
 
     // Inicia el loop de imágenes
     function startImageLoop() {
         if (imageLoopIntervalId) clearInterval(imageLoopIntervalId); // Limpiar cualquier intervalo anterior
 
-        showNextImage(); // Muestra la primera imagen inmediatamente
-        // El intervalo completo es el tiempo de fade in + tiempo de visualización + tiempo de fade out
-        // Queremos que cada imagen esté completamente visible por un tiempo y luego comience su fade out.
-        // Si el fade in/out es 90s, una imagen tardará 90s en aparecer y 90s en desaparecer.
-        // Para que cada imagen se vea 90s en su brillo máximo y luego desaparezca, el ciclo completo debe ser:
-        // (90s fade in) + (X segundos de visibilidad total) + (90s fade out)
-        // Si queremos que el ciclo total por imagen sea de 180 segundos (90 fade in + 90 fade out)
-        // la función showNextImage se llama cada 180 segundos.
+        // Inicia la primera imagen (sin espera inicial)
+        if (images.length > 0) {
+            currentImageIndex = Math.floor(Math.random() * images.length);
+            const initialImageSrc = imageFolderPath + images[currentImageIndex] + '?raw=true';
+            imageCarousel.src = initialImageSrc;
+            imageCarousel.classList.add('active'); // Muestra la primera imagen con fade in
+        }
+
+        // El intervalo completo es el tiempo de fade in + tiempo de fade out.
+        // Después de la primera imagen (90s fade-in), se espera 90s para el fade-out,
+        // Y luego se inicia el ciclo completo de 180s para las siguientes.
         imageLoopIntervalId = setInterval(showNextImage, 180 * 1000); // 90s fade in + 90s fade out = 180 segundos
     }
 
@@ -421,6 +415,7 @@
           imageLoopIntervalId = null;
       }
       imageCarousel.classList.remove('active'); // Ocultar la imagen al detener
+      imageCarousel.src = ""; // Vaciar la imagen para que no quede estática
       trackInfo.style.display = 'block';
       radioLogo.classList.remove('playing'); // Detener pulsación del logo
 
@@ -486,7 +481,7 @@
     window.onload = function() {
         initialMessage.style.display = 'block';
         trackInfo.style.display = 'none';
-        // No iniciar el carrusel hasta que la radio inicie
+        // El carrusel solo se inicia cuando la radio reproduce
     };
 
     animate(); // Iniciar el bucle de animación
