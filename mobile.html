@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Total Music Radio</title>
+  <title>Total Music Radio (Móvil)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     /* Fuentes para un estilo rock/metal moderno */
@@ -13,80 +13,123 @@
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden; /* Esto oculta el scroll de la página */
+      overflow: hidden;
       background: #121212; /* Fondo negro intenso */
-      color: #f44336; /* Rojo intenso como color primario */
-      font-family: 'Montserrat', sans-serif; /* Fuente moderna y legible para el cuerpo */
+      color: #f44336;
+      font-family: 'Montserrat', sans-serif;
     }
 
-    /* Contenedor del fondo de estrellas - aseguramos que cubra toda la página */
-    #starfield-container {
-      position: fixed; /* Lo fija en el viewport */
+    /* Fondo estático para móvil (base, las imágenes del carrusel irán por encima) */
+    body::before {
+      content: "";
+      position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1; /* Lo coloca detrás de todo lo demás */
+      background: url('https://github.com/alphakernnel/web_tmr/blob/main/background_mobile.jpg?raw=true') no-repeat center center/cover;
+      filter: brightness(0.4); /* Más oscuro para que las imágenes destaquen */
+      z-index: -1;
     }
 
-    .header {
-      /* Esta sección ya no tiene el título ni el subtítulo */
-      display: none; /* Oculta completamente el contenedor del header si no tiene contenido */
+    /* Contenedor para las imágenes del carrusel */
+    #image-carousel-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50%; /* Ocupa el 50% del ancho de la pantalla */
+      height: auto; /* Altura automática para mantener la proporción */
+      max-width: 500px; /* Tamaño máximo para evitar que sea demasiado grande en tablets */
+      max-height: 50vh; /* Altura máxima para no cubrirlo todo */
+      overflow: hidden; /* Asegura que la imagen no se desborde */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 0; /* Colócalo debajo del logo y la info de la canción */
+    }
+
+    #image-carousel {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; /* Ajusta la imagen dentro del contenedor manteniendo proporciones */
+      opacity: 0; /* Inicio oculto para el fade-in */
+      transition: opacity 90s ease-in-out; /* Transición para el fade */
+      filter: drop-shadow(0 0 15px rgba(255, 152, 0, 0.5)); /* Sombra para que flote */
+    }
+
+    #image-carousel.active {
+      opacity: 1; /* Para que la imagen se muestre con opacidad completa */
     }
 
     /* Estilos para el logo de la radio */
     #radioLogo {
       position: absolute;
-      top: 150px; /* Ajusta esta posición para que quede bien con tu header */
+      top: 15%; /* Ajusta esta posición para que no choque con la imagen */
       left: 50%;
       transform: translateX(-50%);
-      max-width: 200px; /* Tamaño máximo del logo para escritorio */
+      max-width: 200px;
       height: auto;
       z-index: 3;
-      filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); /* Sombra para que destaque */
-      cursor: pointer; /* Añadimos cursor pointer para indicar que es clickeable */
-      transition: transform 0.2s ease-out; /* Transición suave para el efecto de clic */
+      filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7));
+      cursor: pointer;
+      transition: transform 0.2s ease-out, filter 0.3s ease;
     }
 
     #radioLogo.playing {
-        animation: pulseLogo 1.5s infinite alternate; /* Animación de pulsación cuando la música está sonando */
+        animation: pulseLogoMobile 1.5s infinite alternate;
     }
 
-    @keyframes pulseLogo {
+    @keyframes pulseLogoMobile {
         from { transform: translateX(-50%) scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
-        to { transform: translateX(-50%) scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
+        to { transform: translateX(-50%) scale(1.08); filter: drop-shadow(0 0 25px rgba(255, 152, 0, 1)); }
     }
+
+    /* Mensaje de inicio, ahora más prominente para móviles */
+    #initialMessage {
+        position: absolute;
+        top: 35%; /* Debajo del logo y por encima del carrusel */
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fff;
+        font-size: 1.2em;
+        text-align: center;
+        width: 90%;
+        max-width: 300px;
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        z-index: 4;
+        font-family: 'Roboto Condensed', sans-serif;
+    }
+
 
     /* El trackInfo vuelve a su posición original */
     #trackInfo {
       position: absolute;
-      top: 360px; /* Ajusta esta posición para que quede debajo del logo */
+      top: 70%; /* Ajustado para móviles, debajo del carrusel */
       left: 50%;
       transform: translateX(-50%);
-      background-color: transparent; /* Fondo transparente */
-      border: none; /* Sin borde */
-      box-shadow: none; /* Sin sombra de caja */
-      padding: 12px 25px;
+      background-color: rgba(0, 0, 0, 0.7);
+      border: none;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      padding: 10px 20px;
       border-radius: 8px;
-      font-size: 1.3em;
+      font-size: 1.1em;
       text-align: center;
-      min-width: 320px;
-      max-width: 90%; /* Hace que sea responsivo */
-      box-sizing: border-box; /* Incluye padding en el ancho */
+      min-width: 280px;
+      max-width: 90%;
+      box-sizing: border-box;
       z-index: 3;
-      color: #fff; /* Texto blanco para la información de la canción */
-      text-shadow: 0 0 2px #fff; /* Sombra para legibilidad */
-      font-family: 'Montserrat', sans-serif; /* Fuente del cuerpo */
-    }
-
-    /* Visualizador ahora es solo el contenedor vacío, ya no renderiza */
-    #visualizer {
-      display: none; /* Ocultamos el visualizador ya que no se usará */
+      color: #fff;
+      text-shadow: 0 0 2px #fff;
+      font-family: 'Montserrat', sans-serif;
     }
 
     .bottom-ui {
       position: absolute;
-      bottom: 120px; /* Ajustado para dejar espacio para las redes sociales */
+      bottom: 100px; /* Ajustado para móviles */
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -94,67 +137,47 @@
       align-items: center;
       gap: 15px;
       z-index: 2;
-      width: 90%; /* Controla el ancho en pantallas pequeñas */
+      width: 90%;
       box-sizing: border-box;
     }
 
     .controls {
       display: flex;
       gap: 15px;
-      flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
-      justify-content: center; /* Centra los botones cuando se envuelven */
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
-    .controls button,
-    .controls input[type="range"] {
+    .controls button {
       padding: 12px 25px;
       font-size: 1.1em;
-      background-color: #f44336; /* Botones rojos vibrantes */
-      color: #fff; /* Texto blanco en botones */
-      border: 2px solid #d32f2f; /* Borde rojo oscuro */
+      background-color: #f44336;
+      color: #fff;
+      border: 2px solid #d32f2f;
       border-radius: 8px;
       cursor: pointer;
-      font-family: 'Roboto Condensed', sans-serif; /* Fuente de los botones */
+      font-family: 'Roboto Condensed', sans-serif;
       font-weight: 700;
-      box-shadow: 0 0 8px rgba(244, 67, 54, 0.6); /* Sombra de brillo para los botones */
+      box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
       transition: background-color 0.3s, box-shadow 0.3s;
-      flex-shrink: 0; /* Evita que los botones se encojan demasiado */
+      flex-shrink: 0;
     }
 
     .controls button:hover {
-      background-color: #d32f2f; /* Rojo más oscuro al pasar el ratón */
+      background-color: #d32f2f;
       box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
     }
 
-    /* Estilo específico para el botón de refrescar y pantalla completa */
     .controls #refreshButton,
     .controls #fullscreenButton {
-      padding: 12px 20px; /* Ajuste para el ícono */
+      padding: 12px 20px;
       font-size: 1.2em;
     }
 
-    .controls input[type="range"] {
-      width: 250px;
-      -webkit-appearance: none;
-      height: 10px;
-      background: #424242; /* Barra de volumen gris oscuro */
-      outline: none;
-      border-radius: 5px;
-      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    .controls #volumeControl {
+        display: none !important;
     }
 
-    .controls input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      background: #ff9800; /* Pulgar naranja brillante */
-      border: 2px solid #f57c00; /* Borde naranja oscuro */
-      border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
-    }
-
-    /* Estilos para las redes sociales */
     .social-links {
       position: fixed;
       bottom: 20px;
@@ -163,148 +186,74 @@
       display: flex;
       gap: 20px;
       z-index: 4;
-      background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+      background-color: rgba(0, 0, 0, 0.7);
       padding: 10px 20px;
       border-radius: 10px;
-      border: 1px solid #616161; /* Borde gris oscuro */
+      border: 1px solid #616161;
       box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
-      flex-wrap: wrap; /* Permite que los iconos se envuelvan */
-      justify-content: center; /* Centra los iconos cuando se envuelven */
-      width: 90%; /* Limita el ancho en pantallas pequeñas */
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 90%;
       box-sizing: border-box;
-      max-width: 450px; /* Ancho máximo para no ser demasiado grande */
+      max-width: 450px;
     }
 
     .social-links a {
-      color: #fff; /* Iconos blancos por defecto */
+      color: #fff;
       font-size: 2.2em;
       transition: color 0.3s, transform 0.3s;
       text-decoration: none;
     }
 
     .social-links a:hover {
-      color: #ff9800; /* Naranja brillante al pasar el mouse */
+      color: #ff9800;
       transform: scale(1.2);
     }
 
-    /* Estilos específicos para algunos iconos con sus colores de marca */
     .social-links .fa-instagram:hover { color: #E1306C; }
     .social-links .fa-facebook:hover { color: #3b5998; }
     .social-links .fa-whatsapp:hover { color: #25D366; }
-    .social-links .fa-coffee:hover { color: #FFDD00; } /* Ko-fi */
+    .social-links .fa-coffee:hover { color: #FFDD00; }
 
-    /* --- MEDIA QUERIES PARA RESPONSIVIDAD --- */
-
-    /* Para pantallas medianas y celulares (hasta 768px de ancho) */
+    /* MEDIA QUERIES para asegurar responsividad */
     @media screen and (max-width: 768px) {
-      .header h1 {
-        font-size: 2.5em; /* Reducir tamaño del título */
-      }
-      .header h2 {
-        font-size: 1.2em; /* Reducir tamaño del subtítulo */
-      }
-
-      #radioLogo {
-        top: 120px; /* Ajuste para móviles */
-        max-width: 150px; /* Tamaño del logo para móviles */
-      }
-
-      #trackInfo {
-        top: 280px; /* Ajustar posición debajo del logo en móviles */
-        font-size: 1.1em;
-        padding: 10px 20px;
-        min-width: unset; /* Permitir que se encoja más */
-      }
-
-      .bottom-ui {
-        bottom: 100px; /* Subir un poco la UI de abajo */
-        gap: 10px;
-      }
-
-      .controls {
-        flex-direction: column; /* Apilar los botones verticalmente */
-        gap: 10px;
-      }
-
-      .controls button,
-      .controls input[type="range"] {
-        width: 80%; /* Hacer que los botones y el slider ocupen más ancho */
-        max-width: 300px; /* Limitar el ancho máximo */
-        padding: 10px 20px;
-        font-size: 1em;
-      }
-
-      .controls input[type="range"] {
-        width: 80%; /* Asegurar que el slider también se ajuste */
-      }
-
-      .social-links {
-        gap: 15px; /* Reducir el espacio entre iconos */
-        padding: 8px 15px;
-        bottom: 10px; /* Subir un poco las redes sociales */
-      }
-
-      .social-links a {
-        font-size: 1.8em; /* Reducir el tamaño de los iconos */
-      }
+        #radioLogo { top: 12%; max-width: 180px; }
+        #initialMessage { top: 30%; font-size: 1.1em; }
+        #image-carousel-container { width: 60%; max-height: 40vh; } /* Ajuste para tablets */
+        #trackInfo { top: 65%; font-size: 1em; padding: 8px 15px; }
+        .bottom-ui { bottom: 80px; gap: 10px; }
+        .controls button { padding: 10px 20px; font-size: 1em; }
+        .social-links { gap: 15px; padding: 8px 15px; bottom: 10px; }
+        .social-links a { font-size: 1.8em; }
     }
 
-    /* Para celulares pequeños (hasta 480px de ancho) */
     @media screen and (max-width: 480px) {
-      .header h1 {
-        font-size: 2em;
-      }
-      .header h2 {
-        font-size: 1em;
-      }
-
-      #radioLogo {
-        top: 90px;
-        max-width: 120px;
-      }
-
-      #trackInfo {
-        top: 220px;
-        font-size: 0.9em;
-        padding: 8px 15px;
-      }
-
-      .bottom-ui {
-        bottom: 80px;
-      }
-
-      .controls button,
-      .controls input[type="range"] {
-        width: 90%; /* Casi el ancho completo */
-        padding: 8px 15px;
-        font-size: 0.9em;
-      }
-
-      .social-links {
-        gap: 10px;
-        padding: 5px 10px;
-      }
-
-      .social-links a {
-        font-size: 1.5em;
-      }
+        #radioLogo { top: 10%; max-width: 150px; }
+        #initialMessage { top: 28%; font-size: 1em; }
+        #image-carousel-container { width: 70%; max-height: 35vh; } /* Ajuste para móviles pequeños */
+        #trackInfo { top: 62%; font-size: 0.9em; padding: 7px 12px; }
+        .bottom-ui { bottom: 60px; }
+        .controls button { padding: 8px 15px; font-size: 0.9em; }
+        .social-links { gap: 10px; padding: 5px 10px; }
+        .social-links a { font-size: 1.5em; }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
-  <div id="starfield-container"></div> <div class="header">
-    </div>
+  <div id="image-carousel-container">
+    <img id="image-carousel" src="" alt="Portada del Reproductor">
+  </div>
 
   <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
 
-  <div id="trackInfo" style="display:none;"></div> <div id="visualizer"></div>
+  <div id="initialMessage">Toca el logo o el botón para iniciar la radio</div>
+
+  <div id="trackInfo" style="display:none;"></div>
 
   <div class="bottom-ui">
     <div class="controls" id="controlPanel">
       <button id="startButton">Iniciar Radio</button>
       <button id="stopButton" style="display:none">Detener Radio</button>
-      <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1">
       <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
       <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
     </div>
@@ -334,107 +283,84 @@
     const trackInfo = document.getElementById('trackInfo');
     const startButton = document.getElementById('startButton');
     const stopButton = document.getElementById('stopButton');
-    const volumeControl = document.getElementById('volumeControl');
     const refreshButton = document.getElementById('refreshButton');
     const fullscreenButton = document.getElementById('fullscreenButton');
     const audio = document.getElementById('audio');
-    const radioLogo = document.getElementById('radioLogo'); // Nuevo: Referencia al logo
-    const starfieldContainer = document.getElementById('starfield-container');
+    const radioLogo = document.getElementById('radioLogo');
+    const initialMessage = document.getElementById('initialMessage');
+    const imageCarousel = document.getElementById('image-carousel'); // Referencia a la imagen del carrusel
+
     let audioCtx = null;
     let source, analyser, dataArray;
     let audioInitialized = false;
     let fetchIntervalId;
+    let imageLoopIntervalId; // ID para el intervalo del loop de imágenes
 
-    // Detección de dispositivo móvil
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-
-    // --- Three.js para el Fondo de Estrellas ---
-    const starfieldScene = new THREE.Scene();
-    starfieldScene.background = new THREE.Color(0x0a0a0a);
-
-    const starfieldCamera = new THREE.PerspectiveCamera(75, starfieldContainer.clientWidth / starfieldContainer.clientHeight, 0.1, 1000);
-    const starfieldRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    starfieldRenderer.setSize(starfieldContainer.clientWidth, starfieldContainer.clientHeight);
-    starfieldContainer.appendChild(starfieldRenderer.domElement);
-
-    const starsGeometry = new THREE.BufferGeometry();
-    const starsMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 1.5,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending,
-    });
-
-    const starVertices = [];
-    for (let i = 0; i < 5000; i++) {
-        const x = (Math.random() - 0.5) * 2000;
-        const y = (Math.random() - 0.5) * 2000;
-        const z = (Math.random() - 0.5) * 2000;
-        starVertices.push(x, y, z);
+    const images = []; // Array para almacenar los nombres de las imágenes
+    for (let i = 1; i <= 13; i++) {
+        images.push(`M_${i}.png`);
     }
-    starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-    const stars = new THREE.Points(starsGeometry, starsMaterial);
-    starfieldScene.add(stars);
 
-    starfieldCamera.position.z = 500;
+    const imageFolderPath = 'https://github.com/alphakernnel/web_tmr/blob/main/portada%20movil%2025/'; // Ruta a la carpeta de imágenes en GitHub Pages
+    let currentImageIndex = -1; // Para llevar el control de la imagen actual
+    let currentImageElement = null; // Para la imagen actual
 
-    function onStarfieldResize() {
-        starfieldCamera.aspect = starfieldContainer.clientWidth / starfieldContainer.clientHeight;
-        starfieldCamera.updateProjectionMatrix();
-        starfieldRenderer.setSize(starfieldContainer.clientWidth, starfieldContainer.clientHeight);
+    // Función para mostrar la siguiente imagen con fade in/out
+    function showNextImage() {
+        if (images.length === 0) return;
+
+        // Ocultar la imagen actual si existe, con fade out
+        if (currentImageElement) {
+            currentImageElement.classList.remove('active');
+            // Esperar el tiempo de fade out antes de cambiar la imagen
+            setTimeout(() => {
+                // Seleccionar una imagen aleatoria que no sea la actual (si es posible)
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * images.length);
+                } while (newIndex === currentImageIndex && images.length > 1); // Evitar la misma imagen si hay más de una
+
+                currentImageIndex = newIndex;
+                const nextImageSrc = imageFolderPath + images[currentImageIndex] + '?raw=true';
+                imageCarousel.src = nextImageSrc; // Cambia la fuente de la imagen
+
+                // Forzar un "reflow" para reiniciar la transición
+                void imageCarousel.offsetWidth;
+
+                imageCarousel.classList.add('active'); // Mostrar la nueva imagen con fade in
+            }, 90 * 1000); // Esperar 90 segundos para el fade out
+        } else {
+             // Primera vez que se muestra una imagen
+            currentImageIndex = Math.floor(Math.random() * images.length);
+            const nextImageSrc = imageFolderPath + images[currentImageIndex] + '?raw=true';
+            imageCarousel.src = nextImageSrc;
+            imageCarousel.classList.add('active'); // Mostrar la primera imagen con fade in
+        }
     }
-    window.addEventListener('resize', onStarfieldResize, false);
 
+    // Inicia el loop de imágenes
+    function startImageLoop() {
+        if (imageLoopIntervalId) clearInterval(imageLoopIntervalId); // Limpiar cualquier intervalo anterior
+
+        showNextImage(); // Muestra la primera imagen inmediatamente
+        // El intervalo completo es el tiempo de fade in + tiempo de visualización + tiempo de fade out
+        // Queremos que cada imagen esté completamente visible por un tiempo y luego comience su fade out.
+        // Si el fade in/out es 90s, una imagen tardará 90s en aparecer y 90s en desaparecer.
+        // Para que cada imagen se vea 90s en su brillo máximo y luego desaparezca, el ciclo completo debe ser:
+        // (90s fade in) + (X segundos de visibilidad total) + (90s fade out)
+        // Si queremos que el ciclo total por imagen sea de 180 segundos (90 fade in + 90 fade out)
+        // la función showNextImage se llama cada 180 segundos.
+        imageLoopIntervalId = setInterval(showNextImage, 180 * 1000); // 90s fade in + 90s fade out = 180 segundos
+    }
+
+
+    // Función de animación simplificada para móvil (solo para el logo y mensaje, no estrellas)
     function animate() {
       requestAnimationFrame(animate);
-
-      let avg = 0;
-      if (audioInitialized && analyser && audioCtx && audioCtx.state === 'running') {
-        analyser.getByteFrequencyData(dataArray);
-        avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
-      }
-
-      // --- Parte del Fondo de Estrellas (reacción al audio) ---
-      const minSpeed = 0.5;
-      const maxSpeed = 3.0;
-      const speedFactor = minSpeed + (avg / 255) * (maxSpeed - minSpeed);
-
-      const positions = stars.geometry.attributes.position.array;
-      for (let i = 2; i < positions.length; i += 3) {
-          positions[i] -= speedFactor;
-          if (positions[i] < starfieldCamera.position.z - 1000) {
-              positions[i] = starfieldCamera.position.z + 1000;
-          }
-      }
-      stars.geometry.attributes.position.needsUpdate = true;
-
-      const rotationSpeed = 0.00005 + (avg / 255) * 0.0005;
-      stars.rotation.x += rotationSpeed / 2;
-      stars.rotation.y += rotationSpeed;
-
-      // --- Brillo de las estrellas ---
-      const avg_normalized = avg / 255;
-      const baseOpacity = 0.6;
-      const maxOpacity = 1.0;
-      const baseSize = 1.5;
-      const maxSize = 3.0;
-
-      if (audioInitialized && audioCtx && audioCtx.state === 'running') {
-          starsMaterial.opacity = baseOpacity + avg_normalized * (maxOpacity - baseOpacity);
-          starsMaterial.size = baseSize + avg_normalized * (maxSize - baseSize);
-      } else {
-          starsMaterial.opacity = baseOpacity;
-          starsMaterial.size = baseSize;
-      }
-      starsMaterial.needsUpdate = true;
-
-      starfieldRenderer.render(starfieldScene, starfieldCamera);
+      // No hay lógica de Three.js aquí para el fondo en móvil
     }
 
-    // Modificación clave: Inicializar AudioContext en esta función que es llamada por un clic
     function initAudio() {
-      // Si AudioContext no ha sido creado o está en estado 'closed', lo creamos.
       if (!audioCtx || audioCtx.state === 'closed') {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         source = audioCtx.createMediaElementSource(audio);
@@ -445,12 +371,11 @@
         analyser.connect(audioCtx.destination);
       }
 
-      // Reanudar el AudioContext si está suspendido (común en móviles)
       if (audioCtx.state === 'suspended') {
         audioCtx.resume().then(() => {
-          console.log('AudioContext reanudado.');
+          console.log('AudioContext reanudado en móvil.');
           playAudioAndSetup();
-        }).catch(e => console.error("Error al reanudar AudioContext:", e));
+        }).catch(e => console.error("Error al reanudar AudioContext en móvil:", e));
       } else {
         playAudioAndSetup();
       }
@@ -458,20 +383,21 @@
 
     function playAudioAndSetup() {
         audio.play().then(() => {
-            console.log("Audio reproduciéndose. AudioContext state:", audioCtx.state);
+            console.log("Audio reproduciéndose en móvil. AudioContext state:", audioCtx.state);
             audioInitialized = true;
-            startButton.style.display = 'none'; // Ocultar el botón de inicio
-            stopButton.style.display = 'inline-block'; // Mostrar el botón de detener
+            startButton.style.display = 'none';
+            stopButton.style.display = 'inline-block';
 
-            // Activar la clase 'playing' en el logo
-            radioLogo.classList.add('playing');
+            radioLogo.classList.add('playing'); // Iniciar pulsación del logo
+            trackInfo.style.display = 'block'; // Mostrar info de la canción
+            initialMessage.style.display = 'none'; // Ocultar el mensaje inicial
 
-            trackInfo.style.display = 'block';
             fetchNowPlaying();
             if (fetchIntervalId) clearInterval(fetchIntervalId);
             fetchIntervalId = setInterval(fetchNowPlaying, 10000);
+            startImageLoop(); // Iniciar el carrusel de imágenes al iniciar la radio
         }).catch(e => {
-            console.error("Error al reproducir audio:", e);
+            console.error("Error al reproducir audio en móvil:", e);
             trackInfo.textContent = 'Error al iniciar la radio (requiere interacción).';
             trackInfo.style.display = 'block';
             startButton.style.display = 'inline-block';
@@ -490,25 +416,25 @@
           clearInterval(fetchIntervalId);
           fetchIntervalId = null;
       }
+      if (imageLoopIntervalId) { // Detener el carrusel al detener la radio
+          clearInterval(imageLoopIntervalId);
+          imageLoopIntervalId = null;
+      }
+      imageCarousel.classList.remove('active'); // Ocultar la imagen al detener
       trackInfo.style.display = 'block';
-      radioLogo.classList.remove('playing'); // Remover la clase 'playing' del logo
+      radioLogo.classList.remove('playing'); // Detener pulsación del logo
 
       if (audioCtx && audioCtx.state === 'running') {
-          audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
+          audioCtx.suspend().then(() => console.log('AudioContext suspendido en móvil.'));
       }
     }
 
-    // NUEVA FUNCIÓN: Toggle Play/Pause para móviles (y PCs también, si lo deseamos)
     function togglePlayPause() {
         if (audio.paused) {
-            initAudio(); // Reanudar o iniciar el audio y AudioContext
+            initAudio();
         } else {
-            stopAudio(); // Detener el audio y suspender AudioContext
+            stopAudio();
         }
-    }
-
-    function setVolume(e) {
-      audio.volume = e.target.value;
     }
 
     function refreshPage() {
@@ -533,62 +459,37 @@
         const title = data?.title || 'Título Desconocido';
         const artist = data?.artist || 'Artista Desconocido';
         trackInfo.textContent = artist ? `${artist} - ${title}` : title;
-        document.title = artist ? `${artist} - ${title} | Total Music Radio` : `${title} | Total Music Radio`;
+        document.title = artist ? `${artist} - ${title} | Total Music Radio` : `${title} | Total Music Radio (Móvil)`;
       } catch (e) {
         console.error("Error al obtener información de la canción:", e);
         trackInfo.textContent = 'Conectando a la Radio...';
-        document.title = 'Total Music Radio';
+        document.title = 'Total Music Radio (Móvil)';
       }
     }
 
     // Inicializar listeners
     startButton.addEventListener('click', initAudio);
-    stopButton.addEventListener('click', stopAudio); // El botón de stop sigue funcionando
-    volumeControl.addEventListener('input', setVolume);
+    stopButton.addEventListener('click', stopAudio);
     refreshButton.addEventListener('click', refreshPage);
     fullscreenButton.addEventListener('click', toggleFullscreen);
 
-    // NUEVO: Listener para el logo que actúa como Play/Pause
+    // Listener para el logo como Play/Pause
     radioLogo.addEventListener('click', function() {
-        if (isMobile) { // Solo si es móvil, el logo actúa como Play/Pause después del primer inicio
-            if (audioInitialized) { // Si ya se ha inicializado el audio una vez
-                togglePlayPause();
-            } else {
-                // Si aún no se ha inicializado, un clic en el logo también lo inicia
-                initAudio();
-            }
-        } else { // En PC, el logo solo actúa como Play/Pause si ya está reproduciendo
-            if (audioInitialized && !audio.paused) { // Solo pausa si ya está reproduciendo
-                stopAudio();
-            } else if (audio.paused) { // Si está en pausa, reanuda
-                initAudio();
-            } else { // Si no ha iniciado, lo inicia
-                initAudio();
-            }
+        if (audioInitialized) {
+            togglePlayPause();
+        } else {
+            initAudio();
         }
     });
 
-
-    // Lógica para mostrar/ocultar botones al inicio según el dispositivo
+    // En móvil, el mensaje inicial siempre se muestra al cargar.
     window.onload = function() {
-        if (isMobile) {
-            // En móviles, mostrar el botón de inicio al principio
-            startButton.style.display = 'inline-block';
-            stopButton.style.display = 'none'; // Ocultar el botón de detener inicialmente
-            trackInfo.textContent = 'Toca el logo o el botón para iniciar'; // Mensaje inicial
-            trackInfo.style.display = 'block';
-        } else {
-            // En PC, también se inicia con el botón principal, o el logo si está configurado
-            startButton.style.display = 'inline-block';
-            stopButton.style.display = 'none';
-            trackInfo.textContent = 'Haz clic en "Iniciar Radio" para comenzar';
-            trackInfo.style.display = 'block';
-        }
+        initialMessage.style.display = 'block';
+        trackInfo.style.display = 'none';
+        // No iniciar el carrusel hasta que la radio inicie
     };
 
-
-    // Iniciar el bucle de animación para el campo de estrellas
-    animate();
+    animate(); // Iniciar el bucle de animación
   </script>
 </body>
 </html>
