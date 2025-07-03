@@ -68,21 +68,20 @@ html, body {
   font-family: 'Montserrat', sans-serif;
 }
 
-/* Estilos para el contenedor de la interfaz de usuario inferior/central - AHORA ES SUPERIOR IZQUIERDA */
+/* Estilos para el contenedor de la interfaz de usuario inferior/central - CORREGIDO A INFERIOR CENTRADO */
 .bottom-ui {
   position: absolute;
-  top: 20px; /* Posicionado desde el borde superior */
-  left: 20px; /* Posicionado desde el borde izquierdo */
-  bottom: auto; /* Anula la propiedad bottom anterior */
-  right: auto; /* Anula la propiedad right implícita si existiera */
-  transform: none; /* Elimina cualquier transformación de centrado */
+  bottom: 80px; /* Ajustado para dejar espacio a las redes sociales */
+  left: 50%; /* Centrado horizontalmente */
+  transform: translateX(-50%); /* Ajuste fino para centrado perfecto */
+  top: auto; /* Anula la propiedad top anterior */
+  right: auto; /* Anula la propiedad right anterior */
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Alinea los elementos internos a la izquierda */
+  align-items: center; /* Centra los elementos internos (botones, volumen) */
   gap: 25px; /* Espacio entre los grupos de elementos */
   z-index: 2; /* Debajo del logo y mensajes, pero encima de las estrellas */
-  width: auto; /* Permite que el ancho se ajuste al contenido */
-  max-width: calc(100% - 40px); /* Para asegurar que no se desborde en pantallas pequeñas */
+  width: 90%; /* Ancho relativo para un diseño responsivo */
   box-sizing: border-box;
 }
 
