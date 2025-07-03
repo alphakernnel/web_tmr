@@ -58,28 +58,11 @@
         to { transform: translateX(-50%) scale(1.08); filter: drop-shadow(0 0 25px rgba(255, 152, 0, 1)); }
     }
 
-    /* Mensaje de inicio para PC - Ajustado para centrado vertical y mejor visibilidad */
-    #initialMessage {
-        position: absolute;
-        top: 50%; /* Centrado vertical */
-        left: 50%;
-        transform: translate(-50%, -50%); /* Ajuste para centrado real */
-        color: #fff;
-        font-size: 1.2em;
-        text-align: center;
-        width: 90%;
-        max-width: 400px;
-        background-color: rgba(0,0,0,0.6);
-        padding: 10px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        z-index: 4;
-        font-family: 'Roboto Condensed', sans-serif;
-    }
+    /* ELIMINADO: Ya no hay #initialMessage en el centro */
 
     #trackInfo {
       position: absolute;
-      top: 70%; /* Posición de la información de la canción - AJUSTADO PARA NO INTERFERIR */
+      top: 70%; /* Posición de la información de la canción */
       left: 50%;
       transform: translateX(-50%);
       background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
@@ -114,19 +97,19 @@
 
     .controls {
       display: flex;
-      gap: 12px; /* Espacio entre los botones - REDUCIDO */
+      gap: 8px; /* Espacio entre los botones - REDUCIDO para el 60% */
       flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
       justify-content: center;
       background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente para la botonera */
-      padding: 10px 20px; /* Padding de la botonera - REDUCIDO */
+      padding: 6px 12px; /* Padding de la botonera - REDUCIDO para el 60% */
       border-radius: 12px;
       border: 1px solid #616161;
       box-shadow: 0 0 15px rgba(97, 97, 97, 0.4);
     }
 
     .controls button {
-      padding: 6px 10px; /* Más padding para hacerlos "gordos" - REDUCIDO un 60% aprox. */
-      font-size: 0.8em; /* Íconos más pequeños - REDUCIDO un 60% aprox. */
+      padding: 5px 8px; /* Padding de los botones - REDUCIDO un 60% aprox. */
+      font-size: 0.7em; /* Íconos más pequeños - REDUCIDO un 60% aprox. */
       background-color: #f44336;
       color: #fff;
       border: 2px solid #d32f2f;
@@ -140,8 +123,8 @@
       display: flex; /* Para centrar el icono */
       align-items: center;
       justify-content: center;
-      min-width: 40px; /* Asegura un tamaño mínimo si el padding es muy bajo */
-      min-height: 40px;
+      min-width: 35px; /* Asegura un tamaño mínimo */
+      min-height: 35px; /* Asegura un tamaño mínimo */
     }
 
     .controls button:hover {
@@ -153,11 +136,11 @@
     /* Estilo específico para el botón de refrescar y pantalla completa */
     .controls #refreshButton,
     .controls #fullscreenButton {
-      font-size: 0.7em; /* Ligeramente más pequeños si lo deseas - AJUSTADO */
-      padding: 6px 8px; /* AJUSTADO */
+      font-size: 0.6em; /* Ligeramente más pequeños - AJUSTADO */
+      padding: 5px 7px; /* AJUSTADO */
     }
 
-    /* Estilos para el control de volumen */
+    /* Estilos para el control de volumen - SIN CAMBIOS */
     .volume-control-group {
       display: flex;
       align-items: center;
@@ -172,7 +155,7 @@
 
     .volume-control-group i {
       color: #fff;
-      font-size: 1.2em; /* Tamaño del icono de volumen - Ligeramente reducido para concordar */
+      font-size: 1.2em; /* Tamaño del icono de volumen - NO CAMBIADO */
       text-shadow: 0 0 5px #ff9800;
     }
 
@@ -207,17 +190,17 @@
       box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
     }
 
-    /* Estilos para las redes sociales */
+    /* Estilos para las redes sociales - REDUCIDOS UN 60% */
     .social-links {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 20px;
+      gap: 10px; /* Espacio reducido para iconos más pequeños */
       z-index: 4;
       background-color: rgba(0, 0, 0, 0.7);
-      padding: 10px 20px;
+      padding: 8px 15px; /* Padding reducido */
       border-radius: 10px;
       border: 1px solid #616161;
       box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
@@ -225,19 +208,19 @@
       justify-content: center;
       width: 90%;
       box-sizing: border-box;
-      max-width: 450px;
+      max-width: 400px; /* Ajustado */
     }
 
     .social-links a {
       color: #fff;
-      font-size: 2.2em;
+      font-size: 0.9em; /* Íconos un 60% más pequeños (aprox) */
       transition: color 0.3s, transform 0.3s;
       text-decoration: none;
     }
 
     .social-links a:hover {
       color: #ff9800;
-      transform: scale(1.2);
+      transform: scale(1.1); /* Efecto de escala ligeramente menor para iconos más pequeños */
     }
 
     /* Estilos específicos para algunos iconos con sus colores de marca */
@@ -251,8 +234,6 @@
   <div id="starfield-container"></div>
 
   <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
-
-  <div id="initialMessage">Haz clic en 'Iniciar Radio' para comenzar</div>
 
   <div id="trackInfo" style="display:none;"></div>
 
@@ -299,7 +280,8 @@
     const fullscreenButton = document.getElementById('fullscreenButton');
     const audio = document.getElementById('audio');
     const radioLogo = document.getElementById('radioLogo');
-    const initialMessage = document.getElementById('initialMessage');
+    // ELIMINADO: Ya no hay initialMessage
+    // const initialMessage = document.getElementById('initialMessage'); 
 
     let audioCtx = null;
     let source, analyser, dataArray;
@@ -412,7 +394,7 @@
 
             radioLogo.classList.add('playing'); // Iniciar pulsación del logo
             trackInfo.style.display = 'block'; // Mostrar info de la canción
-            initialMessage.style.display = 'none'; // Ocultar el mensaje inicial
+            // ELIMINADO: initialMessage.style.display = 'none';
 
             fetchNowPlaying();
             if (fetchIntervalId) clearInterval(fetchIntervalId);
@@ -437,7 +419,7 @@
           clearInterval(fetchIntervalId);
           fetchIntervalId = null;
       }
-      trackInfo.style.display = 'block';
+      trackInfo.style.display = 'block'; // Mantener el "Radio Detenida" visible
       radioLogo.classList.remove('playing'); // Detener pulsación del logo
 
       if (audioCtx && audioCtx.state === 'running') {
@@ -466,6 +448,7 @@
             document.documentElement.requestFullscreen().catch(err => {
                 console.error(`Error al intentar activar pantalla completa: ${err.message} (${err.name})`);
             });
+        });
         } else {
             document.exitFullscreen();
         }
@@ -503,13 +486,16 @@
         }
     });
 
-    // Cargar info de la canción al inicio y configurar Three.js
+    // Configuración inicial al cargar la página
     window.onload = function() {
-        fetchNowPlaying();
-        initialMessage.style.display = 'block'; // Asegurar que el mensaje inicial esté visible
-        trackInfo.style.display = 'none'; // Asegurar que la info de la canción no se muestre al inicio
+        fetchNowPlaying(); // Obtener la primera canción
+        trackInfo.style.display = 'none'; // Asegurar que la info de la canción NO se muestre al inicio
+
+        // Mostrar el botón de Play al inicio (Stop estará oculto por CSS)
+        playButton.style.display = 'inline-block'; 
+        stopButton.style.display = 'none';
         
-        // Iniciar Three.js al cargar la página
+        // Iniciar Three.js al cargar la página (esencial)
         initThreeJS();
         animateStars();
     };
