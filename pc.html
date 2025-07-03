@@ -5,72 +5,677 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Total Music Radio (PC)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <script async src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
   <style>
-    /* Estilos para la página */
+    /* Fuentes para un estilo rock/metal moderno */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      background: #121212;
-      color: #f44336;
+      overflow: hidden; /* Esto oculta el scroll de la página */
+      background: #121212; /* Fondo negro intenso */
+      color: #f44336; /* Rojo intenso como color primario */
+      font-family: 'Montserrat', sans-serif; /* Fuente moderna y legible para el cuerpo */
+    }
+
+    /* Estilos para el contenedor de estrellas (fondo) */
+    #starfield-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1; /* Asegura que esté en el fondo */
+      opacity: 0.8; /* Ligeramente transparente */
+    }
+
+    .header {
+      display: none; /* Oculta el encabezado HTML si lo hubiera */
+    }
+
+    /* Estilos para el logo de la radio */
+    #radioLogo {
+      position: absolute;
+      top: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 300px;
+      height: auto;
+      z-index: 3;
+      filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7));
+      cursor: pointer;
+      transition: transform 0.2s ease-out, filter 0.3s ease;
+    }
+
+    #radioLogo.playing {
+      animation: pulseLogo 1.5s infinite alternate; /* Animación de pulsación */
+    }
+
+    @keyframes pulseLogo {
+        from { transform: translateX(-50%) scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
+        to { transform: translateX(-50%) scale(1.08); filter: drop-shadow(0 0 25px rgba(255, 152, 0, 1)); }
+    }
+
+    /* Estilo para el mensaje de estado (Radio Detenida) */
+    #radioStatusMessage {
+      position: absolute;
+      bottom: 230px; /* Posición ajustada para estar sobre los botones */
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+      border: 1px solid #ff9800; /* Borde naranja */
+      box-shadow: 0 0 15px rgba(255, 152, 0, 0.7); /* Sombra naranja brillante */
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1.2em;
+      text-align: center;
+      min-width: 300px;
+      max-width: 80%;
+      box-sizing: border-box;
+      z-index: 5; /* Asegurar que esté por encima de casi todo */
+      color: #fff;
+      text-shadow: 0 0 5px #ff9800; /* Sombra de texto para resaltar */
       font-family: 'Montserrat', sans-serif;
     }
-    /* Estilos para el chat en vivo */
-    .chat-button {
-      position: fixed;
-      bottom: 150px;
-      right: 20px;
+
+    .bottom-ui {
+      position: absolute;
+      bottom: 80px; /* Ajustado para dejar espacio a las redes sociales */
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px; /* Espacio entre los grupos de elementos */
+      z-index: 2;
+      width: 90%;
+      box-sizing: border-box;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px; /* Espacio entre los botones - REDUCIDO para el 60% */
+      flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente para la botonera */
+      padding: 6px 12px; /* Padding de la botonera - REDUCIDO para el 60% */
+      border-radius: 12px;
+      border: 1px solid #616161;
+      box-shadow: 0 0 15px rgba(97, 97, 97, 0.4);
+    }
+
+    .controls button {
+      padding: 5px 8px; /* Padding de los botones - REDUCIDO un 60% aprox. */
+      font-size: 0.7em; /* Íconos más pequeños - REDUCIDO un 60% aprox. */
       background-color: #f44336;
       color: #fff;
-      border: none;
+      border: 2px solid #d32f2f;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Roboto Condensed', sans-serif;
+      font-weight: 700;
+      box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+      transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+      flex-shrink: 0;
+      display: flex; /* Para centrar el icono */
+      align-items: center;
+      justify-content: center;
+      min-width: 35px; /* Asegura un tamaño mínimo */
+      min-height: 35px; /* Asegura un tamaño mínimo */
+    }
+
+    .controls button:hover {
+      background-color: #d32f2f;
+      box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
+      transform: translateY(-2px); /* Pequeño efecto al pasar el ratón */
+    }
+
+    /* Estilo específico para el botón de refrescar y pantalla completa */
+    .controls #refreshButton,
+    .controls #fullscreenButton {
+      font-size: 0.6em; /* Ligeramente más pequeños - AJUSTADO */
+      padding: 5px 7px; /* AJUSTADO */
+    }
+
+    /* Estilos para el control de volumen - SIN CAMBIOS */
+    .volume-control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
       padding: 10px 20px;
       border-radius: 10px;
+      border: 1px solid #616161;
+      box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
+      margin-top: 15px; /* Separación de los botones de control */
+    }
+
+    .volume-control-group i {
+      color: #fff;
+      font-size: 1.2em; /* Tamaño del icono de volumen - NO CAMBIADO */
+      text-shadow: 0 0 5px #ff9800;
+    }
+
+    #volumeControl {
+      width: 150px;
+      -webkit-appearance: none; /* Elimina estilos por defecto del navegador */
+      appearance: none;
+      height: 8px;
+      background: #555; /* Fondo del deslizador */
+      outline: none;
+      border-radius: 4px;
       cursor: pointer;
     }
-    .chat-popup {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      background-color: #fff;
-      padding: 20px;
-      border: 1px solid #ddd;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      width: 300px;
-      height: 400px;
-      overflow-y: auto;
+
+    #volumeControl::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #ff9800; /* Naranja brillante para el thumb */
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(255, 152, 0, 0.8); /* Sombra para el thumb */
     }
-    .chat-messages {
-      padding: 20px;
+
+    #volumeControl::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #ff9800;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
+    }
+
+    /* Estilos para las redes sociales - REDUCIDOS UN 60% */
+    .social-links {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px; /* Espacio reducido para iconos más pequeños */
+      z-index: 4;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 8px 15px; /* Padding reducido */
+      border-radius: 10px;
+      border: 1px solid #616161;
+      box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 90%;
+      box-sizing: border-box;
+      max-width: 400px; /* Ajustado */
+    }
+
+    .social-links a {
+      color: #fff;
+      font-size: 0.9em; /* Íconos un 60% más pequeños (aprox) */
+      transition: color 0.3s, transform 0.3s;
+      text-decoration: none;
+    }
+
+    .social-links a:hover {
+      color: #ff9800;
+      transform: scale(1.1); /* Efecto de escala ligeramente menor para iconos más pequeños */
+    }
+
+    /* Estilos específicos para algunos iconos con sus colores de marca */
+    .social-links .fa-instagram:hover { color: #E1306C; }
+    .social-links .fa-facebook:hover { color: #3b5998; }
+    .social-links .fa-whatsapp:hover { color: #25D366; }
+    .social-links .fa-coffee:hover { color: #FFDD00; }
+
+    /* --- NUEVOS ESTILOS PARA LOS NOMBRES DE BANDAS FANTASMA --- */
+    #band-names-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 0; /* Justo encima de las estrellas, debajo de la UI principal */
+        pointer-events: none; /* Permite hacer clic a través de este div */
+        overflow: hidden; /* Asegura que los nombres no se salgan del contenedor */
+    }
+
+    .band-name {
+        position: absolute;
+        color: #ffa000; /* Un color naranja-amarillo para contraste con las estrellas */
+        font-family: 'Roboto Condensed', sans-serif;
+        font-weight: 700;
+        font-size: 2.5em; /* Tamaño grande para que se vean */
+        opacity: 0.3; /* Difuminado a 30% (más etéreo que 50%) */
+        filter: blur(2px); /* Un ligero desenfoque */
+        white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+        transition: transform linear; /* Transición lineal para un movimiento constante */
+        will-change: transform, opacity; /* Sugerencia para el navegador para optimizar la animación */
+        text-shadow: 0 0 10px rgba(255, 160, 0, 0.5); /* Sombra para dar brillo fantasmal */
     }
   </style>
 </head>
 <body>
   <div id="starfield-container"></div>
+
+  <div id="band-names-container"></div>
+
   <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
-  <div id="trackInfo" style="display:none;"></div>
+
+  <div id="radioStatusMessage" style="display:none;"></div>
+
   <div class="bottom-ui">
     <div class="controls" id="controlPanel">
       <button id="playButton"><i class="fas fa-play"></i></button>
       <button id="stopButton" style="display:none"><i class="fas fa-stop"></i></button>
+      
       <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
       <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
     </div>
+
     <div class="volume-control-group">
       <i class="fas fa-volume-down"></i> <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.7">
-      <i class="fas fa-volume-up"></i>
-    </div>
+      <i class="fas fa-volume-up"></i> </div>
   </div>
-  <button id="chat-button" class="chat-button">Chat en vivo</button>
-  <div id="chat-popup" class="chat-popup">
-    <h2>Chat en vivo</h2>
-    <div id="chat-messages" class="chat-messages"></div>
-    <input id="chat-nickname" type="text" placeholder="Ingresa tu seudónimo...">
-    <input id="chat-input" type="text" placeholder="Escribe un mensaje...">
-    <button id="chat-send">Enviar</button>
-  </div>
+
   <audio id="audio" src="https://stream.zeno.fm/udgoxuccigfuv" crossorigin="anonymous" controls hidden></audio>
-  <script src="script.js"></script>
+
+  <div class="social-links">
+    <a href="https://linktr.ee/tmradio.cl" target="_blank" aria-label="Web Linktree">
+      <i class="fas fa-link"></i>
+    </a>
+    <a href="https://www.instagram.com/totalmusicradio.cl/" target="_blank" aria-label="Instagram">
+      <i class="fab fa-instagram"></i>
+    </a>
+    <a href="https://www.facebook.com/profile.php?id=61556476971552" target="_blank" aria-label="Facebook">
+      <i class="fab fa-facebook"></i>
+    </a>
+    <a href="https://chat.whatsapp.com/EtQV0kcISR7IAYA6BhlGwb" target="_blank" aria-label="WhatsApp Community">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+    <a href="https://ko-fi.com/tmradio" target="_blank" aria-label="Donate a Coffee on Ko-fi">
+      <i class="fas fa-coffee"></i>
+    </a>
+  </div>
+
+  <script>
+    const radioStatusMessage = document.getElementById('radioStatusMessage'); 
+    const playButton = document.getElementById('playButton');
+    const stopButton = document.getElementById('stopButton');
+    const volumeControl = document.getElementById('volumeControl');
+    const refreshButton = document.getElementById('refreshButton');
+    const fullscreenButton = document.getElementById('fullscreenButton');
+    const audio = document.getElementById('audio');
+    const radioLogo = document.getElementById('radioLogo');
+    // NUEVO: Para los nombres de bandas fantasma
+    const bandNamesContainer = document.getElementById('band-names-container');
+
+    let audioCtx = null;
+    let source, analyser, dataArray;
+    let renderer, scene, camera, stars, starGeo; 
+    let audioInitialized = false;
+    let fetchIntervalId; 
+
+    // NUEVO: Variables para los nombres de bandas
+    let bandNames = [];
+    const maxBandNamesOnScreen = 7; // Número de nombres de banda visibles al mismo tiempo
+    const activeBandNameElements = []; // Almacena los elementos div de los nombres activos
+
+    // --- Three.js Starfield Animation (SIN CAMBIOS EN ESTA SECCIÓN) ---
+    function initThreeJS() {
+      console.log('initThreeJS: Intentando inicializar Three.js');
+      if (typeof THREE === 'undefined') {
+        console.error('initThreeJS: ERROR - THREE.js no está cargado. Asegúrate de que el script src sea correcto y esté accesible.');
+        return;
+      }
+      
+      const container = document.getElementById('starfield-container');
+      if (!container) {
+        console.error('initThreeJS: ERROR - Contenedor #starfield-container no encontrado.');
+        return;
+      }
+      // Limpiar el contenedor por si acaso hay un renderizador anterior
+      while (container.firstChild) {
+          container.removeChild(container.firstChild);
+      }
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+      camera.position.z = 1;
+      camera.rotation.x = Math.PI / 2; 
+
+      try {
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+        console.log('initThreeJS: Renderer y cámara inicializados.');
+      } catch (e) {
+        console.error('initThreeJS: ERROR al crear o añadir el renderer de Three.js:', e);
+        return;
+      }
+
+      starGeo = new THREE.BufferGeometry();
+      const vertices = [];
+      const starCount = 6000;
+      for (let i = 0; i < starCount; i++) {
+        vertices.push(
+          Math.random() * 600 - 300, 
+          Math.random() * 600 - 300, 
+          Math.random() * 600 - 300  
+        );
+      }
+      starGeo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      console.log(`initThreeJS: ${starCount} estrellas generadas.`);
+
+      const starTextureLoader = new THREE.TextureLoader();
+      starTextureLoader.load('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/star.png', 
+        function(sprite) {
+          const starMaterial = new THREE.PointsMaterial({
+            color: 0xaaaaaa, 
+            size: 0.7,
+            map: sprite,
+            transparent: true,
+            blending: THREE.AdditiveBlending 
+          });
+          stars = new THREE.Points(starGeo, starMaterial);
+          scene.add(stars);
+          console.log('initThreeJS: Estrellas con textura añadidas a la escena.');
+        },
+        undefined, 
+        function(err) {
+          console.error('initThreeJS: ERROR al cargar la textura de estrella. Usando material básico.', err);
+          const starMaterial = new THREE.PointsMaterial({
+            color: 0xaaaaaa,
+            size: 0.7,
+            transparent: true,
+            blending: THREE.AdditiveBlending
+          });
+          stars = new THREE.Points(starGeo, starMaterial);
+          scene.add(stars);
+        }
+      );
+      
+      window.addEventListener('resize', onWindowResize, false);
+      console.log('initThreeJS: Listener de redimensionamiento añadido.');
+    }
+
+    function onWindowResize() {
+      if (camera && renderer) {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+    }
+
+    function animateStars() {
+      requestAnimationFrame(animateStars);
+
+      if (stars && starGeo && stars.geometry.attributes.position) {
+        const positions = stars.geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+          positions[i + 1] -= 0.5; 
+          if (positions[i + 1] < -300) {
+            positions[i + 1] = 300; 
+          }
+        }
+        stars.geometry.attributes.position.needsUpdate = true;
+      }
+
+      if (audioInitialized && audio.paused === false && analyser && dataArray) {
+          analyser.getByteFrequencyData(dataArray);
+          let sum = dataArray.reduce((a, b) => a + b, 0);
+          let avg = sum / dataArray.length;
+          if (stars && stars.material) {
+            stars.material.color.setScalar(0.7 + (avg / 255) * 0.8); 
+          }
+      } else {
+          if (stars && stars.material) {
+            stars.material.color.setScalar(0.7); 
+          }
+      }
+
+      if (renderer && scene && camera) {
+        renderer.render(scene, camera);
+      }
+    }
+    // --- Fin Three.js Starfield Animation ---
+
+
+    function initAudio() {
+      console.log('initAudio: Iniciando o reanudando AudioContext.');
+      if (!audioCtx || audioCtx.state === 'closed') {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        source = audioCtx.createMediaElementSource(audio);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        console.log('initAudio: AudioContext y nodos creados.');
+      }
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+          console.log('AudioContext reanudado.');
+          playAudioAndSetup();
+        }).catch(e => console.error("Error al reanudar AudioContext:", e));
+      } else {
+        playAudioAndSetup();
+      }
+    }
+
+    function playAudioAndSetup() {
+        audio.play().then(() => {
+            console.log("playAudioAndSetup: Audio reproduciéndose. AudioContext state:", audioCtx.state);
+            audioInitialized = true;
+            playButton.style.display = 'none'; 
+            stopButton.style.display = 'inline-block'; 
+
+            radioLogo.classList.add('playing'); 
+            
+            radioStatusMessage.style.display = 'none';
+            radioStatusMessage.textContent = ''; 
+
+            if (fetchIntervalId) clearInterval(fetchIntervalId);
+            fetchIntervalId = null; 
+
+            // NUEVO: Iniciar la animación de nombres de banda al reproducir
+            startBandNameAnimation();
+
+        }).catch(e => {
+            console.error("playAudioAndSetup: Error al reproducir audio:", e);
+            radioStatusMessage.textContent = 'Error al iniciar la radio (requiere interacción).';
+            radioStatusMessage.style.display = 'block';
+            playButton.style.display = 'inline-block';
+            stopButton.style.display = 'none';
+        });
+    }
+
+    function stopAudio() {
+      console.log('stopAudio: Deteniendo audio.');
+      audio.pause();
+      audio.currentTime = 0;
+      radioStatusMessage.textContent = 'Radio Detenida'; 
+      radioStatusMessage.style.display = 'block'; 
+      playButton.style.display = 'inline-block'; 
+      stopButton.style.display = 'none'; 
+      audioInitialized = false;
+      if (fetchIntervalId) {
+          clearInterval(fetchIntervalId);
+          fetchIntervalId = null;
+      }
+      radioLogo.classList.remove('playing'); 
+
+      if (audioCtx && audioCtx.state === 'running') {
+          audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
+      }
+
+      // NUEVO: Detener la animación de nombres de banda al detener la radio
+      stopBandNameAnimation();
+    }
+
+    function setVolume(value) {
+      audio.volume = value;
+      console.log('Volumen ajustado a:', value);
+    }
+
+    function togglePlayPause() {
+        if (audio.paused) {
+            initAudio();
+        } else {
+            stopAudio();
+        }
+    }
+
+    function refreshPage() {
+        console.log('Recargando página.');
+        location.reload();
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.error(`Error al intentar activar pantalla completa: ${err.message} (${err.name})`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // --- NUEVAS FUNCIONES PARA NOMBRES DE BANDAS FANTASMA ---
+
+    async function loadBandNames() {
+        try {
+            const response = await fetch('bands.txt'); // Asegúrate de que bands.txt esté en la misma carpeta
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const text = await response.text();
+            bandNames = text.split('\n')
+                            .map(name => name.trim())
+                            .filter(name => name.length > 0);
+            console.log('Nombres de bandas cargados:', bandNames);
+            if (bandNames.length === 0) {
+                console.warn('El archivo bands.txt está vacío o solo contiene espacios en blanco.');
+            }
+        } catch (e) {
+            console.error('ERROR al cargar bands.txt. Asegúrate de que el archivo existe y es accesible (ej. desde un servidor web).', e);
+            bandNames = ['ERROR', 'LOADING', 'BANDS']; // Fallback en caso de error
+        }
+    }
+
+    function getRandomBandName() {
+        if (bandNames.length === 0) return 'NO DATA';
+        return bandNames[Math.floor(Math.random() * bandNames.length)];
+    }
+
+    function createBandNameElement(name) {
+        const el = document.createElement('div');
+        el.classList.add('band-name');
+        el.textContent = name;
+        bandNamesContainer.appendChild(el);
+        return el;
+    }
+
+    function setRandomPosition(element) {
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const elWidth = element.offsetWidth;
+        const elHeight = element.offsetHeight;
+
+        // Posiciones aleatorias dentro de la ventana, evitando el logo y los controles inferiores
+        const minY = 250; // Para evitar el logo superior
+        const maxY = viewportHeight - 300 - elHeight; // Para evitar los controles inferiores y el pie
+        
+        const randomX = Math.random() * (viewportWidth - elWidth);
+        const randomY = minY + Math.random() * (maxY - minY);
+
+        element.style.transform = `translate(${randomX}px, ${randomY}px)`;
+        element.style.transitionDuration = `${Math.random() * 10 + 15}s`; // 15 a 25 segundos
+        element.style.opacity = (0.2 + Math.random() * 0.2); // Opacidad entre 0.2 y 0.4 para más fantasmal
+        element.style.filter = `blur(${Math.random() * 1 + 1}px)`; // Blur entre 1px y 2px
+    }
+
+    function animateGhostlyText(element) {
+        // Establecer la primera posición aleatoria
+        setRandomPosition(element);
+
+        // Cada vez que la transición termine, establecer una nueva posición aleatoria
+        element.addEventListener('transitionend', () => {
+            setRandomPosition(element);
+        });
+    }
+
+    let bandNameInterval; // Para controlar el ciclo de creación de nombres
+
+    function startBandNameAnimation() {
+        // Limpiar cualquier animación anterior y elementos
+        stopBandNameAnimation(); 
+
+        // Crear los elementos iniciales si no existen
+        while (activeBandNameElements.length < maxBandNamesOnScreen) {
+            const name = getRandomBandName();
+            const el = createBandNameElement(name);
+            activeBandNameElements.push(el);
+            animateGhostlyText(el);
+        }
+
+        // Periodicamente cambiar el texto de un elemento existente para simular nuevos fantasmas
+        bandNameInterval = setInterval(() => {
+            if (activeBandNameElements.length > 0) {
+                const randomIndex = Math.floor(Math.random() * activeBandNameElements.length);
+                const elToUpdate = activeBandNameElements[randomIndex];
+                elToUpdate.textContent = getRandomBandName();
+                // Reiniciar la posición para una nueva "aparición"
+                setRandomPosition(elToUpdate); 
+            }
+        }, 5000); // Cambiar un nombre cada 5 segundos
+        console.log('Animación de nombres de banda iniciada.');
+    }
+
+    function stopBandNameAnimation() {
+        if (bandNameInterval) {
+            clearInterval(bandNameInterval);
+            bandNameInterval = null;
+        }
+        // Remover todos los elementos de nombres de banda
+        activeBandNameElements.forEach(el => el.remove());
+        activeBandNameElements.length = 0; // Vaciar el array
+        console.log('Animación de nombres de banda detenida y elementos eliminados.');
+    }
+
+    // --- FIN NUEVAS FUNCIONES PARA NOMBRES DE BANDAS FANTASMA ---
+
+
+    // Inicializar listeners
+    playButton.addEventListener('click', initAudio);
+    stopButton.addEventListener('click', stopAudio);
+    volumeControl.addEventListener('input', (e) => setVolume(e.target.value));
+    refreshButton.addEventListener('click', refreshPage);
+    fullscreenButton.addEventListener('click', toggleFullscreen);
+
+    // Listener para el logo como Play/Pause
+    radioLogo.addEventListener('click', function() {
+        if (audioInitialized) { 
+            togglePlayPause();
+        } else {
+            initAudio(); 
+        }
+    });
+
+    // Configuración inicial al cargar la página
+    document.addEventListener('DOMContentLoaded', async (event) => {
+        console.log('DOMContentLoaded: DOM completamente cargado.');
+        radioStatusMessage.style.display = 'none'; 
+        
+        playButton.style.display = 'inline-block'; 
+        stopButton.style.display = 'none';
+        
+        initThreeJS();
+        animateStars();
+        console.log('DOMContentLoaded: initThreeJS y animateStars llamados.');
+
+        // NUEVO: Cargar los nombres de banda al inicio
+        await loadBandNames();
+    });
+  </script>
 </body>
 </html>
