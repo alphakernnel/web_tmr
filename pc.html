@@ -31,39 +31,35 @@
       opacity: 0.8; /* Ligeramente transparente */
     }
 
-    .header {
-      display: none; /* Oculta el encabezado HTML si lo hubiera */
-    }
-
-    /* Estilos para el logo de la radio - REUBICADO Y REDUCIDO */
+    /* Estilos para el logo de la radio */
     #radioLogo {
       position: absolute;
-      top: 20px; /* Ajustado desde el borde superior */
-      right: 20px; /* Ajustado desde el borde derecho */
-      left: auto; /* Anula la propiedad left anterior */
-      max-width: 60px; /* Tamaño base del logo (aproximadamente el 20% de un logo de 300px) */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); /* Centra el logo */
+      max-width: 300px; /* Tamaño máximo del logo */
       height: auto;
-      z-index: 3;
-      filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.7)); /* Sombra más suave debido al tamaño */
-      cursor: pointer;
-      transition: transform 0.2s ease-out, filter 0.3s ease;
+      z-index: 1; /* Asegura que esté sobre las estrellas y detrás de la UI principal */
+      filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); /* Sombra para dar un efecto de brillo */
+      cursor: pointer; /* Indica que es interactivo */
+      transition: transform 0.2s ease-out, filter 0.3s ease; /* Transición suave para efectos hover */
     }
 
     #radioLogo.playing {
-      animation: pulseLogoSmall 1.5s infinite alternate; /* Animación de pulsación para el logo pequeño */
+      animation: pulseLogo 1.5s infinite alternate; /* Animación de pulsación cuando está reproduciendo */
     }
 
-    @keyframes pulseLogoSmall {
-        from { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.7)); }
-        to { transform: scale(1.1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 1)); }
+    @keyframes pulseLogo {
+        from { transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
+        to { transform: translate(-50%, -50%) scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
     }
 
     /* Estilo para el mensaje de estado (Radio Detenida) */
     #radioStatusMessage {
       position: absolute;
-      bottom: 230px; /* Posición ajustada para estar sobre los botones */
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%) translateY(100px); /* Debajo del logo */
       background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
       border: 1px solid #ff9800; /* Borde naranja */
       box-shadow: 0 0 15px rgba(255, 152, 0, 0.7); /* Sombra naranja brillante */
@@ -74,7 +70,7 @@
       min-width: 300px;
       max-width: 80%;
       box-sizing: border-box;
-      z-index: 5; /* Asegurar que esté por encima de casi todo */
+      z-index: 2; /* Asegurar que esté por encima de casi todo */
       color: #fff;
       text-shadow: 0 0 5px #ff9800; /* Sombra de texto para resaltar */
       font-family: 'Montserrat', sans-serif;
@@ -96,19 +92,19 @@
 
     .controls {
       display: flex;
-      gap: 8px; /* Espacio entre los botones - REDUCIDO para el 60% */
+      gap: 20px; /* Espacio entre los botones */
       flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
       justify-content: center;
       background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente para la botonera */
-      padding: 6px 12px; /* Padding de la botonera - REDUCIDO para el 60% */
+      padding: 15px 30px;
       border-radius: 12px;
       border: 1px solid #616161;
       box-shadow: 0 0 15px rgba(97, 97, 97, 0.4);
     }
 
     .controls button {
-      padding: 5px 8px; /* Padding de los botones - REDUCIDO un 60% aprox. */
-      font-size: 0.7em; /* Íconos más pequeños - REDUCIDO un 60% aprox. */
+      padding: 12px 25px;
+      font-size: 1.2em;
       background-color: #f44336;
       color: #fff;
       border: 2px solid #d32f2f;
@@ -118,12 +114,7 @@
       font-weight: 700;
       box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
       transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
-      flex-shrink: 0;
-      display: flex; /* Para centrar el icono */
-      align-items: center;
-      justify-content: center;
-      min-width: 35px; /* Asegura un tamaño mínimo */
-      min-height: 35px; /* Asegura un tamaño mínimo */
+      flex-shrink: 0; /* Evita que los botones se encojan en pantallas pequeñas */
     }
 
     .controls button:hover {
@@ -135,11 +126,11 @@
     /* Estilo específico para el botón de refrescar y pantalla completa */
     .controls #refreshButton,
     .controls #fullscreenButton {
-      font-size: 0.6em; /* Ligeramente más pequeños - AJUSTADO */
-      padding: 5px 7px; /* AJUSTADO */
+      font-size: 1em; /* Ligeramente más pequeños */
+      padding: 10px 20px;
     }
 
-    /* Estilos para el control de volumen - SIN CAMBIOS */
+    /* Estilos para el control de volumen */
     .volume-control-group {
       display: flex;
       align-items: center;
@@ -154,7 +145,7 @@
 
     .volume-control-group i {
       color: #fff;
-      font-size: 1.2em; /* Tamaño del icono de volumen - NO CAMBIADO */
+      font-size: 1.5em; /* Tamaño del icono de volumen */
       text-shadow: 0 0 5px #ff9800;
     }
 
@@ -189,37 +180,32 @@
       box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
     }
 
-    /* Estilos para las redes sociales - REDUCIDOS UN 60% */
+    /* Estilos para las redes sociales */
     .social-links {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 10px; /* Espacio reducido para iconos más pequeños */
-      z-index: 4;
+      gap: 20px;
+      z-index: 3;
       background-color: rgba(0, 0, 0, 0.7);
-      padding: 8px 15px; /* Padding reducido */
+      padding: 10px 20px;
       border-radius: 10px;
       border: 1px solid #616161;
       box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 90%;
-      box-sizing: border-box;
-      max-width: 400px; /* Ajustado */
     }
 
     .social-links a {
       color: #fff;
-      font-size: 0.9em; /* Íconos un 60% más pequeños (aprox) */
+      font-size: 1.5em;
       transition: color 0.3s, transform 0.3s;
       text-decoration: none;
     }
 
     .social-links a:hover {
       color: #ff9800;
-      transform: scale(1.1); /* Efecto de escala ligeramente menor para iconos más pequeños */
+      transform: scale(1.2);
     }
 
     /* Estilos específicos para algunos iconos con sus colores de marca */
@@ -227,38 +213,10 @@
     .social-links .fa-facebook:hover { color: #3b5998; }
     .social-links .fa-whatsapp:hover { color: #25D366; }
     .social-links .fa-coffee:hover { color: #FFDD00; }
-
-    /* --- ESTILOS PARA LOS NOMBRES DE BANDAS FANTASMA --- */
-    #band-names-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 0; /* Justo encima de las estrellas, debajo de la UI principal */
-        pointer-events: none; /* Permite hacer clic a través de este div */
-        overflow: hidden; /* Asegura que los nombres no se salgan del contenedor */
-    }
-
-    .band-name {
-        position: absolute;
-        color: #ffa000; /* Un color naranja-amarillo para contraste con las estrellas */
-        font-family: 'Roboto Condensed', sans-serif;
-        font-weight: 700;
-        font-size: 2em; /* Ligeramente reducido el tamaño para más nombres */
-        opacity: 0.3; /* Difuminado a 30% */
-        filter: blur(2px); /* Un ligero desenfoque */
-        white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
-        transition: transform linear, opacity linear, filter linear; /* Transición lineal para un movimiento constante */
-        will-change: transform, opacity, filter; /* Sugerencia para el navegador para optimizar la animación */
-        text-shadow: 0 0 10px rgba(255, 160, 0, 0.5); /* Sombra para dar brillo fantasmal */
-    }
   </style>
 </head>
 <body>
   <div id="starfield-container"></div>
-
-  <div id="band-names-container"></div>
 
   <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
 
@@ -307,17 +265,11 @@
     const fullscreenButton = document.getElementById('fullscreenButton');
     const audio = document.getElementById('audio');
     const radioLogo = document.getElementById('radioLogo');
-    const bandNamesContainer = document.getElementById('band-names-container');
 
     let audioCtx = null;
     let source, analyser, dataArray;
     let renderer, scene, camera, stars, starGeo;
-    let audioInitialized = false;
-    let fetchIntervalId;
-
-    let bandNames = [];
-    const maxBandNamesOnScreen = 15; // Aumentado el número de nombres visibles
-    const activeBandNameElements = [];
+    let audioInitialized = false; // Bandera para saber si el AudioContext ha sido inicializado/reanudado
 
     // --- Three.js Starfield Animation ---
     function initThreeJS() {
@@ -332,7 +284,7 @@
         console.error('initThreeJS: ERROR - Contenedor #starfield-container no encontrado.');
         return;
       }
-      // Limpiar el contenedor por si acaso hay un renderizador anterior
+      // Limpiar el contenedor por si acaso hay un renderizador anterior (útil si se llama varias veces)
       while (container.firstChild) {
           container.removeChild(container.firstChild);
       }
@@ -340,10 +292,10 @@
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
       camera.position.z = 1;
-      camera.rotation.x = Math.PI / 2;
+      camera.rotation.x = Math.PI / 2; // Para que las estrellas "caigan" hacia la cámara
 
       try {
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha: true permite fondo transparente del canvas
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
         console.log('initThreeJS: Renderer y cámara inicializados.');
@@ -354,34 +306,36 @@
 
       starGeo = new THREE.BufferGeometry();
       const vertices = [];
-      const starCount = 6000;
+      const starCount = 6000; // Número de estrellas
       for (let i = 0; i < starCount; i++) {
         vertices.push(
-          Math.random() * 600 - 300,
-          Math.random() * 600 - 300,
-          Math.random() * 600 - 300
+          Math.random() * 600 - 300, // x
+          Math.random() * 600 - 300, // y
+          Math.random() * 600 - 300  // z
         );
       }
       starGeo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
       console.log(`initThreeJS: ${starCount} estrellas generadas.`);
 
+      // Carga la textura para las estrellas
       const starTextureLoader = new THREE.TextureLoader();
       starTextureLoader.load('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/star.png',
         function(sprite) {
           const starMaterial = new THREE.PointsMaterial({
-            color: 0xaaaaaa,
-            size: 0.7,
-            map: sprite,
+            color: 0xaaaaaa, // Color blanco-grisáceo para las estrellas
+            size: 0.7, // Tamaño de las estrellas
+            map: sprite, // Aplica la textura
             transparent: true,
-            blending: THREE.AdditiveBlending
+            blending: THREE.AdditiveBlending // Para un efecto de brillo
           });
           stars = new THREE.Points(starGeo, starMaterial);
           scene.add(stars);
           console.log('initThreeJS: Estrellas con textura añadidas a la escena.');
         },
-        undefined,
+        undefined, // Función onProgress
         function(err) {
           console.error('initThreeJS: ERROR al cargar la textura de estrella. Usando material básico.', err);
+          // Fallback a un material sin textura si la carga falla
           const starMaterial = new THREE.PointsMaterial({
             color: 0xaaaaaa,
             size: 0.7,
@@ -410,23 +364,28 @@
 
       if (stars && starGeo && stars.geometry.attributes.position) {
         const positions = stars.geometry.attributes.position.array;
+        // Mueve las estrellas hacia abajo para simular movimiento
         for (let i = 0; i < positions.length; i += 3) {
-          positions [i + 1] -= 0.5;
-          if (positions [i + 1] < -300) {
+          positions [i + 1] -= 0.5; // Ajusta la velocidad de movimiento
+          if (positions [i + 1] < -300) { // Si una estrella se sale de la vista, la reposiciona arriba
             positions [i + 1] = 300;
           }
         }
-        stars.geometry.attributes.position.needsUpdate = true;
+        stars.geometry.attributes.position.needsUpdate = true; // Notifica a Three.js que los vértices han cambiado
       }
 
+      // Reacciona al audio (si está reproduciéndose)
       if (audioInitialized && audio.paused === false && analyser && dataArray) {
-          analyser.getByteFrequencyData(dataArray);
+          analyser.getByteFrequencyData(dataArray); // Obtiene datos de frecuencia
           let sum = dataArray.reduce((a, b) => a + b, 0);
-          let avg = sum / dataArray.length;
+          let avg = sum / dataArray.length; // Calcula el promedio de las frecuencias
+
+          // Ajusta el color de las estrellas basado en el volumen/energía del audio
           if (stars && stars.material) {
-            stars.material.color.setScalar(0.7 + (avg / 255) * 0.8);
+            stars.material.color.setScalar(0.7 + (avg / 255) * 0.8); // Escala el color
           }
       } else {
+          // Si la radio no está sonando, las estrellas mantienen un color base
           if (stars && stars.material) {
             stars.material.color.setScalar(0.7);
           }
@@ -441,17 +400,19 @@
 
     function initAudio() {
       console.log('initAudio: Iniciando o reanudando AudioContext.');
+      // Asegurarse de que AudioContext se inicialice por interacción del usuario
       if (!audioCtx || audioCtx.state === 'closed') {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         source = audioCtx.createMediaElementSource(audio);
         analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256;
-        dataArray = new Uint8Array(analyser.frequencyBinCount);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
+        analyser.fftSize = 256; // Tamaño FFT, afecta la granularidad del análisis de frecuencia
+        dataArray = new Uint8Array(analyser.frequencyBinCount); // Array para almacenar los datos de frecuencia
+        source.connect(analyser); // Conecta la fuente de audio al analizador
+        analyser.connect(audioCtx.destination); // Conecta el analizador al destino (salida de audio)
         console.log('initAudio: AudioContext y nodos creados.');
       }
 
+      // Si el AudioContext está suspendido (común en Chrome por autoplay policies), reanudarlo
       if (audioCtx.state === 'suspended') {
         audioCtx.resume().then(() => {
           console.log('AudioContext reanudado.');
@@ -465,20 +426,14 @@
     function playAudioAndSetup() {
         audio.play().then(() => {
             console.log("playAudioAndSetup: Audio reproduciéndose. AudioContext state:", audioCtx.state);
-            audioInitialized = true;
+            audioInitialized = true; // Marca que el audio está inicializado y reproduciéndose
             playButton.style.display = 'none';
             stopButton.style.display = 'inline-block';
 
-            radioLogo.classList.add('playing');
+            radioLogo.classList.add('playing'); // Agrega clase para la animación del logo
 
-            radioStatusMessage.style.display = 'none';
-            radioStatusMessage.textContent = '';
-
-            if (fetchIntervalId) clearInterval(fetchIntervalId);
-            fetchIntervalId = null;
-
-            startBandNameAnimation();
-
+            radioStatusMessage.style.display = 'none'; // Oculta el mensaje de estado
+            radioStatusMessage.textContent = ''; // Limpia el texto del mensaje
         }).catch(e => {
             console.error("playAudioAndSetup: Error al reproducir audio:", e);
             radioStatusMessage.textContent = 'Error al iniciar la radio (requiere interacción).';
@@ -491,23 +446,18 @@
     function stopAudio() {
       console.log('stopAudio: Deteniendo audio.');
       audio.pause();
-      audio.currentTime = 0;
+      audio.currentTime = 0; // Reinicia el audio
       radioStatusMessage.textContent = 'Radio Detenida';
       radioStatusMessage.style.display = 'block';
       playButton.style.display = 'inline-block';
       stopButton.style.display = 'none';
-      audioInitialized = false;
-      if (fetchIntervalId) {
-          clearInterval(fetchIntervalId);
-          fetchIntervalId = null;
-      }
-      radioLogo.classList.remove('playing');
+      audioInitialized = false; // Reinicia la bandera
+      radioLogo.classList.remove('playing'); // Quita la animación del logo
 
+      // Suspender AudioContext para liberar recursos si no se usa
       if (audioCtx && audioCtx.state === 'running') {
           audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
       }
-
-      stopBandNameAnimation();
     }
 
     function setVolume(value) {
@@ -525,172 +475,49 @@
 
     function refreshPage() {
         console.log('Recargando página.');
-        location.reload();
+        location.reload(); // Recarga la página por completo
     }
 
     function toggleFullscreen() {
-        if (!document.fullscreenElement) {
+        if (!document.fullscreenElement) { // Si no está en pantalla completa
             document.documentElement.requestFullscreen().catch(err => {
                 console.error(`Error al intentar activar pantalla completa: ${err.message} (${err.name})`);
             });
-        } else {
+        } else { // Si ya está en pantalla completa
             document.exitFullscreen();
         }
     }
 
-    // --- FUNCIONES PARA NOMBRES DE BANDAS FANTASMA ---
-
-    async function loadBandNames() {
-        try {
-            console.log('loadBandNames: Intentando cargar bands.txt');
-            const response = await fetch('bands.txt'); // Asegúrate de que bands.txt esté en la misma carpeta
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const text = await response.text();
-            bandNames = text.split('\n')
-                            .map(name => name.trim())
-                            .filter(name => name.length > 0);
-            console.log('loadBandNames: Nombres de bandas cargados:', bandNames.length);
-            if (bandNames.length === 0) {
-                console.warn('loadBandNames: El archivo bands.txt está vacío o solo contiene espacios en blanco.');
-            }
-        } catch (e) {
-            console.error('loadBandNames: ERROR al cargar bands.txt. Asegúrate de que el archivo existe y es accesible (ej. desde un servidor web).', e);
-            bandNames = ['ERROR', 'LOADING', 'BANDS']; // Fallback en caso de error
-        }
-    }
-
-    function getRandomBandName() {
-        if (bandNames.length === 0) return 'NO DATA';
-        return bandNames [Math.floor(Math.random() * bandNames.length)];
-    }
-
-    function createBandNameElement(name) {
-        const el = document.createElement('div');
-        el.classList.add('band-name');
-        el.textContent = name;
-        bandNamesContainer.appendChild(el);
-        // Fuerza un reflow para que offsetWidth/Height sean correctos inmediatamente
-        el.offsetWidth; 
-        return el;
-    }
-
-    function setRandomPosition(element) {
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const elWidth = element.offsetWidth;
-        const elHeight = element.offsetHeight;
-
-        // Calcular límites verticales seguros
-        const logoRect = radioLogo.getBoundingClientRect(); // Obtener las dimensiones actuales del logo
-        const minY = logoRect.bottom + 20; // 20px debajo del logo
-        
-        // Asumimos que la parte superior de los controles es ~250px desde abajo para dejar espacio
-        const bottomUIHeight = 250; 
-        const maxY = viewportHeight - bottomUIHeight - elHeight;
-
-        let randomX, randomY;
-
-        // Generar posición aleatoria dentro de los límites
-        // Asegúrate de que haya espacio vertical, si no, ajusta agresivamente
-        if (maxY < minY) {
-            console.warn('setRandomPosition: Poco espacio vertical disponible para nombres de banda. Ajustando límites drásticamente.');
-            randomY = Math.random() * (viewportHeight - elHeight); // Fallback a cualquier lugar
-        } else {
-            randomY = minY + Math.random() * (maxY - minY);
-        }
-        
-        randomX = Math.random() * (viewportWidth - elWidth);
-
-        element.style.transform = `translate(${randomX}px, ${randomY}px)`;
-        element.style.transitionDuration = `${Math.random() * 10 + 15}s`; // 15 a 25 segundos
-        element.style.opacity = (0.2 + Math.random() * 0.2); // Opacidad entre 0.2 y 0.4
-        element.style.filter = `blur(${Math.random() * 1 + 1}px)`; // Blur entre 1px y 2px
-    }
-
-    function animateGhostlyText(element) {
-        setRandomPosition(element);
-
-        // Cada vez que la transición termine, establecer una nueva posición aleatoria
-        element.addEventListener('transitionend', () => {
-            setRandomPosition(element);
-        });
-    }
-
-    let bandNameInterval; // Para controlar el ciclo de creación de nombres
-
-    function startBandNameAnimation() {
-        console.log('startBandNameAnimation: Iniciando animación de nombres de banda.');
-        stopBandNameAnimation(); // Asegurarse de que no haya animaciones duplicadas
-
-        // Crear los elementos iniciales si no existen
-        while (activeBandNameElements.length < maxBandNamesOnScreen) {
-            const name = getRandomBandName();
-            const el = createBandNameElement(name);
-            activeBandNameElements.push(el);
-            animateGhostlyText(el);
-        }
-
-        // Periodicamente cambiar el texto de un elemento existente para simular nuevos fantasmas
-        bandNameInterval = setInterval(() => {
-            if (activeBandNameElements.length > 0) {
-                const randomIndex = Math.floor(Math.random() * activeBandNameElements.length);
-                const elToUpdate = activeBandNameElements [randomIndex];
-                elToUpdate.textContent = getRandomBandName();
-                // Reiniciar la posición para una nueva "aparición"
-                setRandomPosition(elToUpdate);
-                // También randomizar opacidad y filtro para mayor variabilidad fantasmal
-                elToUpdate.style.opacity = (0.2 + Math.random() * 0.2);
-                elToUpdate.style.filter = `blur(${Math.random() * 1 + 1}px)`;
-            }
-        }, 3000); // Cambiar un nombre cada 3 segundos
-        console.log('startBandNameAnimation: Animación de nombres de banda iniciada.');
-    }
-
-    function stopBandNameAnimation() {
-        console.log('stopBandNameAnimation: Deteniendo animación de nombres de banda.');
-        if (bandNameInterval) {
-            clearInterval(bandNameInterval);
-            bandNameInterval = null;
-        }
-        // Remover todos los elementos de nombres de banda
-        activeBandNameElements.forEach(el => el.remove());
-        activeBandNameElements.length = 0; // Vaciar el array
-        console.log('stopBandNameAnimation: Animación de nombres de banda detenida y elementos eliminados.');
-    }
-
-    // --- FIN FUNCIONES PARA NOMBRES DE BANDAS FANTASMA ---
-
-
-    // Inicializar listeners
-    playButton.addEventListener('click', initAudio);
-    stopButton.addEventListener('click', stopAudio);
-    volumeControl.addEventListener('input', (e) => setVolume(e.target.value));
-    refreshButton.addEventListener('click', refreshPage);
-    fullscreenButton.addEventListener('click', toggleFullscreen);
-
-    // Listener para el logo como Play/Pause
-    radioLogo.addEventListener('click', function() {
-        if (audioInitialized) {
-            togglePlayPause();
-        } else {
-            initAudio();
-        }
-    });
-
-    // Configuración inicial al cargar la página
-    document.addEventListener('DOMContentLoaded', async (event) => {
+    // Inicializar listeners al cargar el DOM
+    document.addEventListener('DOMContentLoaded', (event) => {
         console.log('DOMContentLoaded: DOM completamente cargado.');
-        radioStatusMessage.style.display = 'none';
+        radioStatusMessage.style.display = 'none'; // Asegurarse de que el mensaje de estado esté oculto al inicio
 
-        playButton.style.display = 'inline-block';
-        stopButton.style.display = 'none';
+        playButton.style.display = 'inline-block'; // Mostrar botón de Play
+        stopButton.style.display = 'none'; // Ocultar botón de Stop
 
+        // Asigna eventos a los botones y slider
+        playButton.addEventListener('click', initAudio);
+        stopButton.addEventListener('click', stopAudio);
+        volumeControl.addEventListener('input', (e) => setVolume(e.target.value));
+        refreshButton.addEventListener('click', refreshPage);
+        fullscreenButton.addEventListener('click', toggleFullscreen);
+
+        // Listener para el logo como Play/Pause
+        radioLogo.addEventListener('click', function() {
+            // Si el audio ya ha sido inicializado (es decir, el usuario ya interactuó)
+            if (audioInitialized) {
+                togglePlayPause();
+            } else {
+                // Si es la primera interacción, inicializa el audio
+                initAudio();
+            }
+        });
+
+        // Inicializa Three.js y la animación de estrellas
         initThreeJS();
         animateStars();
         console.log('DOMContentLoaded: Three.js y animación de estrellas inicializados.');
-
-        await loadBandNames();
-        console.log('DOMContentLoaded: Nombres de banda cargados. Listo para iniciar animación al reproducir audio.');
     });
   </script>
 </body>
