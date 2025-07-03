@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Total Music Radio</title>
+  <title>Total Music Radio (PC)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
   <style>
     /* Fuentes para un estilo rock/metal moderno */
     @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap');
@@ -19,136 +20,186 @@
       font-family: 'Montserrat', sans-serif; /* Fuente moderna y legible para el cuerpo */
     }
 
-    /* Contenedor del fondo de estrellas - aseguramos que cubra toda la página */
+    /* Estilos para el contenedor de estrellas (fondo) */
     #starfield-container {
-      position: fixed; /* Lo fija en el viewport */
+      position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1; /* Lo coloca detrás de todo lo demás */
+      z-index: -1; /* Asegura que esté en el fondo */
+      opacity: 0.8; /* Ligeramente transparente */
     }
 
     .header {
-      /* Esta sección ya no tiene el título ni el subtítulo */
-      display: none; /* Oculta completamente el contenedor del header si no tiene contenido */
+      display: none; /* Oculta el encabezado HTML si lo hubiera */
     }
 
     /* Estilos para el logo de la radio */
     #radioLogo {
       position: absolute;
-      top: 150px; /* Ajusta esta posición para que quede bien con tu header */
+      top: 120px;
       left: 50%;
       transform: translateX(-50%);
-      max-width: 200px; /* Tamaño máximo del logo para escritorio */
+      max-width: 300px;
       height: auto;
       z-index: 3;
-      filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); /* Sombra para que destaque */
-      cursor: pointer; /* Añadimos cursor pointer para indicar que es clickeable */
-      transition: transform 0.2s ease-out; /* Transición suave para el efecto de clic */
+      filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7));
+      cursor: pointer;
+      transition: transform 0.2s ease-out, filter 0.3s ease;
     }
 
     #radioLogo.playing {
-        animation: pulseLogo 1.5s infinite alternate; /* Animación de pulsación cuando la música está sonando */
+      animation: pulseLogo 1.5s infinite alternate; /* Animación de pulsación */
     }
 
     @keyframes pulseLogo {
         from { transform: translateX(-50%) scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
-        to { transform: translateX(-50%) scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
+        to { transform: translateX(-50%) scale(1.08); filter: drop-shadow(0 0 25px rgba(255, 152, 0, 1)); }
     }
 
-    /* El trackInfo vuelve a su posición original */
+    /* Mensaje de inicio para PC */
+    #initialMessage {
+        position: absolute;
+        top: 420px; /* Debajo del logo y por encima de los controles */
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fff;
+        font-size: 1.2em;
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        background-color: rgba(0,0,0,0.6);
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        z-index: 4;
+        font-family: 'Roboto Condensed', sans-serif;
+    }
+
     #trackInfo {
       position: absolute;
-      top: 360px; /* Ajusta esta posición para que quede debajo del logo */
+      top: 350px; /* Posición de la información de la canción */
       left: 50%;
       transform: translateX(-50%);
-      background-color: transparent; /* Fondo transparente */
-      border: none; /* Sin borde */
-      box-shadow: none; /* Sin sombra de caja */
-      padding: 12px 25px;
+      background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+      border: 1px solid #ff9800; /* Borde naranja */
+      box-shadow: 0 0 15px rgba(255, 152, 0, 0.7); /* Sombra naranja brillante */
+      padding: 10px 20px;
       border-radius: 8px;
-      font-size: 1.3em;
+      font-size: 1.2em;
       text-align: center;
-      min-width: 320px;
-      max-width: 90%; /* Hace que sea responsivo */
-      box-sizing: border-box; /* Incluye padding en el ancho */
+      min-width: 300px;
+      max-width: 80%;
+      box-sizing: border-box;
       z-index: 3;
-      color: #fff; /* Texto blanco para la información de la canción */
-      text-shadow: 0 0 2px #fff; /* Sombra para legibilidad */
-      font-family: 'Montserrat', sans-serif; /* Fuente del cuerpo */
-    }
-
-    /* Visualizador ahora es solo el contenedor vacío, ya no renderiza */
-    #visualizer {
-      display: none; /* Ocultamos el visualizador ya que no se usará */
+      color: #fff;
+      text-shadow: 0 0 5px #ff9800; /* Sombra de texto para resaltar */
+      font-family: 'Montserrat', sans-serif;
     }
 
     .bottom-ui {
       position: absolute;
-      bottom: 120px; /* Ajustado para dejar espacio para las redes sociales */
+      bottom: 80px; /* Ajustado para dejar espacio a las redes sociales */
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
+      gap: 25px; /* Espacio entre los grupos de elementos */
       z-index: 2;
-      width: 90%; /* Controla el ancho en pantallas pequeñas */
+      width: 90%;
       box-sizing: border-box;
     }
 
     .controls {
       display: flex;
-      gap: 15px;
-      flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
-      justify-content: center; /* Centra los botones cuando se envuelven */
+      gap: 20px; /* Espacio entre los botones */
+      flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente para la botonera */
+      padding: 15px 30px;
+      border-radius: 12px;
+      border: 1px solid #616161;
+      box-shadow: 0 0 15px rgba(97, 97, 97, 0.4);
     }
 
-    .controls button,
-    .controls input[type="range"] {
-      padding: 12px 25px;
-      font-size: 1.1em;
-      background-color: #f44336; /* Botones rojos vibrantes */
-      color: #fff; /* Texto blanco en botones */
-      border: 2px solid #d32f2f; /* Borde rojo oscuro */
+    .controls button {
+      padding: 15px 25px; /* Más padding para hacerlos "gordos" */
+      font-size: 1.8em; /* Íconos más grandes */
+      background-color: #f44336;
+      color: #fff;
+      border: 2px solid #d32f2f;
       border-radius: 8px;
       cursor: pointer;
-      font-family: 'Roboto Condensed', sans-serif; /* Fuente de los botones */
+      font-family: 'Roboto Condensed', sans-serif;
       font-weight: 700;
-      box-shadow: 0 0 8px rgba(244, 67, 54, 0.6); /* Sombra de brillo para los botones */
-      transition: background-color 0.3s, box-shadow 0.3s;
-      flex-shrink: 0; /* Evita que los botones se encojan demasiado */
+      box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+      transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+      flex-shrink: 0;
+      display: flex; /* Para centrar el icono */
+      align-items: center;
+      justify-content: center;
     }
 
     .controls button:hover {
-      background-color: #d32f2f; /* Rojo más oscuro al pasar el ratón */
+      background-color: #d32f2f;
       box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
+      transform: translateY(-2px); /* Pequeño efecto al pasar el ratón */
     }
 
     /* Estilo específico para el botón de refrescar y pantalla completa */
     .controls #refreshButton,
     .controls #fullscreenButton {
-      padding: 12px 20px; /* Ajuste para el ícono */
-      font-size: 1.2em;
+      font-size: 1.5em; /* Ligeramente más pequeños si lo deseas */
+      padding: 15px 20px;
     }
 
-    .controls input[type="range"] {
-      width: 250px;
-      -webkit-appearance: none;
-      height: 10px;
-      background: #424242; /* Barra de volumen gris oscuro */
+    /* Estilos para el control de volumen */
+    .volume-control-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid #616161;
+      box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
+      margin-top: 15px; /* Separación de los botones de control */
+    }
+
+    .volume-control-group i {
+      color: #fff;
+      font-size: 1.5em; /* Tamaño del icono de volumen */
+      text-shadow: 0 0 5px #ff9800;
+    }
+
+    #volumeControl {
+      width: 150px;
+      -webkit-appearance: none; /* Elimina estilos por defecto del navegador */
+      appearance: none;
+      height: 8px;
+      background: #555; /* Fondo del deslizador */
       outline: none;
-      border-radius: 5px;
-      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+      border-radius: 4px;
+      cursor: pointer;
     }
 
-    .controls input[type="range"]::-webkit-slider-thumb {
+    #volumeControl::-webkit-slider-thumb {
       -webkit-appearance: none;
+      appearance: none;
       width: 20px;
       height: 20px;
-      background: #ff9800; /* Pulgar naranja brillante */
-      border: 2px solid #f57c00; /* Borde naranja oscuro */
+      background: #ff9800; /* Naranja brillante para el thumb */
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(255, 152, 0, 0.8); /* Sombra para el thumb */
+    }
+
+    #volumeControl::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #ff9800;
       border-radius: 50%;
       cursor: pointer;
       box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
@@ -163,27 +214,27 @@
       display: flex;
       gap: 20px;
       z-index: 4;
-      background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+      background-color: rgba(0, 0, 0, 0.7);
       padding: 10px 20px;
       border-radius: 10px;
-      border: 1px solid #616161; /* Borde gris oscuro */
+      border: 1px solid #616161;
       box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
-      flex-wrap: wrap; /* Permite que los iconos se envuelvan */
-      justify-content: center; /* Centra los iconos cuando se envuelven */
-      width: 90%; /* Limita el ancho en pantallas pequeñas */
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 90%;
       box-sizing: border-box;
-      max-width: 450px; /* Ancho máximo para no ser demasiado grande */
+      max-width: 450px;
     }
 
     .social-links a {
-      color: #fff; /* Iconos blancos por defecto */
+      color: #fff;
       font-size: 2.2em;
       transition: color 0.3s, transform 0.3s;
       text-decoration: none;
     }
 
     .social-links a:hover {
-      color: #ff9800; /* Naranja brillante al pasar el mouse */
+      color: #ff9800;
       transform: scale(1.2);
     }
 
@@ -191,123 +242,30 @@
     .social-links .fa-instagram:hover { color: #E1306C; }
     .social-links .fa-facebook:hover { color: #3b5998; }
     .social-links .fa-whatsapp:hover { color: #25D366; }
-    .social-links .fa-coffee:hover { color: #FFDD00; } /* Ko-fi */
-
-    /* --- MEDIA QUERIES PARA RESPONSIVIDAD --- */
-
-    /* Para pantallas medianas y celulares (hasta 768px de ancho) */
-    @media screen and (max-width: 768px) {
-      .header h1 {
-        font-size: 2.5em; /* Reducir tamaño del título */
-      }
-      .header h2 {
-        font-size: 1.2em; /* Reducir tamaño del subtítulo */
-      }
-
-      #radioLogo {
-        top: 120px; /* Ajuste para móviles */
-        max-width: 150px; /* Tamaño del logo para móviles */
-      }
-
-      #trackInfo {
-        top: 280px; /* Ajustar posición debajo del logo en móviles */
-        font-size: 1.1em;
-        padding: 10px 20px;
-        min-width: unset; /* Permitir que se encoja más */
-      }
-
-      .bottom-ui {
-        bottom: 100px; /* Subir un poco la UI de abajo */
-        gap: 10px;
-      }
-
-      .controls {
-        flex-direction: column; /* Apilar los botones verticalmente */
-        gap: 10px;
-      }
-
-      .controls button,
-      .controls input[type="range"] {
-        width: 80%; /* Hacer que los botones y el slider ocupen más ancho */
-        max-width: 300px; /* Limitar el ancho máximo */
-        padding: 10px 20px;
-        font-size: 1em;
-      }
-
-      .controls input[type="range"] {
-        width: 80%; /* Asegurar que el slider también se ajuste */
-      }
-
-      .social-links {
-        gap: 15px; /* Reducir el espacio entre iconos */
-        padding: 8px 15px;
-        bottom: 10px; /* Subir un poco las redes sociales */
-      }
-
-      .social-links a {
-        font-size: 1.8em; /* Reducir el tamaño de los iconos */
-      }
-    }
-
-    /* Para celulares pequeños (hasta 480px de ancho) */
-    @media screen and (max-width: 480px) {
-      .header h1 {
-        font-size: 2em;
-      }
-      .header h2 {
-        font-size: 1em;
-      }
-
-      #radioLogo {
-        top: 90px;
-        max-width: 120px;
-      }
-
-      #trackInfo {
-        top: 220px;
-        font-size: 0.9em;
-        padding: 8px 15px;
-      }
-
-      .bottom-ui {
-        bottom: 80px;
-      }
-
-      .controls button,
-      .controls input[type="range"] {
-        width: 90%; /* Casi el ancho completo */
-        padding: 8px 15px;
-        font-size: 0.9em;
-      }
-
-      .social-links {
-        gap: 10px;
-        padding: 5px 10px;
-      }
-
-      .social-links a {
-        font-size: 1.5em;
-      }
-    }
+    .social-links .fa-coffee:hover { color: #FFDD00; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
-  <div id="starfield-container"></div> <div class="header">
-    </div>
+  <div id="starfield-container"></div>
 
   <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
 
-  <div id="trackInfo" style="display:none;"></div> <div id="visualizer"></div>
+  <div id="initialMessage">Haz clic en 'Iniciar Radio' para comenzar</div>
+
+  <div id="trackInfo" style="display:none;"></div>
 
   <div class="bottom-ui">
     <div class="controls" id="controlPanel">
-      <button id="startButton">Iniciar Radio</button>
-      <button id="stopButton" style="display:none">Detener Radio</button>
-      <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="1">
+      <button id="playButton"><i class="fas fa-play"></i></button>
+      <button id="stopButton" style="display:none"><i class="fas fa-stop"></i></button>
+      
       <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
       <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
     </div>
+
+    <div class="volume-control-group">
+      <i class="fas fa-volume-down"></i> <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.7">
+      <i class="fas fa-volume-up"></i> </div>
   </div>
 
   <audio id="audio" src="https://stream.zeno.fm/udgoxuccigfuv" crossorigin="anonymous" controls hidden></audio>
@@ -332,109 +290,96 @@
 
   <script>
     const trackInfo = document.getElementById('trackInfo');
-    const startButton = document.getElementById('startButton');
+    const playButton = document.getElementById('playButton'); // Nuevo ID para el botón de Play
     const stopButton = document.getElementById('stopButton');
     const volumeControl = document.getElementById('volumeControl');
     const refreshButton = document.getElementById('refreshButton');
     const fullscreenButton = document.getElementById('fullscreenButton');
     const audio = document.getElementById('audio');
-    const radioLogo = document.getElementById('radioLogo'); // Nuevo: Referencia al logo
-    const starfieldContainer = document.getElementById('starfield-container');
+    const radioLogo = document.getElementById('radioLogo');
+    const initialMessage = document.getElementById('initialMessage');
+
     let audioCtx = null;
     let source, analyser, dataArray;
+    let renderer, scene, camera, stars, starGeo;
     let audioInitialized = false;
     let fetchIntervalId;
 
-    // Detección de dispositivo móvil
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+    // --- Three.js Starfield Animation ---
+    function initThreeJS() {
+      const container = document.getElementById('starfield-container');
+      
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
+      camera.position.z = 1;
+      camera.rotation.x = Math.PI / 2;
 
-    // --- Three.js para el Fondo de Estrellas ---
-    const starfieldScene = new THREE.Scene();
-    starfieldScene.background = new THREE.Color(0x0a0a0a);
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      container.appendChild(renderer.domElement);
 
-    const starfieldCamera = new THREE.PerspectiveCamera(75, starfieldContainer.clientWidth / starfieldContainer.clientHeight, 0.1, 1000);
-    const starfieldRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    starfieldRenderer.setSize(starfieldContainer.clientWidth, starfieldContainer.clientHeight);
-    starfieldContainer.appendChild(starfieldRenderer.domElement);
-
-    const starsGeometry = new THREE.BufferGeometry();
-    const starsMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 1.5,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending,
-    });
-
-    const starVertices = [];
-    for (let i = 0; i < 5000; i++) {
-        const x = (Math.random() - 0.5) * 2000;
-        const y = (Math.random() - 0.5) * 2000;
-        const z = (Math.random() - 0.5) * 2000;
-        starVertices.push(x, y, z);
-    }
-    starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-    const stars = new THREE.Points(starsGeometry, starsMaterial);
-    starfieldScene.add(stars);
-
-    starfieldCamera.position.z = 500;
-
-    function onStarfieldResize() {
-        starfieldCamera.aspect = starfieldContainer.clientWidth / starfieldContainer.clientHeight;
-        starfieldCamera.updateProjectionMatrix();
-        starfieldRenderer.setSize(starfieldContainer.clientWidth, starfieldContainer.clientHeight);
-    }
-    window.addEventListener('resize', onStarfieldResize, false);
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      let avg = 0;
-      if (audioInitialized && analyser && audioCtx && audioCtx.state === 'running') {
-        analyser.getByteFrequencyData(dataArray);
-        avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+      starGeo = new THREE.BufferGeometry();
+      const vertices = [];
+      for (let i = 0; i < 6000; i++) {
+        vertices.push(
+          Math.random() * 600 - 300,
+          Math.random() * 600 - 300,
+          Math.random() * 600 - 300
+        );
       }
+      starGeo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
-      // --- Parte del Fondo de Estrellas (reacción al audio) ---
-      const minSpeed = 0.5;
-      const maxSpeed = 3.0;
-      const speedFactor = minSpeed + (avg / 255) * (maxSpeed - minSpeed);
+      const sprite = new THREE.TextureLoader().load('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/star.png'); // Asegúrate de que esta URL sea correcta y accesible
+      const starMaterial = new THREE.PointsMaterial({
+        color: 0xaaaaaa,
+        size: 0.7,
+        map: sprite,
+        transparent: true
+      });
 
-      const positions = stars.geometry.attributes.position.array;
-      for (let i = 2; i < positions.length; i += 3) {
-          positions[i] -= speedFactor;
-          if (positions[i] < starfieldCamera.position.z - 1000) {
-              positions[i] = starfieldCamera.position.z + 1000;
+      stars = new THREE.Points(starGeo, starMaterial);
+      scene.add(stars);
+
+      window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animateStars() {
+      requestAnimationFrame(animateStars);
+
+      if (stars && starGeo && stars.geometry.attributes.position) {
+        const positions = stars.geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+          positions[i + 1] -= 0.5; // Mover hacia abajo (simulando movimiento hacia adelante)
+          if (positions[i + 1] < -300) {
+            positions[i + 1] = 300; // Reiniciar en la parte superior
           }
+        }
+        stars.geometry.attributes.position.needsUpdate = true; // Indicar a Three.js que actualice los vértices
       }
-      stars.geometry.attributes.position.needsUpdate = true;
 
-      const rotationSpeed = 0.00005 + (avg / 255) * 0.0005;
-      stars.rotation.x += rotationSpeed / 2;
-      stars.rotation.y += rotationSpeed;
-
-      // --- Brillo de las estrellas ---
-      const avg_normalized = avg / 255;
-      const baseOpacity = 0.6;
-      const maxOpacity = 1.0;
-      const baseSize = 1.5;
-      const maxSize = 3.0;
-
-      if (audioInitialized && audioCtx && audioCtx.state === 'running') {
-          starsMaterial.opacity = baseOpacity + avg_normalized * (maxOpacity - baseOpacity);
-          starsMaterial.size = baseSize + avg_normalized * (maxSize - baseSize);
+      // Brillo de estrellas reacciona al audio si está inicializado y sonando
+      if (audioInitialized && audio.paused === false && analyser && dataArray) {
+          analyser.getByteFrequencyData(dataArray);
+          let sum = dataArray.reduce((a, b) => a + b, 0);
+          let avg = sum / dataArray.length;
+          // Mapear el promedio a un rango de brillo (0.5 a 1.5) o similar
+          stars.material.color.setScalar(0.7 + (avg / 255) * 0.8); // Ajusta estos valores para el brillo deseado
       } else {
-          starsMaterial.opacity = baseOpacity;
-          starsMaterial.size = baseSize;
+          stars.material.color.setScalar(0.7); // Brillo base cuando no hay audio o está pausado
       }
-      starsMaterial.needsUpdate = true;
 
-      starfieldRenderer.render(starfieldScene, starfieldCamera);
+      renderer.render(scene, camera);
     }
+    // --- Fin Three.js Starfield Animation ---
 
-    // Modificación clave: Inicializar AudioContext en esta función que es llamada por un clic
+
     function initAudio() {
-      // Si AudioContext no ha sido creado o está en estado 'closed', lo creamos.
       if (!audioCtx || audioCtx.state === 'closed') {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         source = audioCtx.createMediaElementSource(audio);
@@ -445,7 +390,6 @@
         analyser.connect(audioCtx.destination);
       }
 
-      // Reanudar el AudioContext si está suspendido (común en móviles)
       if (audioCtx.state === 'suspended') {
         audioCtx.resume().then(() => {
           console.log('AudioContext reanudado.');
@@ -460,21 +404,21 @@
         audio.play().then(() => {
             console.log("Audio reproduciéndose. AudioContext state:", audioCtx.state);
             audioInitialized = true;
-            startButton.style.display = 'none'; // Ocultar el botón de inicio
-            stopButton.style.display = 'inline-block'; // Mostrar el botón de detener
+            playButton.style.display = 'none'; // Oculta Play
+            stopButton.style.display = 'inline-block'; // Muestra Stop
 
-            // Activar la clase 'playing' en el logo
-            radioLogo.classList.add('playing');
+            radioLogo.classList.add('playing'); // Iniciar pulsación del logo
+            trackInfo.style.display = 'block'; // Mostrar info de la canción
+            initialMessage.style.display = 'none'; // Ocultar el mensaje inicial (¡EL CAMBIO CLAVE!)
 
-            trackInfo.style.display = 'block';
             fetchNowPlaying();
             if (fetchIntervalId) clearInterval(fetchIntervalId);
-            fetchIntervalId = setInterval(fetchNowPlaying, 10000);
+            fetchIntervalId = setInterval(fetchNowPlaying, 10000); // Actualizar cada 10 segundos
         }).catch(e => {
             console.error("Error al reproducir audio:", e);
             trackInfo.textContent = 'Error al iniciar la radio (requiere interacción).';
             trackInfo.style.display = 'block';
-            startButton.style.display = 'inline-block';
+            playButton.style.display = 'inline-block';
             stopButton.style.display = 'none';
         });
     }
@@ -483,32 +427,31 @@
       audio.pause();
       audio.currentTime = 0;
       trackInfo.textContent = 'Radio Detenida';
-      startButton.style.display = 'inline-block';
-      stopButton.style.display = 'none';
+      playButton.style.display = 'inline-block'; // Muestra Play
+      stopButton.style.display = 'none'; // Oculta Stop
       audioInitialized = false;
       if (fetchIntervalId) {
           clearInterval(fetchIntervalId);
           fetchIntervalId = null;
       }
       trackInfo.style.display = 'block';
-      radioLogo.classList.remove('playing'); // Remover la clase 'playing' del logo
+      radioLogo.classList.remove('playing'); // Detener pulsación del logo
 
       if (audioCtx && audioCtx.state === 'running') {
           audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
       }
     }
 
-    // NUEVA FUNCIÓN: Toggle Play/Pause para móviles (y PCs también, si lo deseamos)
-    function togglePlayPause() {
-        if (audio.paused) {
-            initAudio(); // Reanudar o iniciar el audio y AudioContext
-        } else {
-            stopAudio(); // Detener el audio y suspender AudioContext
-        }
+    function setVolume(value) {
+      audio.volume = value;
     }
 
-    function setVolume(e) {
-      audio.volume = e.target.value;
+    function togglePlayPause() {
+        if (audio.paused) {
+            initAudio();
+        } else {
+            stopAudio();
+        }
     }
 
     function refreshPage() {
@@ -542,53 +485,31 @@
     }
 
     // Inicializar listeners
-    startButton.addEventListener('click', initAudio);
-    stopButton.addEventListener('click', stopAudio); // El botón de stop sigue funcionando
-    volumeControl.addEventListener('input', setVolume);
+    playButton.addEventListener('click', initAudio); // Listener para el nuevo botón Play
+    stopButton.addEventListener('click', stopAudio);
+    volumeControl.addEventListener('input', (e) => setVolume(e.target.value));
     refreshButton.addEventListener('click', refreshPage);
     fullscreenButton.addEventListener('click', toggleFullscreen);
 
-    // NUEVO: Listener para el logo que actúa como Play/Pause
+    // Listener para el logo como Play/Pause
     radioLogo.addEventListener('click', function() {
-        if (isMobile) { // Solo si es móvil, el logo actúa como Play/Pause después del primer inicio
-            if (audioInitialized) { // Si ya se ha inicializado el audio una vez
-                togglePlayPause();
-            } else {
-                // Si aún no se ha inicializado, un clic en el logo también lo inicia
-                initAudio();
-            }
-        } else { // En PC, el logo solo actúa como Play/Pause si ya está reproduciendo
-            if (audioInitialized && !audio.paused) { // Solo pausa si ya está reproduciendo
-                stopAudio();
-            } else if (audio.paused) { // Si está en pausa, reanuda
-                initAudio();
-            } else { // Si no ha iniciado, lo inicia
-                initAudio();
-            }
+        if (audioInitialized) { // Si ya se ha inicializado el audio una vez
+            togglePlayPause();
+        } else {
+            initAudio(); // Si aún no se ha inicializado, un clic en el logo también lo inicia
         }
     });
 
-
-    // Lógica para mostrar/ocultar botones al inicio según el dispositivo
+    // Cargar info de la canción al inicio
     window.onload = function() {
-        if (isMobile) {
-            // En móviles, mostrar el botón de inicio al principio
-            startButton.style.display = 'inline-block';
-            stopButton.style.display = 'none'; // Ocultar el botón de detener inicialmente
-            trackInfo.textContent = 'Toca el logo o el botón para iniciar'; // Mensaje inicial
-            trackInfo.style.display = 'block';
-        } else {
-            // En PC, también se inicia con el botón principal, o el logo si está configurado
-            startButton.style.display = 'inline-block';
-            stopButton.style.display = 'none';
-            trackInfo.textContent = 'Haz clic en "Iniciar Radio" para comenzar';
-            trackInfo.style.display = 'block';
-        }
+        fetchNowPlaying();
+        initialMessage.style.display = 'block'; // Asegurar que el mensaje inicial esté visible
+        trackInfo.style.display = 'none'; // Asegurar que la info de la canción no se muestre al inicio
+        
+        // Iniciar Three.js al cargar la página
+        initThreeJS();
+        animateStars();
     };
-
-
-    // Iniciar el bucle de animación para el campo de estrellas
-    animate();
   </script>
 </body>
 </html>
