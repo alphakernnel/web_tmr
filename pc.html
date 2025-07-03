@@ -1,59 +1,76 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- ... (resto del código) ... -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Total Music Radio (PC)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
+  <style>
+    /* Estilos para la página */
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #121212;
+      color: #f44336;
+      font-family: 'Montserrat', sans-serif;
+    }
+    /* Estilos para el chat en vivo */
+    .chat-button {
+      position: fixed;
+      bottom: 150px;
+      right: 20px;
+      background-color: #f44336;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .chat-popup {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      background-color: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      height: 400px;
+      overflow-y: auto;
+    }
+    .chat-messages {
+      padding: 20px;
+    }
+  </style>
 </head>
 <body>
-  <!-- ... (resto del código) ... -->
-  <button id="chat-button" style="position: fixed; bottom: 150px; right: 20px; background-color: #f44336; color: #fff; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">Chat en vivo</button>
-  <div id="chat-popup" style="display: none; position: fixed; bottom: 0; right: 0; background-color: #fff; padding: 20px; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); width: 300px; height: 400px; overflow-y: auto;">
+  <div id="starfield-container"></div>
+  <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
+  <div id="trackInfo" style="display:none;"></div>
+  <div class="bottom-ui">
+    <div class="controls" id="controlPanel">
+      <button id="playButton"><i class="fas fa-play"></i></button>
+      <button id="stopButton" style="display:none"><i class="fas fa-stop"></i></button>
+      <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
+      <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
+    </div>
+    <div class="volume-control-group">
+      <i class="fas fa-volume-down"></i> <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.7">
+      <i class="fas fa-volume-up"></i>
+    </div>
+  </div>
+  <button id="chat-button" class="chat-button">Chat en vivo</button>
+  <div id="chat-popup" class="chat-popup">
     <h2>Chat en vivo</h2>
-    <div id="chat-messages"></div>
+    <div id="chat-messages" class="chat-messages"></div>
     <input id="chat-nickname" type="text" placeholder="Ingresa tu seudónimo...">
     <input id="chat-input" type="text" placeholder="Escribe un mensaje...">
     <button id="chat-send">Enviar</button>
   </div>
-  <!-- ... (resto, del código) ... -->
-  <script>
-    // ... (resto del código) ...
-    const chatButton = document.getElementById('chat-button');
-    const chatPopup = document.getElementById('chat-popup');
-    const chatMessages = document.getElementById('chat-messages');
-    const chatInput = document.getElementById('chat-input');
-    const chatSend = document.getElementById('chat-send');
-    const chatNickname = document.getElementById('chat-nickname');
-
-    let nickname = '';
-
-    // Abrir popup
-    chatButton.addEventListener('click', () => {
-      chatPopup.style.display = 'block';
-    });
-
-    // Cerrar popup
-    document.addEventListener('click', (e) => {
-      if (e.target === chatPopup || e.target === chatButton) {
-        // No hacer nada
-      } else {
-        chatPopup.style.display = 'none';
-      }
-    });
-
-    // Enviar mensaje
-    chatSend.addEventListener('click', () => {
-      const message = chatInput.value.trim();
-      if (message !== '') {
-        const nicknameValue = chatNickname.value.trim();
-        if (nicknameValue !== '') {
-          nickname = nicknameValue;
-          const messageHTML = `<p><strong>${nickname}:</strong> ${message}</p>`;
-          chatMessages.innerHTML += messageHTML;
-          chatInput.value = '';
-        } else {
-          alert('Por favor, ingresa tu seudónimo');
-        }
-      }
-    });
-  </script>
+  <audio id="audio" src="https://stream.zeno.fm/udgoxuccigfuv" crossorigin="anonymous" controls hidden></audio>
+  <script src="script.js"></script>
 </body>
-</
+</html>
