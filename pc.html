@@ -58,12 +58,12 @@
         to { transform: translateX(-50%) scale(1.08); filter: drop-shadow(0 0 25px rgba(255, 152, 0, 1)); }
     }
 
-    /* Mensaje de inicio para PC */
+    /* Mensaje de inicio para PC - Ajustado para centrado vertical y mejor visibilidad */
     #initialMessage {
         position: absolute;
-        top: 420px; /* Debajo del logo y por encima de los controles */
+        top: 50%; /* Centrado vertical */
         left: 50%;
-        transform: translateX(-50%);
+        transform: translate(-50%, -50%); /* Ajuste para centrado real */
         color: #fff;
         font-size: 1.2em;
         text-align: center;
@@ -79,7 +79,7 @@
 
     #trackInfo {
       position: absolute;
-      top: 350px; /* Posición de la información de la canción */
+      top: 70%; /* Posición de la información de la canción - AJUSTADO PARA NO INTERFERIR */
       left: 50%;
       transform: translateX(-50%);
       background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
@@ -114,19 +114,19 @@
 
     .controls {
       display: flex;
-      gap: 20px; /* Espacio entre los botones */
+      gap: 12px; /* Espacio entre los botones - REDUCIDO */
       flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
       justify-content: center;
       background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente para la botonera */
-      padding: 15px 30px;
+      padding: 10px 20px; /* Padding de la botonera - REDUCIDO */
       border-radius: 12px;
       border: 1px solid #616161;
       box-shadow: 0 0 15px rgba(97, 97, 97, 0.4);
     }
 
     .controls button {
-      padding: 15px 25px; /* Más padding para hacerlos "gordos" */
-      font-size: 1.8em; /* Íconos más grandes */
+      padding: 6px 10px; /* Más padding para hacerlos "gordos" - REDUCIDO un 60% aprox. */
+      font-size: 0.8em; /* Íconos más pequeños - REDUCIDO un 60% aprox. */
       background-color: #f44336;
       color: #fff;
       border: 2px solid #d32f2f;
@@ -140,6 +140,8 @@
       display: flex; /* Para centrar el icono */
       align-items: center;
       justify-content: center;
+      min-width: 40px; /* Asegura un tamaño mínimo si el padding es muy bajo */
+      min-height: 40px;
     }
 
     .controls button:hover {
@@ -151,8 +153,8 @@
     /* Estilo específico para el botón de refrescar y pantalla completa */
     .controls #refreshButton,
     .controls #fullscreenButton {
-      font-size: 1.5em; /* Ligeramente más pequeños si lo deseas */
-      padding: 15px 20px;
+      font-size: 0.7em; /* Ligeramente más pequeños si lo deseas - AJUSTADO */
+      padding: 6px 8px; /* AJUSTADO */
     }
 
     /* Estilos para el control de volumen */
@@ -170,7 +172,7 @@
 
     .volume-control-group i {
       color: #fff;
-      font-size: 1.5em; /* Tamaño del icono de volumen */
+      font-size: 1.2em; /* Tamaño del icono de volumen - Ligeramente reducido para concordar */
       text-shadow: 0 0 5px #ff9800;
     }
 
@@ -290,7 +292,7 @@
 
   <script>
     const trackInfo = document.getElementById('trackInfo');
-    const playButton = document.getElementById('playButton'); // Nuevo ID para el botón de Play
+    const playButton = document.getElementById('playButton');
     const stopButton = document.getElementById('stopButton');
     const volumeControl = document.getElementById('volumeControl');
     const refreshButton = document.getElementById('refreshButton');
@@ -301,7 +303,7 @@
 
     let audioCtx = null;
     let source, analyser, dataArray;
-    let renderer, scene, camera, stars, starGeo;
+    let renderer, scene, camera, stars, starGeo; // Three.js variables
     let audioInitialized = false;
     let fetchIntervalId;
 
@@ -329,7 +331,8 @@
       }
       starGeo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
 
-      const sprite = new THREE.TextureLoader().load('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/star.png'); // Asegúrate de que esta URL sea correcta y accesible
+      // Asegúrate de que esta URL para 'star.png' sea correcta y accesible en tu repositorio
+      const sprite = new THREE.TextureLoader().load('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/star.png'); 
       const starMaterial = new THREE.PointsMaterial({
         color: 0xaaaaaa,
         size: 0.7,
@@ -368,8 +371,8 @@
           analyser.getByteFrequencyData(dataArray);
           let sum = dataArray.reduce((a, b) => a + b, 0);
           let avg = sum / dataArray.length;
-          // Mapear el promedio a un rango de brillo (0.5 a 1.5) o similar
-          stars.material.color.setScalar(0.7 + (avg / 255) * 0.8); // Ajusta estos valores para el brillo deseado
+          // Mapear el promedio a un rango de brillo (0.7 a 1.5)
+          stars.material.color.setScalar(0.7 + (avg / 255) * 0.8); 
       } else {
           stars.material.color.setScalar(0.7); // Brillo base cuando no hay audio o está pausado
       }
@@ -409,7 +412,7 @@
 
             radioLogo.classList.add('playing'); // Iniciar pulsación del logo
             trackInfo.style.display = 'block'; // Mostrar info de la canción
-            initialMessage.style.display = 'none'; // Ocultar el mensaje inicial (¡EL CAMBIO CLAVE!)
+            initialMessage.style.display = 'none'; // Ocultar el mensaje inicial
 
             fetchNowPlaying();
             if (fetchIntervalId) clearInterval(fetchIntervalId);
@@ -485,7 +488,7 @@
     }
 
     // Inicializar listeners
-    playButton.addEventListener('click', initAudio); // Listener para el nuevo botón Play
+    playButton.addEventListener('click', initAudio);
     stopButton.addEventListener('click', stopAudio);
     volumeControl.addEventListener('input', (e) => setVolume(e.target.value));
     refreshButton.addEventListener('click', refreshPage);
@@ -493,14 +496,14 @@
 
     // Listener para el logo como Play/Pause
     radioLogo.addEventListener('click', function() {
-        if (audioInitialized) { // Si ya se ha inicializado el audio una vez
+        if (audioInitialized) {
             togglePlayPause();
         } else {
-            initAudio(); // Si aún no se ha inicializado, un clic en el logo también lo inicia
+            initAudio();
         }
     });
 
-    // Cargar info de la canción al inicio
+    // Cargar info de la canción al inicio y configurar Three.js
     window.onload = function() {
         fetchNowPlaying();
         initialMessage.style.display = 'block'; // Asegurar que el mensaje inicial esté visible
