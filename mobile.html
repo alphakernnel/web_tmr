@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Total Music Radio (PC)</title>
+  <title>Total Music Radio - Móvil</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mobile-style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
 </head>
 <body>
@@ -19,17 +19,13 @@
     <div class="controls" id="controlPanel">
       <button id="playButton"><i class="fas fa-play"></i></button>
       <button id="stopButton" style="display:none"><i class="fas fa-stop"></i></button>
-
       <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
-      <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
-    </div>
-
-    <div class="volume-control-group">
-      <i class="fas fa-volume-down"></i> <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.7">
-      <i class="fas fa-volume-up"></i> </div>
+      </div>
   </div>
 
   <audio id="audio" src="https://stream.zeno.fm/udgoxuccigfuv" crossorigin="anonymous" controls hidden></audio>
+
+  <canvas id="audioVisualizer"></canvas>
 
   <div class="social-links">
     <a href="https://linktr.ee/tmradio.cl" target="_blank" aria-label="Web Linktree">
@@ -49,6 +45,6 @@
     </a>
   </div>
 
-  <script src="script.js"></script>
+  <script src="mobile-script.js"></script>
 </body>
 </html>
