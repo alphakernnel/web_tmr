@@ -219,6 +219,20 @@ function toggleFullscreen() {
     }
 }
 
+// NUEVA FUNCIÓN PARA MANEJAR CAMBIOS EN PANTALLA COMPLETA
+function handleFullscreenChange() {
+  if (document.fullscreenElement) {
+    // Entrando en modo pantalla completa
+    document.body.classList.add('is-fullscreen');
+    console.log('Modo Pantalla Completa Activado: Clase "is-fullscreen" añadida al body.');
+  } else {
+    // Saliendo del modo pantalla completa
+    document.body.classList.remove('is-fullscreen');
+    console.log('Modo Pantalla Completa Desactivado: Clase "is-fullscreen" eliminada del body.');
+  }
+}
+
+
 // Inicializar listeners
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOMContentLoaded: DOM completamente cargado.');
@@ -240,6 +254,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
             initAudio();
         }
     });
+
+    // Añadir el event listener para el cambio de pantalla completa
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
 
     initThreeJS();
     animateStars();

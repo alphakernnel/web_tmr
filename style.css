@@ -68,7 +68,7 @@ html, body {
   font-family: 'Montserrat', sans-serif;
 }
 
-/* Estilos para el contenedor de la interfaz de usuario inferior/central - CORREGIDO A INFERIOR CENTRADO */
+/* Estilos para el contenedor de la interfaz de usuario inferior/central - Normal */
 .bottom-ui {
   position: absolute;
   bottom: 80px; /* Ajustado para dejar espacio a las redes sociales */
@@ -77,8 +77,8 @@ html, body {
   top: auto; /* Anula la propiedad top anterior */
   right: auto; /* Anula la propiedad right anterior */
   display: flex;
-  flex-direction: column;
-  align-items: center; /* Centra los elementos internos (botones, volumen) */
+  flex-direction: column; /* Normal: los elementos internos se apilan verticalmente */
+  align-items: center; /* Normal: centra los elementos internos (botones, volumen) */
   gap: 25px; /* Espacio entre los grupos de elementos */
   z-index: 2; /* Debajo del logo y mensajes, pero encima de las estrellas */
   width: 90%; /* Ancho relativo para un diseño responsivo */
@@ -208,3 +208,74 @@ html, body {
 .social-links .fa-facebook:hover { color: #3b5998; }
 .social-links .fa-whatsapp:hover { color: #25D366; }
 .social-links .fa-coffee:hover { color: #FFDD00; }
+
+/* ------------------------------------------- */
+/* ESTILOS ESPECÍFICOS PARA MODO PANTALLA COMPLETA */
+/* ------------------------------------------- */
+
+/* Ocultar redes sociales en modo pantalla completa */
+body.is-fullscreen .social-links {
+  display: none;
+}
+
+/* Ajustar el contenedor principal de botones y volumen en modo pantalla completa */
+body.is-fullscreen .bottom-ui {
+  position: fixed; /* Usar fixed para asegurar que se quede en la ventana de vista */
+  bottom: 20px; /* Más cerca del borde inferior */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto; /* Dejar que el ancho se ajuste al contenido */
+  max-width: 90%; /* Asegurar que no se desborde en pantallas pequeñas */
+  flex-direction: row; /* Alinear los elementos internos horizontalmente */
+  gap: 15px; /* Reducir el espacio entre los grupos (controles y volumen) */
+  background-color: transparent; /* Fondo transparente para el contenedor principal */
+  padding: 0; /* Sin padding en el contenedor principal */
+  border: none; /* Sin borde */
+  box-shadow: none; /* Sin sombra */
+}
+
+/* Ajustes para el grupo de controles (botones) en modo pantalla completa */
+body.is-fullscreen .controls {
+  padding: 10px 20px; /* Reducir el padding */
+  gap: 10px; /* Reducir el espacio entre botones */
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo ligeramente más transparente */
+  border: 1px solid #424242; /* Borde más sutil */
+  box-shadow: 0 0 10px rgba(66, 66, 66, 0.3); /* Sombra más sutil */
+}
+
+body.is-fullscreen .controls button {
+  padding: 8px 18px; /* Reducir el padding de los botones individuales */
+  font-size: 1em; /* Reducir el tamaño de fuente */
+  border-width: 1px; /* Borde más fino */
+}
+
+body.is-fullscreen .controls #refreshButton,
+body.is-fullscreen .controls #fullscreenButton {
+  padding: 6px 15px; /* Ajustar aún más los botones pequeños */
+  font-size: 0.9em;
+}
+
+/* Ajustes para el grupo de volumen en modo pantalla completa */
+body.is-fullscreen .volume-control-group {
+  padding: 8px 15px; /* Reducir el padding */
+  gap: 8px; /* Reducir el espacio entre icono y slider */
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo ligeramente más transparente */
+  border: 1px solid #424242; /* Borde más sutil */
+  box-shadow: 0 0 10px rgba(66, 66, 66, 0.3); /* Sombra más sutil */
+  margin-top: 0; /* Eliminar margen superior si se alinean horizontalmente */
+}
+
+body.is-fullscreen .volume-control-group i {
+  font-size: 1.2em; /* Icono más pequeño */
+}
+
+body.is-fullscreen #volumeControl {
+  width: 100px; /* Hacer el slider más corto */
+  height: 6px;
+}
+
+body.is-fullscreen #volumeControl::-webkit-slider-thumb,
+body.is-fullscreen #volumeControl::-moz-range-thumb {
+  width: 16px; /* Hacer el thumb más pequeño */
+  height: 16px;
+}
