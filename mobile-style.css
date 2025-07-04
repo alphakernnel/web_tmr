@@ -69,17 +69,17 @@ html, body {
 
 /* Estilos para el contenedor principal de UI inferior en móvil (sin volumen, sin fullscreen) */
 .bottom-ui {
-  position: fixed; /* Usar fixed para asegurar que se quede en la ventana de vista */
-  bottom: 20px; /* Cerca del borde inferior */
+  position: fixed;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  flex-direction: row; /* Asegura que los botones se alineen horizontalmente */
+  flex-direction: row;
   align-items: center;
-  justify-content: center; /* Centra los botones Play/Stop/Recargar */
-  gap: 10px; /* Menos espacio entre los controles */
-  width: auto; /* Ancho ajustado al contenido */
-  padding: 10px 15px; /* Padding más compacto */
+  justify-content: center;
+  gap: 10px;
+  width: auto;
+  padding: 10px 15px;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.7);
   border: 1px solid #616161;
@@ -87,83 +87,65 @@ html, body {
   z-index: 2;
 }
 
-/* Los .controls son los botones Play/Stop/Refresh */
+/* Los .controls son los botones Play/Stop/Refresh Y AHORA Linktree */
 .controls {
-  background-color: transparent; /* Quitar fondo, ya lo tiene el padre .bottom-ui */
+  background-color: transparent;
   padding: 0;
   border: none;
   box-shadow: none;
-  gap: 10px; /* Espacio entre botones Play/Stop/Recargar */
-  justify-content: center; /* Centrar internamente */
+  gap: 10px; /* Espacio entre botones */
+  justify-content: center;
+  display: flex; /* Asegurarse de que sea flex para alinear el nuevo botón */
+  align-items: center; /* Alinear verticalmente los botones */
 }
 
-.controls button {
-  padding: 10px 20px; /* Reducir padding */
-  font-size: 1em; /* Reducir tamaño de fuente */
-  border-width: 1px; /* Borde más fino */
+/* Estilo base para todos los botones de control (incluye Linktree ahora) */
+.controls button,
+.controls .control-button { /* Se aplica a los botones y al nuevo enlace con clase control-button */
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #f44336; /* Color rojo de los botones */
+  color: #fff;
+  border: 2px solid #d32f2f;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+  transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
   flex-shrink: 0;
+  text-decoration: none; /* Quitar subrayado del enlace */
+  display: flex; /* Para centrar el icono dentro del botón */
+  align-items: center;
+  justify-content: center;
 }
 
-.controls button:hover {
+.controls button:hover,
+.controls .control-button:hover {
   background-color: #d32f2f;
   box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
   transform: translateY(-2px);
 }
 
-/* Las redes sociales en móvil (solo Linktree) */
+/* Ocultar el div social-links por completo ya que el Linktree está arriba */
 .social-links {
-  position: fixed;
-  bottom: 80px; /* Posicionamiento encima de .bottom-ui (aprox. 20px bottom + 40px height + 20px gap) */
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex; /* Asegura que siga siendo un flex container para centrado */
-  justify-content: center; /* Centrar el único botón */
-  align-items: center;
-  gap: 0; /* Eliminar gap entre los iconos */
-  background-color: transparent; /* Eliminar fondo del contenedor general */
-  padding: 0;
-  border: none;
-  box-shadow: none;
-  width: auto; /* Ancho ajustado al contenido del Linktree */
-  z-index: 4;
+  display: none; /* Oculta completamente el contenedor y sus hijos */
 }
 
-.social-links a:not(:first-child) {
-  display: none; /* Ocultar todos los enlaces excepto el primero (Linktree) */
-}
-
-.social-links a:first-child {
-  display: flex; /* Asegura que el Linktree se muestre */
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.7); /* Fondo de botón para Linktree */
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 1px solid #616161;
-  box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
-  font-size: 1.2em; /* Tamaño del icono */
-  color: #fff; /* Color del icono */
-  transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s; /* Añadir transiciones para hover */
-  transform: none; /* Asegurar no transformaciones iniciales */
-}
-.social-links a:first-child:hover { /* Asegurar que el hover siga funcionando */
-  color: #ff9800; /* Color al pasar el ratón */
-  transform: scale(1.05); /* Ligeramente más grande al pasar el ratón */
-}
 
 /* Estilos para el visualizador de audio en móvil */
 #audioVisualizer {
   display: none; /* Oculto por defecto, JS lo mostrará */
   position: fixed;
-  bottom: 150px; /* Se posiciona encima de los social links y controles */
+  bottom: 80px; /* Posicionamiento encima de .bottom-ui (20px bottom + altura de .bottom-ui + margen) */
   left: 50%;
   transform: translateX(-50%);
-  width: 90%; /* Un poco más de ancho en móvil */
-  max-width: 300px; /* Ancho máximo para que no sea muy grande */
-  height: 60px; /* Un poco más de alto para visibilidad */
+  width: 90%;
+  max-width: 300px;
+  height: 60px;
   background-color: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 152, 0, 0.5); /* Borde sutil naranja */
-  box-shadow: 0 0 15px rgba(255, 152, 0, 0.3); /* Sombra naranja */
+  border: 1px solid rgba(255, 152, 0, 0.5);
+  box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
   border-radius: 10px;
   z-index: 3;
 }
