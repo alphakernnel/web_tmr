@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TM Radio - Página de Prueba Móvil</title>
+    
+    <style>
+        /* ESTILOS BÁSICOS PARA ESTA PÁGINA DE PRUEBA */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a; /* Fondo oscuro tipo rock */
+            color: #eee;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box; /* Asegura que el padding no cause desbordamiento */
+        }
+
+        header {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #ff4500; /* Color naranja/rojo vibrante */
+            margin-bottom: 10px;
+            font-size: 1.8em; /* Ajuste para móviles */
+        }
+
+        h2 {
+            color: #eee;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+
+        /* Estilos para el reproductor de radio */
+        #radioPlayer {
+            width: 100%;
+            max-width: 400px; /* Ancho máximo para el reproductor */
+            margin-top: 15px;
+            background-color: #333;
+            border-radius: 8px;
+        }
+
+        .music-controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
+            gap: 15px; /* Espacio entre botones */
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #222;
+            border-radius: 8px;
+        }
+
+        .music-controls button {
+            background-color: #e60000; /* Rojo vibrante */
+            color: white;
+            border: 2px solid #a30000;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .music-controls button:hover {
+            background-color: #cc0000;
+            transform: translateY(-2px);
+        }
+        
+        .music-controls button:active {
+            transform: translateY(0);
+        }
+
+        /* Estilos para el contenedor del juego */
+        .game-container {
+            width: 100%;
+            max-width: 600px; /* Ancho máximo para el contenedor del juego */
+            margin: 40px auto; /* Centra el contenedor y le da espacio */
+            background-color: #000; /* Fondo negro para el juego */
+            border: 2px solid #555;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            border-radius: 10px;
+            padding: 15px;
+            box-sizing: border-box; /* Incluye padding en el ancho total */
+        }
+
+        .game-iframe {
+            width: 100%;
+            /* La altura es CRUCIAL. Ajusta este valor para que el juego del dino se vea completo y cómodo. */
+            /* Sugiero probar con 250px o 300px inicialmente y ajustar. */
+            height: 250px; 
+            border: none;
+            overflow: hidden; /* Evita barras de desplazamiento dentro del iframe */
+            display: block; /* Asegura que el iframe se comporte como un bloque */
+            margin: 0 auto; /* Centra el iframe dentro de su contenedor */
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>TM Radio Online</h1>
+        <p>¡Tu estación de rock favorita con un juego épico!</p>
+
+        <audio id="radioPlayer" controls>
+            <source src="URL_DE_TU_STREAMING_DE_RADIO" type="audio/mpeg">
+            Tu navegador no soporta el elemento de audio.
+        </audio>
+
+        <div class="music-controls">
+            <button onclick="document.getElementById('radioPlayer').play()">PLAY RADIO</button>
+            <button onclick="document.getElementById('radioPlayer').pause()">PAUSE RADIO</button>
+            <button onclick="document.getElementById('radioPlayer').volume = Math.min(1, document.getElementById('radioPlayer').volume + 0.1)">VOL +</button>
+            <button onclick="document.getElementById('radioPlayer').volume = Math.max(0, document.getElementById('radioPlayer').volume - 0.1)">VOL -</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="game-container">
+            <h2>¡Prueba de Juego "Tap/Jump" (Dino de Chrome)!</h2>
+            <iframe
+                src="https://chromedino.com/"
+                class="game-iframe"
+                id="dinoGameFrame"
+                allowfullscreen
+            ></iframe>
+            <p style="color: #bbb; font-size: 0.9em; margin-top: 10px;">
+                Toca la pantalla para saltar y prueba cómo se siente el juego junto a la radio.
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TM Radio. Todos los derechos reservados.</p>
+    </footer>
+
+    </body>
+</html>
