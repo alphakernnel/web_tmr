@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Juego de Prueba Simple</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Evita barras de desplazamiento */
+            background-color: #3498db; /* Un fondo azul cielo simple */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* Posiciona el "personaje" abajo */
+            height: 100vh; /* Ocupa el 100% de la altura de la vista */
+            width: 100vw; /* Ocupa el 100% del ancho de la vista */
+            position: relative; /* Para posicionamiento absoluto del personaje */
+        }
+        .character {
+            width: 50px;
+            height: 50px;
+            background-color: #e74c3c; /* Un cuadrado rojo simple */
+            position: absolute;
+            bottom: 10px; /* Base del suelo */
+            transition: bottom 0.2s ease-out; /* Animación de salto */
+        }
+        .jumping {
+            bottom: 100px; /* Altura del salto */
+        }
+    </style>
+</head>
+<body>
+    <div class="character" id="myCharacter"></div>
+
+    <script>
+        const character = document.getElementById('myCharacter');
+        let isJumping = false;
+
+        // Función para el salto
+        function jump() {
+            if (!isJumping) {
+                isJumping = true;
+                character.classList.add('jumping');
+                setTimeout(() => {
+                    character.classList.remove('jumping');
+                    isJumping = false;
+                }, 400); // Duración del salto (milisegundos)
+            }
+        }
+
+        // Detectar toques/clics en cualquier parte del body
+        document.body.addEventListener('click', jump);
+        document.body.addEventListener('touchstart', jump); // Para pantallas táctiles
+    </script>
+</body>
+</html>
