@@ -5,16 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Juego de Prueba Simple</title>
     <style>
-        body {
-            margin: 0;
+        /* AÑADIDO: Asegura que html y body ocupen el 100% del espacio del iframe */
+        html, body {
+            height: 100%; /* Ocupa el 100% del alto disponible */
+            width: 100%;  /* Ocupa el 100% del ancho disponible */
+            margin: 0;    /* Elimina márgenes predeterminados */
             overflow: hidden; /* Evita barras de desplazamiento */
+        }
+
+        body {
             background-color: #3498db; /* Un fondo azul cielo simple */
             display: flex;
             justify-content: center;
             align-items: flex-end; /* Posiciona el "personaje" abajo */
-            height: 100vh; /* Ocupa el 100% de la altura de la vista */
-            width: 100vw; /* Ocupa el 100% del ancho de la vista */
+            /* REMOVIDO: height: 100vh; y width: 100vw; ya que html/body 100% es suficiente dentro del iframe */
             position: relative; /* Para posicionamiento absoluto del personaje */
+            box-sizing: border-box; /* Asegura que padding no afecte el 100% */
         }
         .character {
             width: 50px;
@@ -36,7 +42,6 @@
         const character = document.getElementById('myCharacter');
         let isJumping = false;
 
-        // Función para el salto
         function jump() {
             if (!isJumping) {
                 isJumping = true;
@@ -44,13 +49,13 @@
                 setTimeout(() => {
                     character.classList.remove('jumping');
                     isJumping = false;
-                }, 400); // Duración del salto (milisegundos)
+                }, 400);
             }
         }
 
         // Detectar toques/clics en cualquier parte del body
         document.body.addEventListener('click', jump);
-        document.body.addEventListener('touchstart', jump); // Para pantallas táctiles
+        document.body.addEventListener('touchstart', jump);
     </script>
 </body>
 </html>
