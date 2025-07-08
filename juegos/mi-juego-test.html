@@ -3,74 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Juego de Prueba Simple</title>
+    <title>TM Radio - Prueba de Juego (Solo Juego)</title>
+    
     <style>
-        html, body {
-            height: 100%;
-            width: 100%;
+        /* Estilos básicos para el cuerpo de la página */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a; /* Fondo oscuro */
+            color: #eee;
             margin: 0;
-            overflow: hidden;
+            padding: 20px;
+            text-align: center;
             box-sizing: border-box;
+            display: flex; /* Para centrar el contenedor del juego */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Asegura que ocupe al menos toda la altura de la vista */
         }
 
-        body {
-            background-color: #3498db;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
+        h2 {
+            color: #eee;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+        }
+
+        /* Estilos para el contenedor del juego */
+        .game-container {
+            width: 100%;
+            max-width: 600px; /* Ancho máximo para el contenedor del juego */
+            background-color: #000; /* Fondo negro para el juego */
+            border: 2px solid #555; /* Borde visible */
+            border-radius: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+            /* margin: auto; Ya no es necesario con flexbox en el body */
+        }
+
+        /* Contenedor para hacer el iframe responsivo manteniendo la relación de aspecto */
+        .iframe-wrapper {
             position: relative;
+            /* Ajusta este porcentaje para la relación de aspecto de tu juego final (altura / ancho * 100) */
+            /* Ejemplo: 4:3 = 75%, 16:9 = 56.25%. Para este test, mantenemos 60%. */
+            padding-bottom: 60%; 
+            height: 0;
+            overflow: hidden;
+            background-color: #333; /* Fondo visible mientras carga el iframe */
+            border-radius: 5px;
         }
-        .character {
-            width: 50px;
-            height: 50px;
-            background-color: #e74c3c;
+
+        /* El iframe real, que ocupa todo el espacio del wrapper responsivo */
+        .game-iframe {
             position: absolute;
-            bottom: 10px; /* Base del suelo */
-            /* Ajuste: Transición más rápida para el movimiento general (subida y bajada) */
-            transition: bottom 0.15s ease-out; /* Más corto y con ease-out para la subida */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
         }
-        .jumping {
-            bottom: 100px; /* Altura máxima del salto */
-            /* Mantenemos ease-out para la subida, haciendo que desacelere al llegar arriba */
-            transition-timing-function: ease-out; 
-        }
-        /* NUEVO: Clase para la caída rápida */
-        .falling {
-            bottom: 10px; /* Vuelve a la posición del suelo */
-            transition: bottom 0.1s ease-in; /* Caída más rápida y acelerada */
+
+        p {
+            font-size: 0.9em; 
+            margin-top: 10px; 
+            color: #bbb;
         }
     </style>
 </head>
 <body>
-    <div class="character" id="myCharacter"></div>
 
-    <script>
-        const character = document.getElementById('myCharacter');
-        let isJumping = false;
+    <main>
+        <div class="game-container">
+            <h2>¡Prueba de Juego "Tap/Jump"!</h2>
+            <div class="iframe-wrapper">
+                <iframe
+                    src="https://tmradio.net/juegos/mi-juego-test.html" 
+                    class="game-iframe"
+                    id="myGameFrame"
+                    allowfullscreen
+                ></iframe>
+            </div>
+            <p>Toca la pantalla en cualquier parte del cuadro azul para hacer que el cuadrado salte.</p>
+        </div>
+    </main>
 
-        function jump() {
-            if (!isJumping) {
-                isJumping = true;
-                character.classList.remove('falling'); // Asegura que no tenga la clase falling
-                character.classList.add('jumping'); // Inicia el salto (subida)
-
-                // Después de la subida (ej. 150ms), inicia la caída
-                setTimeout(() => {
-                    character.classList.remove('jumping'); // Quita la clase de subida
-                    character.classList.add('falling'); // Añade la clase de caída
-                    
-                    // Después de la caída (ej. 100ms), reinicia para el siguiente salto
-                    setTimeout(() => {
-                        character.classList.remove('falling'); // Quita la clase de caída
-                        isJumping = false; // Permite un nuevo salto
-                    }, 100); // Duración de la caída
-                    
-                }, 150); // Duración de la subida
-            }
-        }
-
-        document.body.addEventListener('click', jump);
-        document.body.addEventListener('touchstart', jump);
-    </script>
 </body>
 </html>
