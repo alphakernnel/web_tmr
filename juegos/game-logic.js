@@ -15,7 +15,7 @@ const finalDoubleJumpHeight = 10 + initialJumpHeight + doubleJumpAddedHeight; //
 const jumpUpDuration = 150;  // Duración de la subida (ms)
 const jumpDownDuration = 100; // Duración de la bajada del salto simple (ms)
 const doubleJumpDownDuration = 150; // Duración de la bajada del doble salto (ms)
-const longPressDuration = 2000; // Duración para activar la rotación (2 segundos)
+const longPressDuration = 1000; // ¡Cambiado a 1 segundo (1000 ms)!
 
 /**
  * Maneja la lógica de salto (salto simple y doble salto).
