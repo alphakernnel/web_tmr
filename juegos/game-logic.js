@@ -15,18 +15,18 @@ const finalDoubleJumpHeight = 10 + initialJumpHeight + doubleJumpAddedHeight; //
 const jumpUpDuration = 150;  // Duración de la subida (ms)
 const jumpDownDuration = 100; // Duración de la bajada del salto simple (ms)
 const doubleJumpDownDuration = 150; // Duración de la bajada del doble salto (ms)
-const longPressDuration = 1000; // ¡Cambiado a 1 segundo (1000 ms)!
+const longPressDuration = 500; // ¡Cambiado a 0.5 segundos (500 ms)!
 
 /**
  * Maneja la lógica de salto (salto simple y doble salto).
  */
 function jump() {
+    // Si no está saltando, inicia el primer salto
     if (!isJumping) {
-        // Primer salto
         isJumping = true;
-        canDoubleJump = true;
+        canDoubleJump = true; // Permite un doble salto una vez en el aire
         
-        character.classList.remove('falling', 'rotated'); // Limpia estados anteriores
+        character.classList.remove('falling', 'rotated'); // Limpia estados previos
         character.classList.add('jumping'); // Inicia la subida del primer salto
 
         // Temporizador para el inicio de la caída del primer salto
@@ -43,12 +43,13 @@ function jump() {
             
         }, jumpUpDuration); 
 
-    } else if (canDoubleJump) {
-        // Doble salto
-        canDoubleJump = false; // Desactiva para evitar triple/cuádruple salto
+    } 
+    // Si ya está saltando Y puede doble saltar (solo una vez por salto inicial)
+    else if (canDoubleJump) {
+        canDoubleJump = false; // Desactiva el doble salto para evitar más de dos
         clearTimeout(jumpTimeout); // Detiene cualquier caída pendiente del primer salto
 
-        character.classList.remove('jumping', 'falling', 'rotated'); // Limpia estados anteriores
+        character.classList.remove('jumping', 'falling', 'rotated'); // Limpia estados previos
         character.classList.add('double-jumping'); // Inicia la animación de doble salto
         character.style.bottom = `${finalDoubleJumpHeight}px`; // Fija la altura del doble salto
 
@@ -86,10 +87,9 @@ function handleStart(event) {
         }
     }, longPressDuration);
 
-    // Inicia el primer salto solo si el personaje no está ya saltando
-    if (!isJumping) {
-        jump();
-    }
+    // Activamos el salto aquí para el primer toque o el doble toque.
+    // La función 'jump' internamente maneja si es el primer salto o un doble salto.
+    jump(); 
 }
 
 /**
@@ -99,12 +99,6 @@ function handleStart(event) {
 function handleEnd(event) {
     isTouching = false;
     clearTimeout(rotationTimeout); // Cancela el temporizador de rotación si no se completó
-
-    // Si el personaje está en el aire y puede doble saltar,
-    // Y el toque fue corto (no una presión prolongada)
-    if (isJumping && canDoubleJump && (Date.now() - touchStartTime) < longPressDuration) {
-        jump(); // Llama a jump() para activar el doble salto
-    }
     
     // Siempre remueve la rotación al soltar (sea por tiempo o por soltar antes)
     character.classList.remove('rotated');
