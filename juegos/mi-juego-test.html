@@ -3,88 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TM Radio - Prueba de Juego (Solo Juego)</title>
-    
+    <title>Mi Juego de Prueba Simple</title>
     <style>
-        /* Estilos básicos para el cuerpo de la página */
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #1a1a1a; /* Fondo oscuro */
-            color: #eee;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-            box-sizing: border-box;
-            display: flex; /* Para centrar el contenedor del juego */
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Asegura que ocupe al menos toda la altura de la vista */
-        }
-
-        h2 {
-            color: #eee;
-            font-size: 1.4em;
-            margin-bottom: 15px;
-        }
-
-        /* Estilos para el contenedor del juego */
-        .game-container {
-            width: 100%;
-            max-width: 600px; /* Ancho máximo para el contenedor del juego */
-            background-color: #000; /* Fondo negro para el juego */
-            border: 2px solid #555; /* Borde visible */
-            border-radius: 10px;
-            padding: 15px;
-            box-sizing: border-box;
-            /* margin: auto; Ya no es necesario con flexbox en el body */
-        }
-
-        /* Contenedor para hacer el iframe responsivo manteniendo la relación de aspecto */
-        .iframe-wrapper {
-            position: relative;
-            /* Ajusta este porcentaje para la relación de aspecto de tu juego final (altura / ancho * 100) */
-            /* Ejemplo: 4:3 = 75%, 16:9 = 56.25%. Para este test, mantenemos 60%. */
-            padding-bottom: 60%; 
-            height: 0;
-            overflow: hidden;
-            background-color: #333; /* Fondo visible mientras carga el iframe */
-            border-radius: 5px;
-        }
-
-        /* El iframe real, que ocupa todo el espacio del wrapper responsivo */
-        .game-iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
+        /* Reseteo básico para asegurar que el iframe ocupe todo el espacio */
+        html, body {
             height: 100%;
-            border: none;
-            display: block;
+            width: 100%;
+            margin: 0;
+            overflow: hidden; /* Evita barras de desplazamiento */
+            box-sizing: border-box;
+            user-select: none; /* Evita la selección de texto al tocar/arrastrar */
+            -webkit-user-select: none; /* Para navegadores basados en WebKit */
+            -moz-user-select: none; /* Para Firefox */
+            -ms-user-select: none; /* Para IE/Edge */
+            -webkit-touch-callout: none; /* Evita el menú contextual al tocar prolongadamente en iOS */
         }
 
-        p {
-            font-size: 0.9em; 
-            margin-top: 10px; 
-            color: #bbb;
+        body {
+            background-color: #3498db; /* Un fondo azul cielo simple */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* Posiciona el "personaje" abajo */
+            position: relative; /* Para posicionamiento absoluto del personaje */
+        }
+
+        .character {
+            width: 50px;
+            height: 50px;
+            background-color: #e74c3c; /* Un cuadrado rojo simple */
+            position: absolute;
+            bottom: 10px; /* Base del suelo */
+            /* Transición para el movimiento vertical (bottom) y la rotación (transform) */
+            transition: bottom 0.15s ease-out, transform 0.3s ease-out; 
+            transform-origin: center center; /* Punto de rotación en el centro */
+        }
+
+        /* Clase para el salto inicial */
+        .jumping {
+            bottom: 100px; /* Altura máxima del salto inicial */
+            transition-timing-function: ease-out; /* Desacelera al llegar al punto más alto */
+        }
+
+        /* Clase para el doble salto, que lleva a una altura mayor */
+        .double-jumping {
+            bottom: 150px; /* 100px (inicial) + 50px (mitad) */
+            transition-timing-function: ease-out; /* También desacelera arriba */
+        }
+
+        /* Clase para la caída rápida */
+        .falling {
+            bottom: 10px; /* Vuelve a la posición del suelo */
+            transition: bottom 0.1s ease-in; /* Caída más rápida y acelerada */
+        }
+
+        /* Clase para la rotación */
+        .rotated {
+            transform: rotate(90deg);
         }
     </style>
 </head>
 <body>
+    <div class="character" id="myCharacter"></div>
 
-    <main>
-        <div class="game-container">
-            <h2>¡Prueba de Juego "Tap/Jump"!</h2>
-            <div class="iframe-wrapper">
-                <iframe
-                    src="https://tmradio.net/juegos/mi-juego-test.html" 
-                    class="game-iframe"
-                    id="myGameFrame"
-                    allowfullscreen
-                ></iframe>
-            </div>
-            <p>Toca la pantalla en cualquier parte del cuadro azul para hacer que el cuadrado salte.</p>
-        </div>
-    </main>
+    <script>
+        const character = document.getElementById('myCharacter');
+        let isJumping = false;       // Verdadero si el personaje está en el aire (salto simple o doble)
+        let canDoubleJump = false;   // Verdadero si se puede realizar un segundo salto
+        let jumpTimeout;             // Para manejar el temporizador del salto inicial
 
+        let touchStartTime;          // Guarda el momento en que se inicia un toque/clic
+        let isTouching = false;      // Verdadero si se está manteniendo presionado el dedo/ratón
+        let rotationTimeout;         // Temporizador para la rotación
+
+        const initialJumpHeight = 100; // Altura del primer salto desde la base (10px + 90px de desplazamiento)
+        const doubleJumpAddedHeight = initialJumpHeight / 2; // La mitad de la altura inicial
+        const finalDoubleJumpHeight = 10 + initialJumpHeight + doubleJumpAddedHeight; // Altura total (base + salto inicial + mitad)
+
+        const jumpUpDuration = 150;  // Duración de la fase de subida del salto (ms)
+        const jumpDownDuration = 100; // Duración de la fase de bajada del salto (ms)
+        const doubleJumpDownDuration = 150; // Duración de la bajada desde el doble salto (ms)
+        const longPressDuration = 2000; // 2 segundos para la presión prolongada
+
+        function jump() {
+            // Si no está saltando (está en el suelo), inicia el primer salto
+            if (!isJumping) {
+                isJumping = true;
+                canDoubleJump = true; // Permite un doble salto después del primero
+                
+                character.classList.remove('falling', 'rotated'); // Limpia clases previas
+                character.classList.add('jumping'); // Inicia la subida del primer salto
+
+                // Programa la caída después de la subida inicial
+                jumpTimeout = setTimeout(() => {
+                    character.classList.remove('jumping');
+                    character.classList.add('falling'); // Inicia la bajada
+                    
+                    // Programa el final de la caída y reseteo
+                    setTimeout(() => {
+                        character.classList.remove('falling');
+                        isJumping = false;
+                        canDoubleJump = false; // Ya no se puede doble saltar si llega al suelo
+                    }, jumpDownDuration); // Duración de la bajada del primer salto
+                    
+                }, jumpUpDuration); // Duración de la subida del primer salto
+
+            } else if (canDoubleJump) { // Si ya está saltando y se puede doble saltar
+                canDoubleJump = false; // Desactiva el doble salto para evitar más de dos
+                clearTimeout(jumpTimeout); // Detiene cualquier temporizador de caída pendiente
+
+                character.classList.remove('jumping', 'falling', 'rotated'); // Limpia todas las clases de salto
+                character.classList.add('double-jumping'); // Aplica la clase de doble salto para la transición
+                character.style.bottom = `${finalDoubleJumpHeight}px`; // Establece la nueva altura del doble salto
+
+                // Programa la caída desde la altura del doble salto
+                setTimeout(() => {
+                    character.classList.remove('double-jumping');
+                    character.classList.add('falling'); // Inicia la bajada
+                    character.style.bottom = '10px'; // Asegura que baje hasta el suelo
+
+                    // Programa el final de la caída y reseteo
+                    setTimeout(() => {
+                        character.classList.remove('falling');
+                        isJumping = false;
+                    }, doubleJumpDownDuration); // Duración de la bajada del doble salto
+                    
+                }, jumpUpDuration); // Duración de la "subida" adicional del doble salto
+            }
+        }
+
+        // --- Manejo de Eventos (Touch y Ratón) ---
+
+        function handleStart(event) {
+            // Evita el comportamiento de selección de texto/zoom en móviles
+            event.preventDefault(); 
+            isTouching = true;
+            touchStartTime = Date.now();
+
+            // Inicia el temporizador para la rotación por presión prolongada
+            rotationTimeout = setTimeout(() => {
+                if (isTouching && (Date.now() - touchStartTime) >= longPressDuration) {
+                    character.classList.add('rotated');
+                }
+            }, longPressDuration);
+
+            // Si es un toque/clic rápido (no prolongado), inicia el salto
+            // Ojo: Para el doble salto, el segundo tap debe ser manejado en handleEnd
+            // pero para el primer salto, lo iniciamos al PRESIONAR.
+            // Si ya está saltando y puede doble saltar, esto se maneja en handleEnd.
+            if (!isJumping) { // Solo si no está ya en un salto (primero o doble)
+                jump();
+            }
+        }
+
+        function handleEnd(event) {
+            isTouching = false;
+            clearTimeout(rotationTimeout); // Cancela el temporizador de rotación al soltar
+
+            // Si el personaje está en el aire y puede doble saltar,
+            // y la presión no fue prolongada (se soltó antes de longPressDuration)
+            // entonces considera esto como el segundo "tap" para el doble salto.
+            if (isJumping && canDoubleJump && (Date.now() - touchStartTime) < longPressDuration) {
+                jump(); // Llama a jump() de nuevo para activar el doble salto
+            }
+            
+            // Siempre remueve la rotación al soltar
+            character.classList.remove('rotated');
+        }
+
+        // Eventos táctiles para móviles
+        document.body.addEventListener('touchstart', handleStart);
+        document.body.addEventListener('touchend', handleEnd);
+        document.body.addEventListener('touchcancel', handleEnd); // Para cuando un toque se interrumpe
+
+        // Eventos de ratón para escritorio (para facilitar pruebas)
+        document.body.addEventListener('mousedown', handleStart);
+        document.body.addEventListener('mouseup', handleEnd);
+        document.body.addEventListener('mouseleave', (event) => { // Si el ratón sale del área mientras está presionado
+            if (isTouching) handleEnd(event);
+        });
+    </script>
 </body>
 </html>
