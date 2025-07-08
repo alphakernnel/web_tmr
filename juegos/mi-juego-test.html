@@ -5,33 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Juego de Prueba Simple</title>
     <style>
-        /* AÑADIDO: Asegura que html y body ocupen el 100% del espacio del iframe */
         html, body {
-            height: 100%; /* Ocupa el 100% del alto disponible */
-            width: 100%;  /* Ocupa el 100% del ancho disponible */
-            margin: 0;    /* Elimina márgenes predeterminados */
-            overflow: hidden; /* Evita barras de desplazamiento */
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+            box-sizing: border-box;
         }
 
         body {
-            background-color: #3498db; /* Un fondo azul cielo simple */
+            background-color: #3498db;
             display: flex;
             justify-content: center;
-            align-items: flex-end; /* Posiciona el "personaje" abajo */
-            /* REMOVIDO: height: 100vh; y width: 100vw; ya que html/body 100% es suficiente dentro del iframe */
-            position: relative; /* Para posicionamiento absoluto del personaje */
-            box-sizing: border-box; /* Asegura que padding no afecte el 100% */
+            align-items: flex-end;
+            position: relative;
         }
         .character {
             width: 50px;
             height: 50px;
-            background-color: #e74c3c; /* Un cuadrado rojo simple */
+            background-color: #e74c3c;
             position: absolute;
             bottom: 10px; /* Base del suelo */
-            transition: bottom 0.2s ease-out; /* Animación de salto */
+            /* Ajuste: Transición más rápida para el movimiento general (subida y bajada) */
+            transition: bottom 0.15s ease-out; /* Más corto y con ease-out para la subida */
         }
         .jumping {
-            bottom: 100px; /* Altura del salto */
+            bottom: 100px; /* Altura máxima del salto */
+            /* Mantenemos ease-out para la subida, haciendo que desacelere al llegar arriba */
+            transition-timing-function: ease-out; 
+        }
+        /* NUEVO: Clase para la caída rápida */
+        .falling {
+            bottom: 10px; /* Vuelve a la posición del suelo */
+            transition: bottom 0.1s ease-in; /* Caída más rápida y acelerada */
         }
     </style>
 </head>
@@ -45,15 +51,24 @@
         function jump() {
             if (!isJumping) {
                 isJumping = true;
-                character.classList.add('jumping');
+                character.classList.remove('falling'); // Asegura que no tenga la clase falling
+                character.classList.add('jumping'); // Inicia el salto (subida)
+
+                // Después de la subida (ej. 150ms), inicia la caída
                 setTimeout(() => {
-                    character.classList.remove('jumping');
-                    isJumping = false;
-                }, 400);
+                    character.classList.remove('jumping'); // Quita la clase de subida
+                    character.classList.add('falling'); // Añade la clase de caída
+                    
+                    // Después de la caída (ej. 100ms), reinicia para el siguiente salto
+                    setTimeout(() => {
+                        character.classList.remove('falling'); // Quita la clase de caída
+                        isJumping = false; // Permite un nuevo salto
+                    }, 100); // Duración de la caída
+                    
+                }, 150); // Duración de la subida
             }
         }
 
-        // Detectar toques/clics en cualquier parte del body
         document.body.addEventListener('click', jump);
         document.body.addEventListener('touchstart', jump);
     </script>
