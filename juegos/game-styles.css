@@ -1,0 +1,53 @@
+/* CSS BÁSICO PARA QUE EL JUEGO OCUPE TODO EL IFRAME */
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    overflow: hidden; /* Evita barras de desplazamiento */
+    box-sizing: border-box;
+    user-select: none;         /* Evita selección de texto */
+    -webkit-user-select: none; /* Para WebKit (Chrome, Safari) */
+    -moz-user-select: none;    /* Para Firefox */
+    -ms-user-select: none;     /* Para IE/Edge */
+    -webkit-touch-callout: none; /* Evita menú contextual en iOS */
+}
+
+body {
+    background-color: #3498db; /* Fondo azul cielo simple para el área de juego */
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Alinea el personaje a la parte inferior */
+    position: relative; /* Contexto para posicionar el personaje */
+}
+
+/* ESTILOS DEL PERSONAJE (CUADRADO) Y SUS ANIMACIONES */
+.character {
+    width: 50px;
+    height: 50px;
+    background-color: #e74c3c; /* Cuadrado rojo */
+    position: absolute;
+    bottom: 10px; /* Posición inicial en el "suelo" */
+    /* Transiciones para movimiento vertical y rotación */
+    transition: bottom 0.15s ease-out, transform 0.3s ease-out; 
+    transform-origin: center center; /* Punto de pivote para la rotación */
+}
+
+/* CLASES PARA LAS ANIMACIONES */
+.jumping {
+    bottom: 100px; /* Altura del primer salto */
+    transition-timing-function: ease-out; /* Desacelera al llegar arriba */
+}
+
+.double-jumping {
+    bottom: 150px; /* Altura del doble salto (salto inicial + mitad) */
+    transition-timing-function: ease-out; /* Desacelera al llegar arriba */
+}
+
+.falling {
+    bottom: 10px; /* Vuelve al suelo */
+    transition: bottom 0.1s ease-in; /* Caída rápida y acelerada */
+}
+
+.rotated {
+    transform: rotate(90deg); /* Estado de rotación */
+}
