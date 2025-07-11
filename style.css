@@ -3,204 +3,225 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
 html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* Esto oculta el scroll de la página */
-  background: #121212; /* Fondo negro intenso */
-  color: #f44336; /* Rojo intenso como color primario */
-  font-family: 'Montserrat', sans-serif; /* Fuente moderna y legible para el cuerpo */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Esto oculta el scroll de la página */
+  background: #121212; /* Fondo negro intenso */
+  color: #f44336; /* Rojo intenso como color primario */
+  font-family: 'Montserrat', sans-serif; /* Fuente moderna y legible para el cuerpo */
 }
 
 /* Estilos para el contenedor de estrellas (fondo) */
 #starfield-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1; /* Asegura que esté en el fondo */
-  opacity: 0.8; /* Ligeramente transparente */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1; /* Asegura que esté en el fondo */
+  opacity: 0.8; /* Ligeramente transparente */
 }
 
 /* Estilos para el logo de la radio - Mantiene su posición superior derecha */
 #radioLogo {
-  position: absolute;
-  top: 20px; /* Ajustado desde el borde superior */
-  right: 20px; /* Ajustado desde el borde derecho */
-  left: auto; /* Anula la propiedad left para que 'right' tenga prioridad */
-  max-width: 120px; /* Tamaño máximo del logo (60% menos de 300px es 120px) */
-  height: auto;
-  z-index: 3; /* Asegura que esté sobre el fondo pero debajo de mensajes importantes */
-  filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.7)); /* Sombra para dar un efecto de brillo */
-  cursor: pointer; /* Indica que es interactivo */
-  transition: transform 0.2s ease-out, filter 0.3s ease; /* Transición suave para efectos hover */
+  position: absolute;
+  top: 20px; /* Ajustado desde el borde superior */
+  right: 20px; /* Ajustado desde el borde derecho */
+  left: auto; /* Anula la propiedad left para que 'right' tenga prioridad */
+  max-width: 120px; /* Tamaño máximo del logo (60% menos de 300px es 120px) */
+  height: auto;
+  z-index: 3; /* Asegura que esté sobre el fondo pero debajo de mensajes importantes */
+  filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.7)); /* Sombra para dar un efecto de brillo */
+  cursor: pointer; /* Indica que es interactivo */
+  transition: transform 0.2s ease-out, filter 0.3s ease; /* Transición suave para efectos hover */
 }
 
 #radioLogo.playing {
-  animation: pulseLogo 1.5s infinite alternate; /* Animación de pulsación cuando está reproduciendo */
+  animation: pulseLogo 1.5s infinite alternate; /* Animación de pulsación cuando está reproduciendo */
 }
 
 @keyframes pulseLogo {
-    /* Se usa solo scale para el efecto de pulsación, ya que la posición la dan 'top' y 'right' */
-    from { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
-    to { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
+    /* Se usa solo scale para el efecto de pulsación, ya que la posición la dan 'top' y 'right' */
+    from { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
+    to { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
 }
 
 /* Estilo para el mensaje de estado (Radio Detenida) */
 #radioStatusMessage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) translateY(100px); /* Debajo del logo, centrado horizontalmente */
-  background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
-  border: 1px solid #ff9800; /* Borde naranja */
-  box-shadow: 0 0 15px rgba(255, 152, 0, 0.7); /* Sombra naranja brillante */
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 1.2em;
-  text-align: center;
-  min-width: 300px;
-  max-width: 80%;
-  box-sizing: border-box;
-  z-index: 5; /* Asegurar que esté por encima de casi todo */
-  color: #fff;
-  text-shadow: 0 0 5px #ff9800; /* Sombra de texto para resaltar */
-  font-family: 'Montserrat', sans-serif;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateY(100px); /* Debajo del logo, centrado horizontalmente */
+  background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+  border: 1px solid #ff9800; /* Borde naranja */
+  box-shadow: 0 0 15px rgba(255, 152, 0, 0.7); /* Sombra naranja brillante */
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1.2em;
+  text-align: center;
+  min-width: 300px;
+  max-width: 80%;
+  box-sizing: border-box;
+  z-index: 5; /* Asegurar que esté por encima de casi todo */
+  color: #fff;
+  text-shadow: 0 0 5px #ff9800; /* Sombra de texto para resaltar */
+  font-family: 'Montserrat', sans-serif;
 }
+
+/* --- NUEVOS ESTILOS PARA LA FRASE MOTIVADORA --- */
+#fraseMotivadora {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10vmin; /* 10% del viewport mínimo */
+    color: #fff; /* Texto blanco, ajusta si necesitas otro color */
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+    opacity: 0; /* Invisible inicialmente */
+    transition: opacity 5s ease-in-out; /* Transición suave de 5 segundos */
+    z-index: 1; /* Por encima del fondo de estrellas, debajo de controles */
+    pointer-events: none; /* Permite clics a través del div */
+    font-family: 'Dancing Script', cursive; /* Fuente elegante */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Sombra sutil para el texto */
+    max-width: 90%; /* Asegura que no se desborde en pantallas pequeñas */
+}
+
 
 /* Estilos para el contenedor de la interfaz de usuario inferior/central - Normal */
 .bottom-ui {
-  position: absolute;
-  bottom: 80px; /* Ajustado para dejar espacio a las redes sociales */
-  left: 50%; /* Centrado horizontalmente */
-  transform: translateX(-50%); /* Ajuste fino para centrado perfecto */
-  top: auto; /* Anula la propiedad top anterior */
-  right: auto; /* Anula la propiedad right anterior */
-  display: flex;
-  flex-direction: column; /* Normal: los elementos internos se apilan verticalmente */
-  align-items: center; /* Normal: centra los elementos internos (botones, volumen) */
-  gap: 25px; /* Espacio entre los grupos de elementos */
-  z-index: 2; /* Debajo del logo y mensajes, pero encima de las estrellas */
-  width: 90%; /* Ancho relativo para un diseño responsivo */
-  box-sizing: border-box;
+  position: absolute;
+  bottom: 80px; /* Ajustado para dejar espacio a las redes sociales */
+  left: 50%; /* Centrado horizontalmente */
+  transform: translateX(-50%); /* Ajuste fino para centrado perfecto */
+  top: auto; /* Anula la propiedad top anterior */
+  right: auto; /* Anula la propiedad right anterior */
+  display: flex;
+  flex-direction: column; /* Normal: los elementos internos se apilan verticalmente */
+  align-items: center; /* Normal: centra los elementos internos (botones, volumen) */
+  gap: 25px; /* Espacio entre los grupos de elementos */
+  z-index: 2; /* Debajo del logo y mensajes, pero encima de las estrellas */
+  width: 90%; /* Ancho relativo para un diseño responsivo */
+  box-sizing: border-box;
 }
 
 .controls {
-  display: flex;
-  gap: 20px; /* Espacio entre los botones */
-  flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
-  justify-content: center; /* Mantiene la justificación interna si hay varias filas */
-  background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente para la botonera */
-  padding: 15px 30px;
-  border-radius: 12px;
-  border: 1px solid #616161;
-  box-shadow: 0 0 15px rgba(97, 97, 97, 0.4);
+  display: flex;
+  gap: 20px; /* Espacio entre los botones */
+  flex-wrap: wrap; /* Permite que los botones se envuelvan en pantallas pequeñas */
+  justify-content: center; /* Mantiene la justificación interna si hay varias filas */
+  background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente para la botonera */
+  padding: 15px 30px;
+  border-radius: 12px;
+  border: 1px solid #616161;
+  box-shadow: 0 0 15px rgba(97, 97, 97, 0.4);
 }
 
 .controls button {
-  padding: 12px 25px;
-  font-size: 1.2em;
-  background-color: #f44336;
-  color: #fff;
-  border: 2px solid #d32f2f;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: 'Roboto Condensed', sans-serif;
-  font-weight: 700;
-  box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
-  transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
-  flex-shrink: 0; /* Evita que los botones se encojan en pantallas pequeñas */
+  padding: 12px 25px;
+  font-size: 1.2em;
+  background-color: #f44336;
+  color: #fff;
+  border: 2px solid #d32f2f;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+  transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+  flex-shrink: 0; /* Evita que los botones se encojan en pantallas pequeñas */
 }
 
 .controls button:hover {
-  background-color: #d32f2f;
-  box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
-  transform: translateY(-2px); /* Pequeño efecto al pasar el ratón */
+  background-color: #d32f2f;
+  box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
+  transform: translateY(-2px); /* Pequeño efecto al pasar el ratón */
 }
 
 /* Estilo específico para el botón de refrescar y pantalla completa */
 .controls #refreshButton,
 .controls #fullscreenButton {
-  font-size: 1em; /* Ligeramente más pequeños */
-  padding: 10px 20px;
+  font-size: 1em; /* Ligeramente más pequeños */
+  padding: 10px 20px;
 }
 
 /* Estilos para el control de volumen */
 .volume-control-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 1px solid #616161;
-  box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
-  margin-top: 15px; /* Separación de los botones de control */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #616161;
+  box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
+  margin-top: 15px; /* Separación de los botones de control */
 }
 
 .volume-control-group i {
-  color: #fff;
-  font-size: 1.5em; /* Tamaño del icono de volumen */
-  text-shadow: 0 0 5px #ff9800;
+  color: #fff;
+  font-size: 1.5em; /* Tamaño del icono de volumen */
+  text-shadow: 0 0 5px #ff9800;
 }
 
 #volumeControl {
-  width: 150px;
-  -webkit-appearance: none; /* Elimina estilos por defecto del navegador */
-  appearance: none;
-  height: 8px;
-  background: #555; /* Fondo del deslizador */
-  outline: none;
-  border-radius: 4px;
-  cursor: pointer;
+  width: 150px;
+  -webkit-appearance: none; /* Elimina estilos por defecto del navegador */
+  appearance: none;
+  height: 8px;
+  background: #555; /* Fondo del deslizador */
+  outline: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 #volumeControl::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  background: #ff9800; /* Naranja brillante para el thumb */
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(255, 152, 0, 0.8); /* Sombra para el thumb */
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #ff9800; /* Naranja brillante para el thumb */
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.8); /* Sombra para el thumb */
 }
 
 #volumeControl::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  background: #ff9800;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
+  width: 20px;
+  height: 20px;
+  background: #ff9800;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(255, 152, 0, 0.8);
 }
 
 /* Estilos para las redes sociales - Mantiene su posición inferior central */
 .social-links {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 20px;
-  z-index: 4; /* Sobre los controles de la radio */
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 1px solid #616161;
-  box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  z-index: 4; /* Sobre los controles de la radio */
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #616161;
+  box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
 }
 
 .social-links a {
-  color: #fff;
-  font-size: 1.5em;
-  transition: color 0.3s, transform 0.3s;
-  text-decoration: none;
+  color: #fff;
+  font-size: 1.5em;
+  transition: color 0.3s, transform 0.3s;
+  text-decoration: none;
 }
 
 .social-links a:hover {
-  color: #ff9800;
-  transform: scale(1.2);
+  color: #ff9800;
+  transform: scale(1.2);
 }
 
 /* Estilos específicos para algunos iconos con sus colores de marca */
@@ -215,67 +236,67 @@ html, body {
 
 /* Ocultar redes sociales en modo pantalla completa */
 body.is-fullscreen .social-links {
-  display: none;
+  display: none;
 }
 
 /* Ajustar el contenedor principal de botones y volumen en modo pantalla completa */
 body.is-fullscreen .bottom-ui {
-  position: fixed; /* Usar fixed para asegurar que se quede en la ventana de vista */
-  bottom: 20px; /* Más cerca del borde inferior */
-  left: 50%;
-  transform: translateX(-50%);
-  width: auto; /* Dejar que el ancho se ajuste al contenido */
-  max-width: 90%; /* Asegurar que no se desborde en pantallas pequeñas */
-  flex-direction: row; /* Alinear los elementos internos horizontalmente */
-  gap: 15px; /* Reducir el espacio entre los grupos (controles y volumen) */
-  background-color: transparent; /* Fondo transparente para el contenedor principal */
-  padding: 0; /* Sin padding en el contenedor principal */
-  border: none; /* Sin borde */
-  box-shadow: none; /* Sin sombra */
+  position: fixed; /* Usar fixed para asegurar que se quede en la ventana de vista */
+  bottom: 20px; /* Más cerca del borde inferior */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto; /* Dejar que el ancho se ajuste al contenido */
+  max-width: 90%; /* Asegurar que no se desborde en pantallas pequeñas */
+  flex-direction: row; /* Alinear los elementos internos horizontalmente */
+  gap: 15px; /* Reducir el espacio entre los grupos (controles y volumen) */
+  background-color: transparent; /* Fondo transparente para el contenedor principal */
+  padding: 0; /* Sin padding en el contenedor principal */
+  border: none; /* Sin borde */
+  box-shadow: none; /* Sin sombra */
 }
 
 /* Ajustes para el grupo de controles (botones) en modo pantalla completa */
 body.is-fullscreen .controls {
-  padding: 10px 20px; /* Reducir el padding */
-  gap: 10px; /* Reducir el espacio entre botones */
-  background-color: rgba(0, 0, 0, 0.6); /* Fondo ligeramente más transparente */
-  border: 1px solid #424242; /* Borde más sutil */
-  box-shadow: 0 0 10px rgba(66, 66, 66, 0.3); /* Sombra más sutil */
+  padding: 10px 20px; /* Reducir el padding */
+  gap: 10px; /* Reducir el espacio entre botones */
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo ligeramente más transparente */
+  border: 1px solid #424242; /* Borde más sutil */
+  box-shadow: 0 0 10px rgba(66, 66, 66, 0.3); /* Sombra más sutil */
 }
 
 body.is-fullscreen .controls button {
-  padding: 8px 18px; /* Reducir el padding de los botones individuales */
-  font-size: 1em; /* Reducir el tamaño de fuente */
-  border-width: 1px; /* Borde más fino */
+  padding: 8px 18px; /* Reducir el padding de los botones individuales */
+  font-size: 1em; /* Reducir el tamaño de fuente */
+  border-width: 1px; /* Borde más fino */
 }
 
 body.is-fullscreen .controls #refreshButton,
 body.is-fullscreen .controls #fullscreenButton {
-  padding: 6px 15px; /* Ajustar aún más los botones pequeños */
-  font-size: 0.9em;
+  padding: 6px 15px; /* Ajustar aún más los botones pequeños */
+  font-size: 0.9em;
 }
 
 /* Ajustes para el grupo de volumen en modo pantalla completa */
 body.is-fullscreen .volume-control-group {
-  padding: 8px 15px; /* Reducir el padding */
-  gap: 8px; /* Reducir el espacio entre icono y slider */
-  background-color: rgba(0, 0, 0, 0.6); /* Fondo ligeramente más transparente */
-  border: 1px solid #424242; /* Borde más sutil */
-  box-shadow: 0 0 10px rgba(66, 66, 66, 0.3); /* Sombra más sutil */
-  margin-top: 0; /* Eliminar margen superior si se alinean horizontalmente */
+  padding: 8px 15px; /* Reducir el padding */
+  gap: 8px; /* Reducir el espacio entre icono y slider */
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo ligeramente más transparente */
+  border: 1px solid #424242; /* Borde más sutil */
+  box-shadow: 0 0 10px rgba(66, 66, 66, 0.3); /* Sombra más sutil */
+  margin-top: 0; /* Eliminar margen superior si se alinean horizontalmente */
 }
 
 body.is-fullscreen .volume-control-group i {
-  font-size: 1.2em; /* Icono más pequeño */
+  font-size: 1.2em; /* Icono más pequeño */
 }
 
 body.is-fullscreen #volumeControl {
-  width: 100px; /* Hacer el slider más corto */
-  height: 6px;
+  width: 100px; /* Hacer el slider más corto */
+  height: 6px;
 }
 
 body.is-fullscreen #volumeControl::-webkit-slider-thumb,
 body.is-fullscreen #volumeControl::-moz-range-thumb {
-  width: 16px; /* Hacer el thumb más pequeño */
-  height: 16px;
+  width: 16px; /* Hacer el thumb más pequeño */
+  height: 16px;
 }
