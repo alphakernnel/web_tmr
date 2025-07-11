@@ -1,44 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TMR Live - Radio</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.150.1/three.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Total Music Radio (PC)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
 </head>
 <body>
-    <div id="starfield-container"></div>
-    <img id="radioLogo" src="https://raw.githubusercontent.com/alphakernnel/web_tmr/main/logo/TMR_LOGO_PNG.png" alt="Radio TMR Logo">
-    <div id="radioStatusMessage">Radio Detenida</div>
-    
-    <div id="fraseMotivadora"></div>
+  <div id="starfield-container"></div>
 
-    <div class="bottom-ui">
-        <div class="controls">
-            <button id="playButton"><i class="fas fa-play"></i> Reproducir</button>
-            <button id="stopButton" style="display: none;"><i class="fas fa-stop"></i> Detener</button>
-            <button id="refreshButton" title="Recargar la página"><i class="fas fa-sync-alt"></i></button>
-            <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
-        </div>
-        <div class="volume-control-group">
-            <i class="fas fa-volume-down"></i>
-            <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.7">
-            <i class="fas fa-volume-up"></i>
-        </div>
-    </div>
-    
-    <div class="social-links">
-        <a href="https://www.instagram.com/tumusicaradio/" target="_blank" title="Instagram TMR"><i class="fab fa-instagram"></i></a>
-        <a href="https://www.facebook.com/tumusicaradio" target="_blank" title="Facebook TMR"><i class="fab fa-facebook"></i></a>
-        <a href="https://wa.me/XXXXXXXXXXXX" target="_blank" title="WhatsApp TMR"><i class="fab fa-whatsapp"></i></a>
-        <a href="https://ko-fi.com/tumusicaradio" target="_blank" title="Apoya la Radio (Ko-fi)"><i class="fas fa-coffee"></i></a>
+  <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
+
+  <div id="radioStatusMessage" style="display:none;"></div>
+
+  <div class="bottom-ui">
+    <div class="controls" id="controlPanel">
+      <button id="playButton"><i class="fas fa-play"></i></button>
+      <button id="stopButton" style="display:none"><i class="fas fa-stop"></i></button>
+
+      <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
+      <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
     </div>
 
-    <audio id="audio" src="https://server.com:8000/stream" preload="none"></audio>
-    
-    <script src="script.js"></script>
+    <div class="volume-control-group">
+      <i class="fas fa-volume-down"></i> <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.7">
+      <i class="fas fa-volume-up"></i> </div>
+  </div>
+
+  <audio id="audio" src="https://stream.zeno.fm/udgoxuccigfuv" crossorigin="anonymous" controls hidden></audio>
+
+  <div class="social-links">
+    <a href="https://linktr.ee/tmradio.cl" target="_blank" aria-label="Web Linktree">
+      <i class="fas fa-link"></i>
+    </a>
+    <a href="https://www.instagram.com/totalmusicradio.cl/" target="_blank" aria-label="Instagram">
+      <i class="fab fa-instagram"></i>
+    </a>
+    <a href="https://www.facebook.com/profile.php?id=61556476971552" target="_blank" aria-label="Facebook">
+      <i class="fab fa-facebook"></i>
+    </a>
+    <a href="https://chat.whatsapp.com/EtQV0kcISR7IAYA6BhlGwb" target="_blank" aria-label="WhatsApp Community">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+    <a href="https://ko-fi.com/tmradio" target="_blank" aria-label="Donate a Coffee on Ko-fi">
+      <i class="fas fa-coffee"></i>
+    </a>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
