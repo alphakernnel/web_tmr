@@ -1,11 +1,9 @@
 const radioStatusMessage = document.getElementById('radioStatusMessage');
-const loadingMessage = document.getElementById('loadingMessage'); // Nuevo: Referencia al mensaje de carga
 const playButton = document.getElementById('playButton');
 const stopButton = document.getElementById('stopButton');
 const volumeControl = document.getElementById('volumeControl');
 const refreshButton = document.getElementById('refreshButton');
 const fullscreenButton = document.getElementById('fullscreenButton');
-const infoButton = document.getElementById('infoButton');
 const audio = document.getElementById('audio');
 const radioLogo = document.getElementById('radioLogo');
 
@@ -146,20 +144,11 @@ function initAudio() {
     console.log('initAudio: AudioContext y nodos creados.');
   }
 
-  // Mostrar mensaje de carga ANTES de intentar reproducir
-  if (loadingMessage) {
-    loadingMessage.textContent = 'Espera unos segundos xfa';
-    loadingMessage.style.display = 'block';
-  }
-
   if (audioCtx.state === 'suspended') {
     audioCtx.resume().then(() => {
       console.log('AudioContext reanudado.');
       playAudioAndSetup();
-    }).catch(e => {
-      console.error("Error al reanudar AudioContext:", e);
-      if (loadingMessage) loadingMessage.style.display = 'none'; // Ocultar mensaje de carga en caso de error
-    });
+    }).catch(e => console.error("Error al reanudar AudioContext:", e));
   } else {
     playAudioAndSetup();
   }
@@ -176,7 +165,6 @@ function playAudioAndSetup() {
 
         radioStatusMessage.style.display = 'none';
         radioStatusMessage.textContent = '';
-        if (loadingMessage) loadingMessage.style.display = 'none'; // Ocultar mensaje de carga al iniciar
 
     }).catch(e => {
         console.error("playAudioAndSetup: Error al reproducir audio:", e);
@@ -184,7 +172,6 @@ function playAudioAndSetup() {
         radioStatusMessage.style.display = 'block';
         playButton.style.display = 'inline-block';
         stopButton.style.display = 'none';
-        if (loadingMessage) loadingMessage.style.display = 'none'; // Ocultar mensaje de carga en caso de error
     });
 }
 
@@ -198,7 +185,6 @@ function stopAudio() {
   stopButton.style.display = 'none';
   audioInitialized = false;
   radioLogo.classList.remove('playing');
-  if (loadingMessage) loadingMessage.style.display = 'none'; // Asegurarse de que el mensaje de carga no esté visible
 
   if (audioCtx && audioCtx.state === 'running') {
       audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
@@ -233,17 +219,14 @@ function toggleFullscreen() {
     }
 }
 
-function openInfoPage() {
-    console.log('Botón de información clickeado. Deteniendo audio y abriendo página de ZenoRadio.');
-    stopAudio(); // Detener la música
-    window.open('https://zeno.fm/radio/total-music-radio-q7yv/', '_blank'); // Abrir en nueva pestaña
-}
-
+// NUEVA FUNCIÓN PARA MANEJAR CAMBIOS EN PANTALLA COMPLETA
 function handleFullscreenChange() {
   if (document.fullscreenElement) {
+    // Entrando en modo pantalla completa
     document.body.classList.add('is-fullscreen');
     console.log('Modo Pantalla Completa Activado: Clase "is-fullscreen" añadida al body.');
   } else {
+    // Saliendo del modo pantalla completa
     document.body.classList.remove('is-fullscreen');
     console.log('Modo Pantalla Completa Desactivado: Clase "is-fullscreen" eliminada del body.');
   }
@@ -254,7 +237,6 @@ function handleFullscreenChange() {
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOMContentLoaded: DOM completamente cargado.');
     radioStatusMessage.style.display = 'none';
-    if (loadingMessage) loadingMessage.style.display = 'none'; // Asegurarse de que esté oculto al cargar
 
     playButton.style.display = 'inline-block';
     stopButton.style.display = 'none';
@@ -264,7 +246,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
     volumeControl.addEventListener('input', (e) => setVolume(e.target.value));
     refreshButton.addEventListener('click', refreshPage);
     fullscreenButton.addEventListener('click', toggleFullscreen);
-    infoButton.addEventListener('click', openInfoPage);
 
     radioLogo.addEventListener('click', function() {
         if (audioInitialized) {
@@ -274,6 +255,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     });
 
+    // Añadir el event listener para el cambio de pantalla completa
     document.addEventListener('fullscreenchange', handleFullscreenChange);
 
     initThreeJS();

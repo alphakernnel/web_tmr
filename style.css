@@ -46,12 +46,12 @@ html, body {
     to { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
 }
 
-/* Estilo para el mensaje de estado (Radio Detenida/Error) - POSICIONAMIENTO CORREGIDO */
+/* Estilo para el mensaje de estado (Radio Detenida) */
 #radioStatusMessage {
-  position: fixed; /* Cambiado a fixed para mejor posicionamiento en el viewport */
-  top: 35%; /* Posicionado más arriba */
+  position: absolute;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* Centrado perfectamente */
+  transform: translate(-50%, -50%) translateY(100px); /* Debajo del logo, centrado horizontalmente */
   background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
   border: 1px solid #ff9800; /* Borde naranja */
   box-shadow: 0 0 15px rgba(255, 152, 0, 0.7); /* Sombra naranja brillante */
@@ -67,25 +67,6 @@ html, body {
   text-shadow: 0 0 5px #ff9800; /* Sombra de texto para resaltar */
   font-family: 'Montserrat', sans-serif;
 }
-
-/* NUEVO: Estilo para el mensaje de carga - POSICIONAMIENTO CORREGIDO */
-#loadingMessage {
-    position: fixed; /* Cambiado a fixed para mejor posicionamiento en el viewport */
-    top: 45%; /* Posicionado por encima de la zona de controles */
-    left: 50%;
-    transform: translate(-50%, -50%); /* Centrado perfectamente */
-    background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro */
-    border: 1px solid #ffeb3b; /* Borde amarillo brillante */
-    box-shadow: 0 0 10px rgba(255, 235, 59, 0.7); /* Sombra amarilla */
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-size: 1.1em;
-    color: #fff;
-    text-shadow: 0 0 3px #ffeb3b;
-    z-index: 4; /* Sobre los controles pero debajo de mensajes de estado críticos */
-    white-space: nowrap; /* Evitar que el texto se rompa en varias líneas */
-}
-
 
 /* Estilos para el contenedor de la interfaz de usuario inferior/central - Normal */
 .bottom-ui {
@@ -137,10 +118,9 @@ html, body {
   transform: translateY(-2px); /* Pequeño efecto al pasar el ratón */
 }
 
-/* Estilo específico para el botón de refrescar y pantalla completa y AHORA INFORMACION */
+/* Estilo específico para el botón de refrescar y pantalla completa */
 .controls #refreshButton,
-.controls #fullscreenButton,
-.controls #infoButton { /* Nuevo selector */
+.controls #fullscreenButton {
   font-size: 1em; /* Ligeramente más pequeños */
   padding: 10px 20px;
 }
@@ -270,8 +250,7 @@ body.is-fullscreen .controls button {
 }
 
 body.is-fullscreen .controls #refreshButton,
-body.is-fullscreen .controls #fullscreenButton,
-body.is-fullscreen .controls #infoButton { /* Nuevo selector */
+body.is-fullscreen .controls #fullscreenButton {
   padding: 6px 15px; /* Ajustar aún más los botones pequeños */
   font-size: 0.9em;
 }
