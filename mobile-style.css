@@ -67,6 +67,25 @@ html, body {
   font-family: 'Montserrat', sans-serif;
 }
 
+/* NUEVO: Estilo para el mensaje de carga en móvil */
+#loadingMessage {
+    position: fixed; /* Usar fixed para asegurar posición en móvil */
+    bottom: 160px; /* Ajustado para estar encima del visualizador/botonera */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 1px solid #ffeb3b;
+    box-shadow: 0 0 10px rgba(255, 235, 59, 0.7);
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    color: #fff;
+    text-shadow: 0 0 3px #ffeb3b;
+    z-index: 4;
+    white-space: nowrap;
+}
+
+
 /* Estilos para el contenedor principal de UI inferior en móvil (sin volumen, sin fullscreen) */
 .bottom-ui {
   position: fixed;
@@ -87,7 +106,7 @@ html, body {
   z-index: 2;
 }
 
-/* Los .controls son los botones Play/Stop/Refresh Y AHORA Linktree */
+/* Los .controls son los botones Play/Stop/Refresh Y AHORA Linktree y Info */
 .controls {
   background-color: transparent;
   padding: 0;
@@ -95,11 +114,12 @@ html, body {
   box-shadow: none;
   gap: 10px; /* Espacio entre botones */
   justify-content: center;
-  display: flex; /* Asegurarse de que sea flex para alinear el nuevo botón */
+  display: flex; /* Asegurarse de que sea flex para alinear los nuevos botones */
   align-items: center; /* Alinear verticalmente los botones */
+  flex-wrap: wrap; /* Permitir que los botones se envuelvan si hay muchos */
 }
 
-/* Estilo base para todos los botones de control (incluye Linktree ahora) */
+/* Estilo base para todos los botones de control (incluye Linktree y Info ahora) */
 .controls button,
 .controls .control-button { /* Se aplica a los botones y al nuevo enlace con clase control-button */
   padding: 10px 20px;

@@ -1,7 +1,9 @@
 const radioStatusMessage = document.getElementById('radioStatusMessage');
+const loadingMessage = document.getElementById('loadingMessage'); // Nuevo: Referencia al mensaje de carga
 const playButton = document.getElementById('playButton');
 const stopButton = document.getElementById('stopButton');
-const refreshButton = document.getElementById('refreshButton'); // Solo este botón en móvil
+const refreshButton = document.getElementById('refreshButton');
+const infoButton = document.getElementById('infoButton');
 const audio = document.getElementById('audio');
 const radioLogo = document.getElementById('radioLogo');
 
@@ -180,10 +182,19 @@ function initAudio() {
     analyser.connect(audioCtx.destination);
   }
 
+  // Mostrar mensaje de carga ANTES de intentar reproducir
+  if (loadingMessage) {
+    loadingMessage.textContent = 'Espera unos segundos xfa';
+    loadingMessage.style.display = 'block';
+  }
+
   if (audioCtx.state === 'suspended') {
     audioCtx.resume().then(() => {
       playAudioAndSetup();
-    }).catch(e => console.error("Error al reanudar AudioContext:", e));
+    }).catch(e => {
+      console.error("Error al reanudar AudioContext:", e);
+      if (loadingMessage) loadingMessage.style.display = 'none'; // Ocultar mensaje de carga en caso de error
+    });
   } else {
     playAudioAndSetup();
   }
@@ -197,6 +208,8 @@ function playAudioAndSetup() {
         radioLogo.classList.add('playing');
         radioStatusMessage.style.display = 'none';
         radioStatusMessage.textContent = '';
+
+        if (loadingMessage) loadingMessage.style.display = 'none'; // Ocultar mensaje de carga al iniciar
 
         // Mostrar el visualizador
         if (audioVisualizer) {
@@ -232,6 +245,7 @@ function playAudioAndSetup() {
         radioStatusMessage.style.display = 'block';
         playButton.style.display = 'inline-block';
         stopButton.style.display = 'none';
+        if (loadingMessage) loadingMessage.style.display = 'none'; // Ocultar mensaje de carga en caso de error
     });
 }
 
@@ -249,6 +263,7 @@ function stopAudio() {
   if (audioVisualizer) {
       audioVisualizer.style.display = 'none';
   }
+  if (loadingMessage) loadingMessage.style.display = 'none'; // Asegurarse de que el mensaje de carga no esté visible
 
   // Desactivar controles de Media Session
   if ('mediaSession' in navigator) {
@@ -274,9 +289,16 @@ function refreshPage() {
     location.reload();
 }
 
+function openInfoPage() {
+    console.log('Botón de información clickeado. Deteniendo audio y abriendo página de ZenoRadio.');
+    stopAudio(); // Detener la música
+    window.open('https://zeno.fm/radio/total-music-radio-q7yv/', '_blank'); // Abrir en nueva pestaña
+}
+
 // Inicializar listeners
 document.addEventListener('DOMContentLoaded', (event) => {
     radioStatusMessage.style.display = 'none';
+    if (loadingMessage) loadingMessage.style.display = 'none'; // Asegurarse de que esté oculto al cargar
 
     playButton.style.display = 'inline-block';
     stopButton.style.display = 'none';
@@ -284,6 +306,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     playButton.addEventListener('click', initAudio);
     stopButton.addEventListener('click', stopAudio);
     refreshButton.addEventListener('click', refreshPage);
+    infoButton.addEventListener('click', openInfoPage);
 
     radioLogo.addEventListener('click', function() {
         if (audioInitialized) {
