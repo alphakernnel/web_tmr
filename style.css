@@ -46,12 +46,12 @@ html, body {
     to { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
 }
 
-/* Estilo para el mensaje de estado (Radio Detenida) */
+/* Estilo para el mensaje de estado (Radio Detenida/Error) - POSICIONAMIENTO CORREGIDO */
 #radioStatusMessage {
-  position: absolute;
-  top: 50%;
+  position: fixed; /* Cambiado a fixed para mejor posicionamiento en el viewport */
+  top: 35%; /* Posicionado más arriba */
   left: 50%;
-  transform: translate(-50%, -50%) translateY(100px); /* Debajo del logo, centrado horizontalmente */
+  transform: translate(-50%, -50%); /* Centrado perfectamente */
   background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
   border: 1px solid #ff9800; /* Borde naranja */
   box-shadow: 0 0 15px rgba(255, 152, 0, 0.7); /* Sombra naranja brillante */
@@ -68,12 +68,12 @@ html, body {
   font-family: 'Montserrat', sans-serif;
 }
 
-/* NUEVO: Estilo para el mensaje de carga */
+/* NUEVO: Estilo para el mensaje de carga - POSICIONAMIENTO CORREGIDO */
 #loadingMessage {
-    position: absolute;
-    bottom: 230px; /* Posicionado por encima de .bottom-ui */
+    position: fixed; /* Cambiado a fixed para mejor posicionamiento en el viewport */
+    top: 45%; /* Posicionado por encima de la zona de controles */
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%); /* Centrado perfectamente */
     background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro */
     border: 1px solid #ffeb3b; /* Borde amarillo brillante */
     box-shadow: 0 0 10px rgba(255, 235, 59, 0.7); /* Sombra amarilla */
