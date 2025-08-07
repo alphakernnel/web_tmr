@@ -1,9 +1,11 @@
 const radioStatusMessage = document.getElementById('radioStatusMessage');
+const loadingMessage = document.getElementById('loadingMessage');
 const playButton = document.getElementById('playButton');
 const stopButton = document.getElementById('stopButton');
 const volumeControl = document.getElementById('volumeControl');
 const refreshButton = document.getElementById('refreshButton');
 const fullscreenButton = document.getElementById('fullscreenButton');
+const infoButton = document.getElementById('infoButton');
 const audio = document.getElementById('audio');
 const radioLogo = document.getElementById('radioLogo');
 
@@ -11,6 +13,11 @@ let audioCtx = null;
 let source, analyser, dataArray;
 let renderer, scene, camera, stars, starGeo;
 let audioInitialized = false;
+let wakeLock = null; // Variable para almacenar el objeto WakeLock
+
+// Array con las clases CSS de las 4 esquinas
+const logoPositions = ['top-right', 'top-left', 'bottom-right', 'bottom-left'];
+let currentLogoPositionIndex = 0;
 
 // --- Three.js Starfield Animation ---
 function initThreeJS() {
@@ -130,6 +137,43 @@ function animateStars() {
 }
 // --- Fin Three.js Starfield Animation ---
 
+// --- Funciones para la Wake Lock API ---
+async function requestWakeLock() {
+    console.log('Intentando solicitar wake lock...');
+    try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => {
+            console.log('Wake Lock ha sido liberado.');
+        });
+        console.log('¡Wake Lock activado!');
+    } catch (err) {
+        console.error(`Error al solicitar el wake lock: ${err.name}, ${err.message}`);
+    }
+}
+
+function releaseWakeLock() {
+    console.log('Liberando wake lock...');
+    if (wakeLock) {
+        wakeLock.release()
+            .then(() => {
+                wakeLock = null;
+                console.log('Wake Lock liberado con éxito.');
+            })
+            .catch(err => {
+                console.error(`Error al liberar el wake lock: ${err.name}, ${err.message}`);
+            });
+    }
+}
+
+// Escuchar el evento de visibilidad de la página para re-solicitar el wake lock
+document.addEventListener('visibilitychange', () => {
+    if (wakeLock !== null && document.visibilityState === 'visible' && !audio.paused) {
+        console.log('Página visible y audio reproduciéndose. Re-solicitando wake lock.');
+        requestWakeLock();
+    }
+});
+// --- Fin Funciones para la Wake Lock API ---
+
 
 function initAudio() {
   console.log('initAudio: Iniciando o reanudando AudioContext.');
@@ -144,11 +188,19 @@ function initAudio() {
     console.log('initAudio: AudioContext y nodos creados.');
   }
 
+  if (loadingMessage) {
+    loadingMessage.textContent = 'Espera unos segundos xfa';
+    loadingMessage.style.display = 'block';
+  }
+
   if (audioCtx.state === 'suspended') {
     audioCtx.resume().then(() => {
       console.log('AudioContext reanudado.');
       playAudioAndSetup();
-    }).catch(e => console.error("Error al reanudar AudioContext:", e));
+    }).catch(e => {
+      console.error("Error al reanudar AudioContext:", e);
+      if (loadingMessage) loadingMessage.style.display = 'none';
+    });
   } else {
     playAudioAndSetup();
   }
@@ -165,6 +217,10 @@ function playAudioAndSetup() {
 
         radioStatusMessage.style.display = 'none';
         radioStatusMessage.textContent = '';
+        if (loadingMessage) loadingMessage.style.display = 'none';
+
+        // NUEVO: Solicita el wake lock cuando la reproducción comienza
+        requestWakeLock();
 
     }).catch(e => {
         console.error("playAudioAndSetup: Error al reproducir audio:", e);
@@ -172,6 +228,7 @@ function playAudioAndSetup() {
         radioStatusMessage.style.display = 'block';
         playButton.style.display = 'inline-block';
         stopButton.style.display = 'none';
+        if (loadingMessage) loadingMessage.style.display = 'none';
     });
 }
 
@@ -185,10 +242,14 @@ function stopAudio() {
   stopButton.style.display = 'none';
   audioInitialized = false;
   radioLogo.classList.remove('playing');
+  if (loadingMessage) loadingMessage.style.display = 'none';
 
   if (audioCtx && audioCtx.state === 'running') {
       audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
   }
+
+  // NUEVO: Libera el wake lock cuando el audio se detiene
+  releaseWakeLock();
 }
 
 function setVolume(value) {
@@ -219,17 +280,51 @@ function toggleFullscreen() {
     }
 }
 
-// NUEVA FUNCIÓN PARA MANEJAR CAMBIOS EN PANTALLA COMPLETA
+function openInfoPage() {
+    console.log('Botón de información clickeado. Deteniendo audio y abriendo página de ZenoRadio.');
+    stopAudio();
+    window.open('https://zeno.fm/radio/total-music-radio-q7yv/', '_blank');
+}
+
 function handleFullscreenChange() {
   if (document.fullscreenElement) {
-    // Entrando en modo pantalla completa
     document.body.classList.add('is-fullscreen');
     console.log('Modo Pantalla Completa Activado: Clase "is-fullscreen" añadida al body.');
   } else {
-    // Saliendo del modo pantalla completa
     document.body.classList.remove('is-fullscreen');
     console.log('Modo Pantalla Completa Desactivado: Clase "is-fullscreen" eliminada del body.');
   }
+}
+
+// NUEVA FUNCIÓN: Mueve el logo de forma aleatoria
+function moveLogo() {
+    console.log('Iniciando movimiento del logo...');
+
+    // 1. Iniciar fade-out (durante 1 minuto)
+    radioLogo.style.transition = 'opacity 60s linear'; // Transición de opacidad de 1 minuto
+    radioLogo.classList.add('fade-out');
+
+    // 2. Después de 1 minuto (60 segundos), cambiar de posición y hacer fade-in
+    setTimeout(() => {
+        // Remover la clase de la posición anterior
+        radioLogo.classList.remove(logoPositions[currentLogoPositionIndex]);
+
+        // Elegir una nueva posición aleatoria (diferente a la actual)
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * logoPositions.length);
+        } while (newIndex === currentLogoPositionIndex);
+        currentLogoPositionIndex = newIndex;
+
+        // Agregar la nueva clase de posición
+        radioLogo.classList.add(logoPositions[currentLogoPositionIndex]);
+
+        // Iniciar fade-in (ya que la transición de opacidad es de 1 segundo por defecto)
+        radioLogo.style.transition = 'opacity 1s ease-in-out'; // Restablecer la transición de opacidad normal
+        radioLogo.classList.remove('fade-out');
+        console.log('Logo movido a la posición:', logoPositions[currentLogoPositionIndex]);
+
+    }, 60000); // 60 segundos
 }
 
 
@@ -237,6 +332,7 @@ function handleFullscreenChange() {
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOMContentLoaded: DOM completamente cargado.');
     radioStatusMessage.style.display = 'none';
+    if (loadingMessage) loadingMessage.style.display = 'none';
 
     playButton.style.display = 'inline-block';
     stopButton.style.display = 'none';
@@ -246,6 +342,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     volumeControl.addEventListener('input', (e) => setVolume(e.target.value));
     refreshButton.addEventListener('click', refreshPage);
     fullscreenButton.addEventListener('click', toggleFullscreen);
+    infoButton.addEventListener('click', openInfoPage);
 
     radioLogo.addEventListener('click', function() {
         if (audioInitialized) {
@@ -255,10 +352,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     });
 
-    // Añadir el event listener para el cambio de pantalla completa
     document.addEventListener('fullscreenchange', handleFullscreenChange);
 
     initThreeJS();
     animateStars();
     console.log('DOMContentLoaded: Three.js y animación de estrellas inicializados.');
+    
+    // Configurar la posición inicial del logo y el temporizador de movimiento
+    radioLogo.classList.add(logoPositions[currentLogoPositionIndex]); // Posición inicial (top-right)
+    setInterval(moveLogo, 180000); // Mueve el logo cada 3 minutos (180,000 ms)
 });
