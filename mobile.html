@@ -11,15 +11,21 @@
 <body>
   <div id="starfield-container"></div>
 
-  <img id="radioLogo" src="https://github.com/alphakernnel/web_tmr/blob/main/logo_tmr.png?raw=true" alt="Logo Total Music Radio">
+  <img id="radioLogo" src="https://raw.githubusercontent.com/alphakernnel/web_tmr/main/logo_tmr.png" alt="Logo Total Music Radio">
 
   <div id="radioStatusMessage" style="display:none;"></div>
+  <div id="loadingMessage" style="display:none;">Espera unos segundos xfa</div> 
+  
+  <div id="songInfo">
+    Cargando...
+  </div>
 
   <div class="bottom-ui">
     <div class="controls" id="controlPanel">
       <button id="playButton"><i class="fas fa-play"></i></button>
       <button id="stopButton" style="display:none"><i class="fas fa-stop"></i></button>
       <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
+      <button id="infoButton" title="Información de la Radio"><i class="fas fa-info"></i></button>
       <a href="https://linktr.ee/tmradio.cl" target="_blank" aria-label="Web Linktree" class="control-button linktree-button">
         <i class="fas fa-link"></i>
       </a>
@@ -27,8 +33,6 @@
   </div>
 
   <audio id="audio" src="https://stream.zeno.fm/udgoxuccigfuv" crossorigin="anonymous" controls hidden></audio>
-
-  <canvas id="audioVisualizer"></canvas>
 
   <div class="social-links">
     <a href="https://www.instagram.com/totalmusicradio.cl/" target="_blank" aria-label="Instagram">

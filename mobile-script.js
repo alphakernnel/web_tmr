@@ -1,21 +1,24 @@
 const radioStatusMessage = document.getElementById('radioStatusMessage');
+const loadingMessage = document.getElementById('loadingMessage');
 const playButton = document.getElementById('playButton');
 const stopButton = document.getElementById('stopButton');
-const refreshButton = document.getElementById('refreshButton'); // Solo este botón en móvil
+const refreshButton = document.getElementById('refreshButton');
+const infoButton = document.getElementById('infoButton');
 const audio = document.getElementById('audio');
 const radioLogo = document.getElementById('radioLogo');
-
-// Elementos para el visualizador
-const audioVisualizer = document.getElementById('audioVisualizer');
-const visualizerCtx = audioVisualizer ? audioVisualizer.getContext('2d') : null;
+const songInfo = document.getElementById('songInfo');
 
 let audioCtx = null;
 let source, analyser, dataArray;
 let renderer, scene, camera, stars, starGeo;
 let audioInitialized = false;
 
+let eventSource = null; // NUEVO: Variable para EventSource
+let lastSongTitle = ''; // NUEVO: Variable para evitar actualizaciones repetidas
+
 // --- Three.js Starfield Animation ---
 function initThreeJS() {
+  console.log('initThreeJS: Intentando inicializar Three.js');
   if (typeof THREE === 'undefined') {
     console.error('initThreeJS: ERROR - THREE.js no está cargado. Asegúrate de que el script src sea correcto y esté accesible.');
     return;
@@ -39,6 +42,7 @@ function initThreeJS() {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
+    console.log('initThreeJS: Renderer y cámara inicializados.');
   } catch (e) {
     console.error('initThreeJS: ERROR al crear o añadir el renderer de Three.js:', e);
     return;
@@ -55,6 +59,7 @@ function initThreeJS() {
     );
   }
   starGeo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  console.log(`initThreeJS: ${starCount} estrellas generadas.`);
 
   const starTextureLoader = new THREE.TextureLoader();
   starTextureLoader.load('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/star.png',
@@ -68,6 +73,7 @@ function initThreeJS() {
       });
       stars = new THREE.Points(starGeo, starMaterial);
       scene.add(stars);
+      console.log('initThreeJS: Estrellas con textura añadidas a la escena.');
     },
     undefined,
     function(err) {
@@ -84,6 +90,7 @@ function initThreeJS() {
   );
 
   window.addEventListener('resize', onWindowResize, false);
+  console.log('initThreeJS: Listener de redimensionamiento añadido.');
 }
 
 function onWindowResize() {
@@ -91,11 +98,6 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-  // Ajustar el tamaño del canvas del visualizador también
-  if (audioVisualizer) {
-    audioVisualizer.width = audioVisualizer.offsetWidth;
-    audioVisualizer.height = audioVisualizer.offsetHeight;
   }
 }
 
@@ -113,6 +115,7 @@ function animateStars() {
     stars.geometry.attributes.position.needsUpdate = true;
   }
 
+  // Se mantiene el efecto visualizador, que se ajusta a la música
   if (audioInitialized && audio.paused === false && analyser && dataArray) {
       analyser.getByteFrequencyData(dataArray);
       let sum = dataArray.reduce((a, b) => a + b, 0);
@@ -120,8 +123,6 @@ function animateStars() {
       if (stars && stars.material) {
         stars.material.color.setScalar(0.7 + (avg / 255) * 0.8);
       }
-      // Dibujar el visualizador de audio
-      drawVisualizer();
   } else {
       if (stars && stars.material) {
         stars.material.color.setScalar(0.7);
@@ -134,42 +135,48 @@ function animateStars() {
 }
 // --- Fin Three.js Starfield Animation ---
 
-// --- Funcionalidad del Visualizador de Audio ---
-function drawVisualizer() {
-    if (!visualizerCtx || !analyser || !dataArray) return;
 
-    // Redimensionar el canvas si sus estilos CSS han cambiado el tamaño
-    if (audioVisualizer.width !== audioVisualizer.offsetWidth || audioVisualizer.height !== audioVisualizer.offsetHeight) {
-        audioVisualizer.width = audioVisualizer.offsetWidth;
-        audioVisualizer.height = audioVisualizer.offsetHeight;
+// --- NUEVA FUNCIÓN: Obtener metadatos de Zeno Radio con EventSource ---
+function connectToMetadataStream() {
+    if (eventSource) {
+        eventSource.close();
     }
+    
+    // URL de la API de metadatos SSE de Zeno.fm
+    const metadataUrl = 'https://api.zeno.fm/mounts/metadata/subscribe/udgoxuccigfuv';
+    eventSource = new EventSource(metadataUrl);
 
-    analyser.getByteFrequencyData(dataArray);
-
-    visualizerCtx.clearRect(0, 0, audioVisualizer.width, audioVisualizer.height); // Limpiar el canvas
-
-    const barWidth = (audioVisualizer.width / analyser.frequencyBinCount) * 2.5; // Ajuste para el ancho de las barras
-    let x = 0;
-
-    for (let i = 0; i < analyser.frequencyBinCount; i++) {
-        let barHeight = dataArray[i] / 2; // Ajustar la altura para que no sea demasiado grande
-
-        // Colores de las barras (degradado de rojo a naranja)
-        const gradient = visualizerCtx.createLinearGradient(0, audioVisualizer.height, 0, 0);
-        gradient.addColorStop(0, '#f44336'); // Rojo oscuro
-        gradient.addColorStop(0.5, '#ff9800'); // Naranja
-        gradient.addColorStop(1, '#ffeb3b'); // Amarillo brillante
-        visualizerCtx.fillStyle = gradient;
-
-        visualizerCtx.fillRect(x, audioVisualizer.height - barHeight, barWidth, barHeight);
-
-        x += barWidth + 1; // Espacio entre las barras
-    }
+    eventSource.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            if (data && data.streamTitle) {
+                const newSongTitle = data.streamTitle;
+                
+                if (lastSongTitle !== newSongTitle) {
+                    songInfo.textContent = newSongTitle;
+                    songInfo.style.opacity = '1';
+                    console.log('Metadatos actualizados:', newSongTitle);
+                    lastSongTitle = newSongTitle;
+                }
+            } else {
+                console.warn('No se encontraron metadatos válidos en el evento.');
+            }
+        } catch (error) {
+            console.error('Error al parsear el JSON de metadatos:', error);
+        }
+    };
+    
+    eventSource.onerror = function(error) {
+        console.error('Error en la conexión de EventSource:', error);
+        songInfo.textContent = 'Error al cargar metadatos';
+        songInfo.style.opacity = '0';
+        eventSource.close(); // Cierra la conexión y permite que se reabra en el próximo intento de reproducción.
+    };
 }
-// --- Fin Visualizador de Audio ---
 
 
 function initAudio() {
+  console.log('initAudio: Iniciando o reanudando AudioContext.');
   if (!audioCtx || audioCtx.state === 'closed') {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     source = audioCtx.createMediaElementSource(audio);
@@ -178,12 +185,22 @@ function initAudio() {
     dataArray = new Uint8Array(analyser.frequencyBinCount);
     source.connect(analyser);
     analyser.connect(audioCtx.destination);
+    console.log('initAudio: AudioContext y nodos creados.');
+  }
+
+  if (loadingMessage) {
+    loadingMessage.textContent = 'Espera unos segundos xfa';
+    loadingMessage.style.display = 'block';
   }
 
   if (audioCtx.state === 'suspended') {
     audioCtx.resume().then(() => {
+      console.log('AudioContext reanudado.');
       playAudioAndSetup();
-    }).catch(e => console.error("Error al reanudar AudioContext:", e));
+    }).catch(e => {
+      console.error("Error al reanudar AudioContext:", e);
+      if (loadingMessage) loadingMessage.style.display = 'none';
+    });
   } else {
     playAudioAndSetup();
   }
@@ -191,51 +208,32 @@ function initAudio() {
 
 function playAudioAndSetup() {
     audio.play().then(() => {
+        console.log("playAudioAndSetup: Audio reproduciéndose. AudioContext state:", audioCtx.state);
         audioInitialized = true;
         playButton.style.display = 'none';
         stopButton.style.display = 'inline-block';
+
         radioLogo.classList.add('playing');
+
         radioStatusMessage.style.display = 'none';
         radioStatusMessage.textContent = '';
-
-        // Mostrar el visualizador
-        if (audioVisualizer) {
-            audioVisualizer.style.display = 'block';
-            audioVisualizer.width = audioVisualizer.offsetWidth;
-            audioVisualizer.height = audioVisualizer.offsetHeight;
-        }
-
-        // --- Implementación de Media Session API ---
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: 'Total Music Radio',
-                artist: 'Streaming de Música Rock y Metal',
-                album: 'Radio Online',
-                artwork: [
-                    { src: radioLogo.src, sizes: '96x96', type: 'image/png' },
-                    { src: radioLogo.src, sizes: '128x128', type: 'image/png' },
-                    { src: radioLogo.src, sizes: '192x192', type: 'image/png' },
-                    { src: radioLogo.src, sizes: '256x256', type: 'image/png' },
-                    { src: radioLogo.src, sizes: '384x384', type: 'image/png' },
-                    { src: radioLogo.src, sizes: '512x512', type: 'image/png' },
-                ]
-            });
-
-            navigator.mediaSession.setActionHandler('play', () => { audio.play(); });
-            navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); });
-        }
-        // --- Fin Media Session API ---
+        if (loadingMessage) loadingMessage.style.display = 'none';
+        
+        // Conectar a la API de metadatos
+        connectToMetadataStream();
 
     }).catch(e => {
-        console.error("Error al reproducir audio:", e);
+        console.error("playAudioAndSetup: Error al reproducir audio:", e);
         radioStatusMessage.textContent = 'Error al iniciar la radio (requiere interacción).';
         radioStatusMessage.style.display = 'block';
         playButton.style.display = 'inline-block';
         stopButton.style.display = 'none';
+        if (loadingMessage) loadingMessage.style.display = 'none';
     });
 }
 
 function stopAudio() {
+  console.log('stopAudio: Deteniendo audio.');
   audio.pause();
   audio.currentTime = 0;
   radioStatusMessage.textContent = 'Radio Detenida';
@@ -244,21 +242,17 @@ function stopAudio() {
   stopButton.style.display = 'none';
   audioInitialized = false;
   radioLogo.classList.remove('playing');
-
-  // Ocultar el visualizador
-  if (audioVisualizer) {
-      audioVisualizer.style.display = 'none';
-  }
-
-  // Desactivar controles de Media Session
-  if ('mediaSession' in navigator) {
-      navigator.mediaSession.metadata = null; // Borra los metadatos
-      navigator.mediaSession.setActionHandler('play', null);
-      navigator.mediaSession.setActionHandler('pause', null);
-  }
+  if (loadingMessage) loadingMessage.style.display = 'none';
 
   if (audioCtx && audioCtx.state === 'running') {
-      audioCtx.suspend();
+      audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
+  }
+  
+  // Ocultar la información de la canción y cerrar la conexión de EventSource
+  songInfo.style.opacity = '0';
+  if (eventSource) {
+      eventSource.close();
+      eventSource = null;
   }
 }
 
@@ -271,12 +265,21 @@ function togglePlayPause() {
 }
 
 function refreshPage() {
+    console.log('Recargando página.');
     location.reload();
+}
+
+function openInfoPage() {
+    console.log('Botón de información clickeado. Deteniendo audio y abriendo página de ZenoRadio.');
+    stopAudio();
+    window.open('https://zeno.fm/radio/total-music-radio-q7yv/', '_blank');
 }
 
 // Inicializar listeners
 document.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOMContentLoaded: DOM completamente cargado.');
     radioStatusMessage.style.display = 'none';
+    if (loadingMessage) loadingMessage.style.display = 'none';
 
     playButton.style.display = 'inline-block';
     stopButton.style.display = 'none';
@@ -284,6 +287,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     playButton.addEventListener('click', initAudio);
     stopButton.addEventListener('click', stopAudio);
     refreshButton.addEventListener('click', refreshPage);
+    infoButton.addEventListener('click', openInfoPage);
 
     radioLogo.addEventListener('click', function() {
         if (audioInitialized) {
@@ -292,12 +296,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             initAudio();
         }
     });
-
-    // Asegurarse de que el visualizador tenga el tamaño correcto desde el inicio
-    if (audioVisualizer) {
-        audioVisualizer.width = audioVisualizer.offsetWidth;
-        audioVisualizer.height = audioVisualizer.offsetHeight;
-    }
 
     initThreeJS();
     animateStars();
