@@ -8,12 +8,16 @@ const fullscreenButton = document.getElementById('fullscreenButton');
 const infoButton = document.getElementById('infoButton');
 const audio = document.getElementById('audio');
 const radioLogo = document.getElementById('radioLogo');
+const songInfo = document.getElementById('songInfo'); // Ahora solo un div
 
 let audioCtx = null;
 let source, analyser, dataArray;
 let renderer, scene, camera, stars, starGeo;
 let audioInitialized = false;
 let wakeLock = null; // Variable para almacenar el objeto WakeLock
+
+let eventSource = null; // NUEVO: Variable para EventSource
+let lastSongTitle = ''; // NUEVO: Variable para evitar actualizaciones repetidas
 
 // Array con las clases CSS de las 4 esquinas
 const logoPositions = ['top-right', 'top-left', 'bottom-right', 'bottom-left'];
@@ -174,6 +178,44 @@ document.addEventListener('visibilitychange', () => {
 });
 // --- Fin Funciones para la Wake Lock API ---
 
+// --- NUEVA FUNCIÓN: Obtener metadatos de Zeno Radio con EventSource ---
+function connectToMetadataStream() {
+    if (eventSource) {
+        eventSource.close();
+    }
+    
+    // URL de la API de metadatos SSE de Zeno.fm
+    const metadataUrl = 'https://api.zeno.fm/mounts/metadata/subscribe/udgoxuccigfuv';
+    eventSource = new EventSource(metadataUrl);
+
+    eventSource.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            if (data && data.streamTitle) {
+                const newSongTitle = data.streamTitle;
+                
+                if (lastSongTitle !== newSongTitle) {
+                    songInfo.textContent = newSongTitle;
+                    songInfo.style.opacity = '1';
+                    console.log('Metadatos actualizados:', newSongTitle);
+                    lastSongTitle = newSongTitle;
+                }
+            } else {
+                console.warn('No se encontraron metadatos válidos en el evento.');
+            }
+        } catch (error) {
+            console.error('Error al parsear el JSON de metadatos:', error);
+        }
+    };
+    
+    eventSource.onerror = function(error) {
+        console.error('Error en la conexión de EventSource:', error);
+        songInfo.textContent = 'Error al cargar metadatos';
+        songInfo.style.opacity = '0';
+        eventSource.close(); // Cierra la conexión y permite que se reabra en el próximo intento de reproducción.
+    };
+}
+
 
 function initAudio() {
   console.log('initAudio: Iniciando o reanudando AudioContext.');
@@ -219,8 +261,11 @@ function playAudioAndSetup() {
         radioStatusMessage.textContent = '';
         if (loadingMessage) loadingMessage.style.display = 'none';
 
-        // NUEVO: Solicita el wake lock cuando la reproducción comienza
+        // Solicita el wake lock cuando la reproducción comienza
         requestWakeLock();
+        
+        // Cargar los metadatos de la canción usando EventSource
+        connectToMetadataStream();
 
     }).catch(e => {
         console.error("playAudioAndSetup: Error al reproducir audio:", e);
@@ -248,8 +293,15 @@ function stopAudio() {
       audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
   }
 
-  // NUEVO: Libera el wake lock cuando el audio se detiene
+  // Libera el wake lock cuando el audio se detiene
   releaseWakeLock();
+  
+  // Ocultar la información de la canción y cerrar la conexión de EventSource
+  songInfo.style.opacity = '0';
+  if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+  }
 }
 
 function setVolume(value) {
@@ -296,35 +348,31 @@ function handleFullscreenChange() {
   }
 }
 
-// NUEVA FUNCIÓN: Mueve el logo de forma aleatoria
+// FUNCIÓN: Mueve el logo de forma aleatoria
 function moveLogo() {
     console.log('Iniciando movimiento del logo...');
 
-    // 1. Iniciar fade-out (durante 1 minuto)
-    radioLogo.style.transition = 'opacity 60s linear'; // Transición de opacidad de 1 minuto
+    // Iniciar fade-out (durante 1 minuto)
+    radioLogo.style.transition = 'opacity 60s linear';
     radioLogo.classList.add('fade-out');
 
-    // 2. Después de 1 minuto (60 segundos), cambiar de posición y hacer fade-in
+    // Después de 1 minuto (60 segundos), cambiar de posición y hacer fade-in
     setTimeout(() => {
-        // Remover la clase de la posición anterior
         radioLogo.classList.remove(logoPositions[currentLogoPositionIndex]);
 
-        // Elegir una nueva posición aleatoria (diferente a la actual)
         let newIndex;
         do {
             newIndex = Math.floor(Math.random() * logoPositions.length);
         } while (newIndex === currentLogoPositionIndex);
         currentLogoPositionIndex = newIndex;
 
-        // Agregar la nueva clase de posición
         radioLogo.classList.add(logoPositions[currentLogoPositionIndex]);
 
-        // Iniciar fade-in (ya que la transición de opacidad es de 1 segundo por defecto)
-        radioLogo.style.transition = 'opacity 1s ease-in-out'; // Restablecer la transición de opacidad normal
+        radioLogo.style.transition = 'opacity 1s ease-in-out';
         radioLogo.classList.remove('fade-out');
         console.log('Logo movido a la posición:', logoPositions[currentLogoPositionIndex]);
 
-    }, 60000); // 60 segundos
+    }, 60000);
 }
 
 
@@ -356,9 +404,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     initThreeJS();
     animateStars();
-    console.log('DOMContentLoaded: Three.js y animación de estrellas inicializados.');
     
     // Configurar la posición inicial del logo y el temporizador de movimiento
-    radioLogo.classList.add(logoPositions[currentLogoPositionIndex]); // Posición inicial (top-right)
-    setInterval(moveLogo, 180000); // Mueve el logo cada 3 minutos (180,000 ms)
+    radioLogo.classList.add(logoPositions[currentLogoPositionIndex]);
+    setInterval(moveLogo, 180000);
 });
