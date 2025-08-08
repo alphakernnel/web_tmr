@@ -9,129 +9,10 @@ const radioLogo = document.getElementById('radioLogo');
 const songInfo = document.getElementById('songInfo');
 
 let audioCtx = null;
-let source, analyser, dataArray;
-let renderer, scene, camera, stars, starGeo;
 let audioInitialized = false;
 
-let eventSource = null; // Variable para EventSource
-let lastSongTitle = ''; // Variable para evitar actualizaciones repetidas
-
-// --- Three.js Starfield Animation ---
-function initThreeJS() {
-  console.log('initThreeJS: Intentando inicializar Three.js');
-  if (typeof THREE === 'undefined') {
-    console.error('initThreeJS: ERROR - THREE.js no está cargado. Asegúrate de que el script src sea correcto.');
-    return;
-  }
-
-  const container = document.getElementById('starfield-container');
-  if (!container) {
-    console.error('initThreeJS: ERROR - Contenedor #starfield-container no encontrado.');
-    return;
-  }
-  // Limpiamos el contenedor para evitar duplicados
-  while (container.firstChild) {
-      container.removeChild(container.firstChild);
-  }
-
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-  // CORREGIDO: La cámara se configura para que mire hacia adelante y esté en una posición inicial adecuada
-  camera.position.z = 10;
-  camera.position.y = 5;
-
-  try {
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    container.appendChild(renderer.domElement);
-    console.log('initThreeJS: Renderer y cámara inicializados.');
-  } catch (e) {
-    console.error('initThreeJS: ERROR al crear o añadir el renderer de Three.js:', e);
-    return;
-  }
-
-  starGeo = new THREE.BufferGeometry();
-  const vertices = [];
-  const starCount = 6000;
-  for (let i = 0; i < starCount; i++) {
-    vertices.push(
-      Math.random() * 600 - 300,
-      Math.random() * 600 - 300,
-      Math.random() * 600 - 300
-    );
-  }
-  starGeo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-  console.log(`initThreeJS: ${starCount} estrellas generadas.`);
-
-  const starTextureLoader = new THREE.TextureLoader();
-  starTextureLoader.load('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/star.png',
-    function(sprite) {
-      const starMaterial = new THREE.PointsMaterial({
-        color: 0xaaaaaa,
-        size: 0.7,
-        map: sprite,
-        transparent: true,
-        blending: THREE.AdditiveBlending
-      });
-      stars = new THREE.Points(starGeo, starMaterial);
-      scene.add(stars);
-      console.log('initThreeJS: Estrellas con textura añadidas a la escena.');
-    },
-    undefined,
-    function(err) {
-      console.error('initThreeJS: ERROR al cargar la textura de estrella. Usando material básico.', err);
-      const starMaterial = new THREE.PointsMaterial({
-        color: 0xaaaaaa,
-        size: 0.7,
-        transparent: true,
-        blending: THREE.AdditiveBlending
-      });
-      stars = new THREE.Points(starGeo, starMaterial);
-      scene.add(stars);
-    }
-  );
-
-  window.addEventListener('resize', onWindowResize, false);
-  console.log('initThreeJS: Listener de redimensionamiento añadido.');
-}
-
-function onWindowResize() {
-  if (camera && renderer) {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-}
-
-function animateStars() {
-  requestAnimationFrame(animateStars);
-
-  if (stars && starGeo && stars.geometry.attributes.position) {
-    // CORREGIDO: La lógica de la animación se ajusta para el movimiento correcto de las estrellas
-    stars.rotation.x += 0.0005;
-    stars.rotation.y += 0.001;
-    stars.rotation.z += 0.002;
-  }
-
-  if (audioInitialized && audio.paused === false && analyser && dataArray) {
-      analyser.getByteFrequencyData(dataArray);
-      let sum = dataArray.reduce((a, b) => a + b, 0);
-      let avg = sum / dataArray.length;
-      if (stars && stars.material) {
-        stars.material.color.setScalar(0.7 + (avg / 255) * 0.8);
-      }
-  } else {
-      if (stars && stars.material) {
-        stars.material.color.setScalar(0.7);
-      }
-  }
-
-  if (renderer && scene && camera) {
-    renderer.render(scene, camera);
-  }
-}
-// --- Fin Three.js Starfield Animation ---
-
+let eventSource = null;
+let lastSongTitle = '';
 
 // --- FUNCIÓN: Obtener metadatos de Zeno Radio con EventSource ---
 function connectToMetadataStream() {
@@ -176,13 +57,6 @@ function initAudio() {
   console.log('initAudio: Iniciando o reanudando AudioContext.');
   if (!audioCtx || audioCtx.state === 'closed') {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    source = audioCtx.createMediaElementSource(audio);
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 256;
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-    console.log('initAudio: AudioContext y nodos creados.');
   }
 
   if (loadingMessage) {
@@ -216,7 +90,6 @@ function playAudioAndSetup() {
         radioStatusMessage.textContent = '';
         if (loadingMessage) loadingMessage.style.display = 'none';
         
-        // Conectar a la API de metadatos
         connectToMetadataStream();
 
     }).catch(e => {
@@ -245,7 +118,6 @@ function stopAudio() {
       audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
   }
   
-  // Ocultar la información de la canción y cerrar la conexión de EventSource
   songInfo.style.opacity = '0';
   if (eventSource) {
       eventSource.close();
@@ -293,8 +165,4 @@ document.addEventListener('DOMContentLoaded', (event) => {
             initAudio();
         }
     });
-
-    // CORREGIDO: El inicializador se asegura de que la animación se muestre desde el principio
-    initThreeJS();
-    animateStars();
 });

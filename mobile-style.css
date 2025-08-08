@@ -52,15 +52,47 @@ html, body {
   height: 100%;
 }
 
-/* Estilos para el contenedor de estrellas (fondo) */
-#starfield-container {
+/* Base para todas las capas de estrellas */
+#starfield-small, #starfield-medium, #starfield-large {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: -1;
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+}
+
+/* Capa de estrellas lejanas (movimiento lento) */
+#starfield-small {
+  background-image: url('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/Images/star_1.png');
+  opacity: 0.6;
+  animation: stars-scroll 90s linear infinite;
+}
+
+/* Capa de estrellas medianas (movimiento medio) */
+#starfield-medium {
+  background-image: url('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/Images/star_2.png');
   opacity: 0.8;
+  animation: stars-scroll 60s linear infinite;
+}
+
+/* Capa de estrellas cercanas (movimiento rápido) */
+#starfield-large {
+  background-image: url('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/Images/star_3.png');
+  opacity: 1;
+  animation: stars-scroll 30s linear infinite;
+}
+
+/* Animación de desplazamiento a la izquierda */
+@keyframes stars-scroll {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -100vw 0;
+  }
 }
 
 /* Estilos para el logo de la radio */
