@@ -13,14 +13,14 @@ let source, analyser, dataArray;
 let renderer, scene, camera, stars, starGeo;
 let audioInitialized = false;
 
-let eventSource = null; // NUEVO: Variable para EventSource
-let lastSongTitle = ''; // NUEVO: Variable para evitar actualizaciones repetidas
+let eventSource = null; // Variable para EventSource
+let lastSongTitle = ''; // Variable para evitar actualizaciones repetidas
 
 // --- Three.js Starfield Animation ---
 function initThreeJS() {
   console.log('initThreeJS: Intentando inicializar Three.js');
   if (typeof THREE === 'undefined') {
-    console.error('initThreeJS: ERROR - THREE.js no está cargado. Asegúrate de que el script src sea correcto y esté accesible.');
+    console.error('initThreeJS: ERROR - THREE.js no está cargado. Asegúrate de que el script src sea correcto.');
     return;
   }
 
@@ -29,14 +29,16 @@ function initThreeJS() {
     console.error('initThreeJS: ERROR - Contenedor #starfield-container no encontrado.');
     return;
   }
+  // Limpiamos el contenedor para evitar duplicados
   while (container.firstChild) {
       container.removeChild(container.firstChild);
   }
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
-  camera.position.z = 1;
-  camera.rotation.x = Math.PI / 2;
+  // CORREGIDO: La cámara se configura para que mire hacia adelante y esté en una posición inicial adecuada
+  camera.position.z = 10;
+  camera.position.y = 5;
 
   try {
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -105,17 +107,12 @@ function animateStars() {
   requestAnimationFrame(animateStars);
 
   if (stars && starGeo && stars.geometry.attributes.position) {
-    const positions = stars.geometry.attributes.position.array;
-    for (let i = 0; i < positions.length; i += 3) {
-      positions [i + 1] -= 0.5;
-      if (positions [i + 1] < -300) {
-        positions [i + 1] = 300;
-      }
-    }
-    stars.geometry.attributes.position.needsUpdate = true;
+    // CORREGIDO: La lógica de la animación se ajusta para el movimiento correcto de las estrellas
+    stars.rotation.x += 0.0005;
+    stars.rotation.y += 0.001;
+    stars.rotation.z += 0.002;
   }
 
-  // Se mantiene el efecto visualizador, que se ajusta a la música
   if (audioInitialized && audio.paused === false && analyser && dataArray) {
       analyser.getByteFrequencyData(dataArray);
       let sum = dataArray.reduce((a, b) => a + b, 0);
@@ -136,7 +133,7 @@ function animateStars() {
 // --- Fin Three.js Starfield Animation ---
 
 
-// --- NUEVA FUNCIÓN: Obtener metadatos de Zeno Radio con EventSource ---
+// --- FUNCIÓN: Obtener metadatos de Zeno Radio con EventSource ---
 function connectToMetadataStream() {
     if (eventSource) {
         eventSource.close();
@@ -170,7 +167,7 @@ function connectToMetadataStream() {
         console.error('Error en la conexión de EventSource:', error);
         songInfo.textContent = 'Error al cargar metadatos';
         songInfo.style.opacity = '0';
-        eventSource.close(); // Cierra la conexión y permite que se reabra en el próximo intento de reproducción.
+        eventSource.close();
     };
 }
 
@@ -297,6 +294,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     });
 
+    // CORREGIDO: El inicializador se asegura de que la animación se muestre desde el principio
     initThreeJS();
     animateStars();
 });

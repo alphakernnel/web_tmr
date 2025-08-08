@@ -69,7 +69,7 @@ html, body {
   top: 20px;
   right: 50%;
   transform: translateX(50%);
-  max-width: 90px; /* Tamaño más pequeño */
+  max-width: 90px;
   height: auto;
   z-index: 3;
   filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.7));
@@ -90,7 +90,7 @@ html, body {
 /* Estilos para el contenedor de la información de la canción */
 #songInfo {
     position: fixed;
-    top: 130px; /* Ajustado para que se vea bien bajo el logo más pequeño */
+    top: 130px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 2;
@@ -127,7 +127,7 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Estilos para los botones de control y AHORA Linktree y Info */
+/* Estilos para los botones de control y Linktree y Info */
 .controls {
   background-color: transparent;
   padding: 0;
