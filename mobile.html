@@ -3,16 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Total Music Radio - Móvil</title>
+  <title>Total Music Radio (Mobile)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="mobile-style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
 </head>
 <body>
-  
-  <div id="starfield-large"></div>
-  <div id="starfield-medium"></div>
-  <div id="starfield-small"></div>
-  
+  <div id="starfield-container"></div>
+
   <img id="radioLogo" src="https://raw.githubusercontent.com/alphakernnel/web_tmr/main/logo_tmr.png" alt="Logo Total Music Radio">
 
   <div id="radioStatusMessage" style="display:none;"></div>
@@ -21,22 +19,24 @@
   <div id="songInfo">
     Cargando...
   </div>
-
-  <div class="bottom-ui">
-    <div class="controls" id="controlPanel">
+  
+  <div class="main-controls-container">
+    <div class="main-play-button-container">
       <button id="playButton"><i class="fas fa-play"></i></button>
-      <button id="stopButton" style="display:none"><i class="fas fa-stop"></i></button>
+    </div>
+    <div class="secondary-controls">
       <button id="refreshButton" title="Recargar la conexión"><i class="fas fa-sync-alt"></i></button>
+      <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
       <button id="infoButton" title="Información de la Radio"><i class="fas fa-info"></i></button>
-      <a href="https://linktr.ee/tmradio.cl" target="_blank" aria-label="Web Linktree" class="control-button linktree-button">
-        <i class="fas fa-link"></i>
-      </a>
     </div>
   </div>
 
   <audio id="audio" src="https://stream.zeno.fm/udgoxuccigfuv" crossorigin="anonymous" controls hidden></audio>
 
   <div class="social-links">
+    <a href="https://linktr.ee/tmradio.cl" target="_blank" aria-label="Web Linktree">
+      <i class="fas fa-link"></i>
+    </a>
     <a href="https://www.instagram.com/totalmusicradio.cl/" target="_blank" aria-label="Instagram">
       <i class="fab fa-instagram"></i>
     </a>

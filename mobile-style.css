@@ -2,32 +2,119 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
-/* Estilo para el mensaje de estado (Radio Detenida/Error) */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #121212;
+  color: #f44336;
+  font-family: 'Montserrat', sans-serif;
+}
+
+#starfield-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  opacity: 0.8;
+}
+
+#radioLogo {
+  position: fixed;
+  max-width: 120px;
+  height: auto;
+  z-index: 3;
+  filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.7));
+  cursor: pointer;
+  transition: transform 0.2s ease-out, filter 0.3s ease, top 1s ease-in-out, right 1s ease-in-out, bottom 1s ease-in-out, left 1s ease-in-out, opacity 1s linear;
+}
+
+.top-right {
+    top: 20px;
+    right: 20px;
+    left: auto;
+    bottom: auto;
+}
+.top-left {
+    top: 20px;
+    left: 20px;
+    right: auto;
+    bottom: auto;
+}
+.bottom-right {
+    bottom: 20px;
+    right: 20px;
+    top: auto;
+    left: auto;
+}
+.bottom-left {
+    bottom: 20px;
+    left: 20px;
+    top: auto;
+    right: auto;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+#radioLogo.playing {
+  animation: pulseLogo 1.5s infinite alternate;
+}
+
+@keyframes pulseLogo {
+    from { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
+    to { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
+}
+
+#songInfo {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #d32f2f;
+    border-radius: 8px;
+    padding: 10px 20px;
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.6);
+    text-align: center;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 1.2em;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(244, 67, 54, 0.8);
+    transition: opacity 0.5s ease-in-out;
+    white-space: nowrap;
+    min-width: 250px;
+    opacity: 0;
+}
+
 #radioStatusMessage {
   position: fixed;
-  top: 50%;
+  top: 35%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: transparent;
-  border: none;
-  padding: 0;
-  border-radius: 0;
-  font-size: 1em;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #ff9800;
+  box-shadow: 0 0 15px rgba(255, 152, 0, 0.7);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1.2em;
   text-align: center;
-  min-width: auto;
+  min-width: 300px;
   max-width: 80%;
   box-sizing: border-box;
   z-index: 5;
   color: #fff;
   text-shadow: 0 0 5px #ff9800;
   font-family: 'Montserrat', sans-serif;
-  white-space: nowrap;
 }
 
-/* Estilo para el mensaje de carga en móvil */
 #loadingMessage {
     position: fixed;
-    top: 50%;
+    top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.8);
@@ -42,192 +129,121 @@
     white-space: nowrap;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background: #121212;
-  color: #f44336;
-  font-family: 'Montserrat', sans-serif;
-  height: 100%;
-}
-
-/* Base para todas las capas de estrellas */
-#starfield-small, #starfield-medium, #starfield-large {
+.main-controls-container {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  background-repeat: repeat-x;
-  background-size: auto 100%;
-}
-
-/* Capa de estrellas lejanas (movimiento lento) */
-#starfield-small {
-  background-image: url('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/Images/star_1.png');
-  opacity: 0.6;
-  animation: stars-scroll 90s linear infinite;
-}
-
-/* Capa de estrellas medianas (movimiento medio) */
-#starfield-medium {
-  background-image: url('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/Images/star_2.png');
-  opacity: 0.8;
-  animation: stars-scroll 60s linear infinite;
-}
-
-/* Capa de estrellas cercanas (movimiento rápido) */
-#starfield-large {
-  background-image: url('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/Images/star_3.png');
-  opacity: 1;
-  animation: stars-scroll 30s linear infinite;
-}
-
-/* Animación de desplazamiento a la izquierda */
-@keyframes stars-scroll {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: -100vw 0;
-  }
-}
-
-/* Estilos para el logo de la radio */
-#radioLogo {
-  position: absolute;
-  top: 20px;
-  right: 50%;
-  transform: translateX(50%);
-  max-width: 90px;
-  height: auto;
-  z-index: 3;
-  filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.7));
-  cursor: pointer;
-  transition: transform 0.2s ease-out, filter 0.3s ease;
-}
-
-/* Animación de pulsación para cuando está reproduciendo */
-#radioLogo.playing {
-  animation: pulseLogo 1.5s infinite alternate;
-}
-
-@keyframes pulseLogo {
-    from { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
-    to { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
-}
-
-/* Estilos para el contenedor de la información de la canción */
-#songInfo {
-    position: fixed;
-    top: 130px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2;
-    background-color: rgba(0, 0, 0, 0.7);
-    border: 1px solid #d32f2f;
-    border-radius: 8px;
-    padding: 10px 20px;
-    box-shadow: 0 0 10px rgba(244, 67, 54, 0.6);
-    text-align: center;
-    font-family: 'Roboto Condensed', sans-serif;
-    font-size: 1em;
-    color: #fff;
-    text-shadow: 0 0 5px rgba(244, 67, 54, 0.8);
-    transition: opacity 0.5s ease-in-out;
-    white-space: nowrap;
-    min-width: 200px;
-    opacity: 0;
-    max-width: 90%;
-    box-sizing: border-box;
-}
-
-/* Estilos para el contenedor de la interfaz de usuario inferior/central */
-.bottom-ui {
-  position: absolute;
-  bottom: 80px;
+  bottom: 120px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
   z-index: 2;
   width: 90%;
-  box-sizing: border-box;
 }
 
-/* Estilos para los botones de control y Linktree y Info */
-.controls {
-  background-color: transparent;
-  padding: 0;
+.main-play-button-container {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #616161;
+  box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
+  border-radius: 50%;
+  padding: 20px;
+}
+
+.main-play-button-container button {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
   border: none;
-  box-shadow: none;
-  gap: 5px;
-  justify-content: center;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: nowrap;
-}
-
-/* Estilo base para todos los botones de control */
-.controls button,
-.controls .control-button {
-  padding: 8px 15px;
-  font-size: 0.8em;
   background-color: #f44336;
   color: #fff;
-  border: 2px solid #d32f2f;
-  border-radius: 5px;
+  font-size: 2.5em;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.main-play-button-container button:hover {
+  background-color: #d32f2f;
+  transform: scale(1.05);
+}
+
+.secondary-controls {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid #616161;
+  box-shadow: 0 0 15px rgba(97, 97, 97, 0.4);
+}
+
+.secondary-controls button {
+  padding: 12px;
+  font-size: 1.2em;
+  background-color: transparent;
+  color: #fff;
+  border: 2px solid #616161;
+  border-radius: 8px;
   cursor: pointer;
   font-family: 'Roboto Condensed', sans-serif;
   font-weight: 700;
-  box-shadow: 0 0 5px rgba(244, 67, 54, 0.6);
   transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
-  flex-shrink: 0;
 }
 
-/* Estilo al pasar el ratón */
-.controls button:hover,
-.controls .control-button:hover {
-  background-color: #d32f2f;
-  box-shadow: 0 0 10px rgba(211, 47, 47, 0.8);
-  transform: translateY(-1px);
+.secondary-controls button:hover {
+  background-color: #f44336;
+  border-color: #d32f2f;
+  box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+  transform: translateY(-2px);
 }
 
-/* Estilos para las redes sociales - Mantiene su posición inferior central */
+/* Color para el botón de play cuando la radio está sonando */
+.main-play-button-container .playing {
+    background-color: #d32f2f;
+    box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
+}
+
 .social-links {
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 15px;
+  gap: 20px;
   z-index: 4;
   background-color: rgba(0, 0, 0, 0.7);
-  padding: 8px 15px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
   border: 1px solid #616161;
-  box-shadow: 0 0 8px rgba(97, 97, 97, 0.4);
+  box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
 }
 
 .social-links a {
   color: #fff;
-  font-size: 1.2em;
+  font-size: 1.5em;
   transition: color 0.3s, transform 0.3s;
   text-decoration: none;
 }
 
 .social-links a:hover {
   color: #ff9800;
-  transform: scale(1.1);
+  transform: scale(1.2);
 }
 
-/* Estilos específicos para algunos iconos con sus colores de marca */
 .social-links .fa-instagram:hover { color: #E1306C; }
 .social-links .fa-facebook:hover { color: #3b5998; }
 .social-links .fa-whatsapp:hover { color: #25D366; }
 .social-links .fa-coffee:hover { color: #FFDD00; }
+
+body.is-fullscreen .main-controls-container {
+    bottom: 20px;
+}
+
+body.is-fullscreen .secondary-controls {
+    display: none;
+}
+
+body.is-fullscreen .social-links {
+    display: none;
+}
