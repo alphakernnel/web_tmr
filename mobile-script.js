@@ -5,8 +5,7 @@ const audio = document.getElementById('audio');
 const radioLogo = document.getElementById('radioLogo');
 const songInfo = document.getElementById('songInfo');
 const refreshButton = document.getElementById('refreshButton');
-const fullscreenButton = document.getElementById('fullscreenButton');
-const infoButton = document.getElementById('infoButton');
+const infoButton = document.getElementById('infoButton'); // Botón de información (link a Zeno)
 
 let audioCtx = null;
 let source, analyser, dataArray;
@@ -17,10 +16,7 @@ let wakeLock = null;
 let eventSource = null;
 let lastSongTitle = '';
 
-const logoPositions = ['top-right', 'top-left', 'bottom-right', 'bottom-left'];
-let currentLogoPositionIndex = 0;
-
-// --- Three.js Starfield Animation (Simplificada para móvil) ---
+// --- Three.js Starfield Animation ---
 function initThreeJS() {
   console.log('initThreeJS: Intentando inicializar Three.js');
   if (typeof THREE === 'undefined') {
@@ -54,7 +50,7 @@ function initThreeJS() {
 
   starGeo = new THREE.BufferGeometry();
   const vertices = [];
-  const starCount = 3000; // Reducido para mejor rendimiento en móvil
+  const starCount = 3000; // Mantenido para rendimiento en móvil
   for (let i = 0; i < starCount; i++) {
     vertices.push(
       Math.random() * 600 - 300,
@@ -69,7 +65,7 @@ function initThreeJS() {
   starTextureLoader.load('https://raw.githubusercontent.com/alphakernnel/web_tmr/main/star.png',
     function(sprite) {
       const starMaterial = new THREE.PointsMaterial({
-        color: 0xaaaaaa, // Color fijo para rendimiento
+        color: 0xaaaaaa,
         size: 0.7,
         map: sprite,
         transparent: true,
@@ -111,6 +107,7 @@ function animateStars() {
   if (stars && starGeo && stars.geometry.attributes.position) {
     const positions = stars.geometry.attributes.position.array;
     for (let i = 0; i < positions.length; i += 3) {
+      // Movimiento vertical de las estrellas
       positions [i + 1] -= 0.5;
       if (positions [i + 1] < -300) {
         positions [i + 1] = 300;
@@ -119,15 +116,13 @@ function animateStars() {
     stars.geometry.attributes.position.needsUpdate = true;
   }
 
-  // La lógica para ajustar el color según el audio ha sido eliminada.
-
   if (renderer && scene && camera) {
     renderer.render(scene, camera);
   }
 }
 // --- Fin Three.js Starfield Animation ---
 
-// --- Funciones para la Wake Lock API ---
+// --- Funciones para la Wake Lock API (Mantenidas por ser clave en móvil) ---
 async function requestWakeLock() {
     console.log('Intentando solicitar wake lock...');
     try {
@@ -162,12 +157,13 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// --- NUEVA FUNCIÓN: Obtener metadatos de Zeno Radio con EventSource ---
+// --- Obtener metadatos de Zeno Radio con EventSource (MODIFICADO para 2 LÍNEAS) ---
 function connectToMetadataStream() {
     if (eventSource) {
         eventSource.close();
     }
     
+    // Asumiendo que el ID de Zeno sigue siendo 'udgoxuccigfuv'
     const metadataUrl = 'https://api.zeno.fm/mounts/metadata/subscribe/udgoxuccigfuv';
     eventSource = new EventSource(metadataUrl);
 
@@ -178,7 +174,19 @@ function connectToMetadataStream() {
                 const newSongTitle = data.streamTitle;
                 
                 if (lastSongTitle !== newSongTitle) {
-                    songInfo.textContent = newSongTitle;
+                    
+                    // LÓGICA CLAVE: Separar Artista y Título en dos líneas
+                    let displayTitle = newSongTitle;
+                    const separatorIndex = newSongTitle.indexOf(' - ');
+                    
+                    if (separatorIndex !== -1) {
+                        // Si encuentra ' - ', usa <br> para el salto de línea.
+                        const artist = newSongTitle.substring(0, separatorIndex).trim();
+                        const title = newSongTitle.substring(separatorIndex + 3).trim();
+                        displayTitle = `${artist}<br>${title}`;
+                    }
+                    
+                    songInfo.innerHTML = displayTitle;
                     songInfo.style.opacity = '1';
                     console.log('Metadatos actualizados:', newSongTitle);
                     lastSongTitle = newSongTitle;
@@ -193,7 +201,7 @@ function connectToMetadataStream() {
     
     eventSource.onerror = function(error) {
         console.error('Error en la conexión de EventSource:', error);
-        songInfo.textContent = 'Error al cargar metadatos';
+        songInfo.innerHTML = 'Error al cargar metadatos';
         songInfo.style.opacity = '0';
         eventSource.close();
     };
@@ -204,6 +212,7 @@ function initAudio() {
   console.log('initAudio: Iniciando o reanudando AudioContext.');
   if (!audioCtx || audioCtx.state === 'closed') {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Los nodos del analyser se mantienen por si se desea añadir una visualización de audio Three.js
     source = audioCtx.createMediaElementSource(audio);
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 256;
@@ -236,16 +245,17 @@ function playAudioAndSetup() {
         console.log("playAudioAndSetup: Audio reproduciéndose. AudioContext state:", audioCtx.state);
         audioInitialized = true;
         
+        // Asumiendo que el ID del botón de Play/Stop es 'playButton'
         playButton.classList.add('playing');
-        playButton.innerHTML = '<i class="fas fa-stop"></i>';
+        playButton.innerHTML = '<i class="fas fa-stop"></i>'; 
         
-        radioLogo.classList.add('playing');
+        radioLogo.classList.add('playing'); // Iniciar pulso del logo
         radioStatusMessage.style.display = 'none';
         radioStatusMessage.textContent = '';
         if (loadingMessage) loadingMessage.style.display = 'none';
 
-        requestWakeLock();
-        connectToMetadataStream();
+        requestWakeLock(); // Solicitar Wake Lock
+        connectToMetadataStream(); // Iniciar metadatos
 
     }).catch(e => {
         console.error("playAudioAndSetup: Error al reproducir audio:", e);
@@ -274,7 +284,7 @@ function stopAudio() {
       audioCtx.suspend().then(() => console.log('AudioContext suspendido.'));
   }
 
-  releaseWakeLock();
+  releaseWakeLock(); // Liberar Wake Lock
   
   songInfo.style.opacity = '0';
   if (eventSource) {
@@ -296,64 +306,25 @@ function refreshPage() {
     location.reload();
 }
 
-function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.error(`Error al intentar activar pantalla completa: ${err.message} (${err.name})`);
-        });
-    } else {
-        document.exitFullscreen();
-    }
-}
-
 function openInfoPage() {
     console.log('Botón de información clickeado.');
-    stopAudio();
+    // Mantengo esta función para el botón de "info" o "link"
     window.open('https://zeno.fm/radio/total-music-radio-q7yv/', '_blank');
 }
 
-function handleFullscreenChange() {
-  if (document.fullscreenElement) {
-    document.body.classList.add('is-fullscreen');
-    console.log('Modo Pantalla Completa Activado: Clase "is-fullscreen" añadida al body.');
-  } else {
-    document.body.classList.remove('is-fullscreen');
-    console.log('Modo Pantalla Completa Desactivado: Clase "is-fullscreen" eliminada del body.');
-  }
-}
-
-function moveLogo() {
-    console.log('Iniciando movimiento del logo...');
-    radioLogo.style.transition = 'opacity 60s linear';
-    radioLogo.classList.add('fade-out');
-
-    setTimeout(() => {
-        radioLogo.classList.remove(logoPositions[currentLogoPositionIndex]);
-
-        let newIndex;
-        do {
-            newIndex = Math.floor(Math.random() * logoPositions.length);
-        } while (newIndex === currentLogoPositionIndex);
-        currentLogoPositionIndex = newIndex;
-
-        radioLogo.classList.add(logoPositions[currentLogoPositionIndex]);
-        radioLogo.style.transition = 'opacity 1s ease-in-out';
-        radioLogo.classList.remove('fade-out');
-        console.log('Logo movido a la posición:', logoPositions[currentLogoPositionIndex]);
-
-    }, 60000);
-}
 
 document.addEventListener('DOMContentLoaded', (event) => {
     console.log('DOMContentLoaded: DOM completamente cargado.');
     radioStatusMessage.style.display = 'none';
     if (loadingMessage) loadingMessage.style.display = 'none';
     
-    playButton.addEventListener('click', togglePlayPause);
+    // Los listeners de los botones de control
+    playButton.addEventListener('click', togglePlayPause); 
     refreshButton.addEventListener('click', refreshPage);
-    fullscreenButton.addEventListener('click', toggleFullscreen);
+    // Ya no se necesita fullscreenButton.addEventListener('click', toggleFullscreen);
     infoButton.addEventListener('click', openInfoPage);
     
+    // Listener para el logo central como Play/Pause
     radioLogo.addEventListener('click', function() {
         if (audioInitialized) {
             togglePlayPause();
@@ -362,11 +333,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     });
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    // Ya no se necesita document.addEventListener('fullscreenchange', handleFullscreenChange);
     
     initThreeJS();
     animateStars();
     
-    radioLogo.classList.add(logoPositions[currentLogoPositionIndex]);
-    setInterval(moveLogo, 180000);
+    // Eliminada: Lógica de posicionamiento y movimiento del logo
 });

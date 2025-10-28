@@ -22,51 +22,29 @@ html, body {
 }
 
 #radioLogo {
+  /* POSICIONAMIENTO CENTRAL FIJO */
   position: fixed;
-  max-width: 120px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* TAMAÑO Y ESTILOS */
+  max-width: 250px; /* Tamaño aumentado para visibilidad */
   height: auto;
   z-index: 3;
   filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.7));
   cursor: pointer;
-  transition: transform 0.2s ease-out, filter 0.3s ease, top 1s ease-in-out, right 1s ease-in-out, bottom 1s ease-in-out, left 1s ease-in-out, opacity 1s linear;
+  /* Transición limpia (solo para el efecto de pulso) */
+  transition: transform 0.2s ease-out, filter 0.3s ease;
 }
 
-.top-right {
-    top: 20px;
-    right: 20px;
-    left: auto;
-    bottom: auto;
-}
-.top-left {
-    top: 20px;
-    left: 20px;
-    right: auto;
-    bottom: auto;
-}
-.bottom-right {
-    bottom: 20px;
-    right: 20px;
-    top: auto;
-    left: auto;
-}
-.bottom-left {
-    bottom: 20px;
-    left: 20px;
-    top: auto;
-    right: auto;
-}
-
-.fade-out {
-    opacity: 0;
-}
-
+/* Animación de pulso para el logo cuando está sonando */
 #radioLogo.playing {
   animation: pulseLogo 1.5s infinite alternate;
 }
 
 @keyframes pulseLogo {
-    from { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
-    to { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
+    from { transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
+    to { transform: translate(-50%, -50%) scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
 }
 
 #songInfo {
@@ -86,8 +64,10 @@ html, body {
     color: #fff;
     text-shadow: 0 0 5px rgba(244, 67, 54, 0.8);
     transition: opacity 0.5s ease-in-out;
-    white-space: nowrap;
+    /* PERMITE SALTO DE LÍNEA PARA METADATOS EXTENSOS */
+    white-space: normal;
     min-width: 250px;
+    max-width: 90%;
     opacity: 0;
 }
 
@@ -235,15 +215,3 @@ html, body {
 .social-links .fa-facebook:hover { color: #3b5998; }
 .social-links .fa-whatsapp:hover { color: #25D366; }
 .social-links .fa-coffee:hover { color: #FFDD00; }
-
-body.is-fullscreen .main-controls-container {
-    bottom: 20px;
-}
-
-body.is-fullscreen .secondary-controls {
-    display: none;
-}
-
-body.is-fullscreen .social-links {
-    display: none;
-}
