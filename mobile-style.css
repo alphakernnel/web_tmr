@@ -6,53 +6,62 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #121212;
+  background: #121212; /* Fondo negro intenso */
   color: #f44336;
   font-family: 'Montserrat', sans-serif;
+  height: 100%;
 }
 
-#starfield-container {
+/* Contenedor de Imagen de Fondo (Estática) */
+#background-image-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -1;
-  opacity: 0.8;
+  z-index: -2;
+  /* IMPORTANTE: Referencia directa a tu archivo subido en GitHub */
+  background-image: url('base_dic.jpg'); 
+  background-size: cover; /* Asegura que cubra toda la pantalla */
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.9); /* Ligeramente oscuro */
 }
 
-#radioLogo {
-  /* POSICIONAMIENTO CENTRAL FIJO */
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  /* TAMAÑO Y ESTILOS */
-  max-width: 250px; /* Tamaño aumentado para visibilidad */
-  height: auto;
-  z-index: 3;
-  filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.7));
-  cursor: pointer;
-  /* Transición limpia (solo para el efecto de pulso) */
-  transition: transform 0.2s ease-out, filter 0.3s ease;
+/* NUEVO: Estilos para el área de Play/Stop transparente sobre el círculo central */
+#centralPlayTarget {
+    position: fixed;
+    top: 50%; /* Centrado Vertical */
+    left: 50%; /* Centrado Horizontal */
+    transform: translate(-50%, -50%);
+    width: 200px; /* Dimensiones para cubrir el círculo de la imagen */
+    height: 200px; 
+    z-index: 3;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: box-shadow 0.5s ease-out;
 }
 
-/* Animación de pulso para el logo cuando está sonando */
-#radioLogo.playing {
-  animation: pulseLogo 1.5s infinite alternate;
+/* Animación de pulso simulada mediante box-shadow (para indicar que la radio está ON) */
+#centralPlayTarget.is-playing {
+    /* Simula un brillo anaranjado/rojo sobre el círculo central */
+    animation: pulseGlow 1.5s infinite alternate;
 }
 
-@keyframes pulseLogo {
-    from { transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.7)); }
-    to { transform: translate(-50%, -50%) scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 152, 0, 1)); }
+@keyframes pulseGlow {
+    from { box-shadow: 0 0 10px rgba(255, 152, 0, 0.7); }
+    to { box-shadow: 0 0 30px rgba(255, 152, 0, 1), 0 0 40px rgba(244, 67, 54, 0.5); }
 }
 
+/* Estilos para el contenedor de la información de la canción (Posición Superior: 5%) */
 #songInfo {
     position: fixed;
-    top: 20px;
+    top: 5%; 
     left: 50%;
     transform: translateX(-50%);
-    z-index: 2;
+    z-index: 5; 
     background-color: rgba(0, 0, 0, 0.7);
     border: 1px solid #d32f2f;
     border-radius: 8px;
@@ -64,16 +73,16 @@ html, body {
     color: #fff;
     text-shadow: 0 0 5px rgba(244, 67, 54, 0.8);
     transition: opacity 0.5s ease-in-out;
-    /* PERMITE SALTO DE LÍNEA PARA METADATOS EXTENSOS */
     white-space: normal;
     min-width: 250px;
     max-width: 90%;
     opacity: 0;
 }
 
+/* Estilos para los mensajes de estado y carga */
 #radioStatusMessage {
   position: fixed;
-  top: 35%;
+  top: 30%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: rgba(0, 0, 0, 0.7);
@@ -94,7 +103,7 @@ html, body {
 
 #loadingMessage {
     position: fixed;
-    top: 45%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: rgba(0, 0, 0, 0.8);
@@ -109,47 +118,28 @@ html, body {
     white-space: nowrap;
 }
 
+/* Controles secundarios (Posición Inferior: 10%) */
 .main-controls-container {
   position: fixed;
-  bottom: 120px;
+  bottom: 10%; 
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
   z-index: 2;
   width: 90%;
 }
 
+/* Se oculta el contenedor principal de play que ya no se usa */
 .main-play-button-container {
-  background-color: rgba(0, 0, 0, 0.7);
-  border: 1px solid #616161;
-  box-shadow: 0 0 10px rgba(97, 97, 97, 0.4);
-  border-radius: 50%;
-  padding: 20px;
-}
-
-.main-play-button-container button {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: none;
-  background-color: #f44336;
-  color: #fff;
-  font-size: 2.5em;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-.main-play-button-container button:hover {
-  background-color: #d32f2f;
-  transform: scale(1.05);
+    display: none;
 }
 
 .secondary-controls {
   display: flex;
-  gap: 15px;
+  gap: 30px;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.7);
   padding: 10px 20px;
@@ -178,12 +168,6 @@ html, body {
   transform: translateY(-2px);
 }
 
-/* Color para el botón de play cuando la radio está sonando */
-.main-play-button-container .playing {
-    background-color: #d32f2f;
-    box-shadow: 0 0 15px rgba(211, 47, 47, 0.8);
-}
-
 .social-links {
   position: fixed;
   bottom: 20px;
@@ -210,8 +194,3 @@ html, body {
   color: #ff9800;
   transform: scale(1.2);
 }
-
-.social-links .fa-instagram:hover { color: #E1306C; }
-.social-links .fa-facebook:hover { color: #3b5998; }
-.social-links .fa-whatsapp:hover { color: #25D366; }
-.social-links .fa-coffee:hover { color: #FFDD00; }
