@@ -1,0 +1,111 @@
+/* Variables de Marca */
+:root {
+  --primary-red: #f44336;
+  --dark-red: #d32f2f;
+  --bg-black: #121212;
+  --glass-bg: rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 15px rgba(211, 47, 47, 0.6);
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Montserrat:wght@400;600&display=swap');
+
+html, body {
+  margin: 0; padding: 0;
+  overflow: hidden;
+  background: var(--bg-black);
+  color: var(--primary-red);
+  font-family: 'Montserrat', sans-serif;
+  height: 100%;
+}
+
+/* Fondo de Estrellas - Solo visible en pantallas grandes */
+#starfield-container {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: -1; opacity: 0.8;
+  display: none; /* Oculto por defecto */
+}
+
+@media (min-width: 769px) {
+  #starfield-container { display: block; }
+}
+
+/* Logo con animación */
+#radioLogo {
+  position: fixed; max-width: 100px; z-index: 10;
+  filter: drop-shadow(0 0 5px rgba(255, 152, 0, 0.5));
+  transition: all 1s ease-in-out;
+  cursor: pointer;
+}
+
+#radioLogo.playing { animation: pulse 2s infinite; }
+
+@keyframes pulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 5px var(--primary-red)); }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 20px var(--primary-red)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 5px var(--primary-red)); }
+}
+
+/* Posiciones del Logo */
+.top-right { top: 20px; right: 20px; }
+.top-left { top: 20px; left: 20px; }
+.bottom-right { bottom: 100px; right: 20px; }
+.bottom-left { bottom: 100px; left: 20px; }
+
+/* Info de Canción */
+#status-container {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; width: 90%;
+}
+
+#songInfo {
+  font-size: 1.5rem; font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+/* Controles */
+.player-controls {
+  position: fixed; bottom: 0; width: 100%;
+  background: var(--glass-bg);
+  padding: 20px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 15px;
+  border-top: 1px solid #333;
+}
+
+.btn-main {
+  background: var(--primary-red); color: white;
+  border: none; border-radius: 50%;
+  width: 70px; height: 70px; font-size: 1.5rem;
+  box-shadow: var(--shadow-glow); cursor: pointer;
+}
+
+.secondary-buttons { display: flex; gap: 15px; align-items: center; }
+
+.secondary-buttons button {
+  background: #333; color: white; border: none;
+  padding: 10px 15px; border-radius: 5px; cursor: pointer;
+}
+
+/* Estilos específicos para PC */
+@media (min-width: 769px) {
+  .player-controls { flex-direction: row; justify-content: space-around; padding: 10px 0; }
+  #radioLogo { max-width: 130px; }
+  #songInfo { font-size: 2.5rem; }
+  .PC-ONLY { display: flex; align-items: center; gap: 10px; }
+}
+
+@media (max-width: 768px) {
+  .PC-ONLY { display: none; }
+  #radioLogo { max-width: 80px; }
+}
+
+/* Social Links */
+.social-links {
+  position: fixed; bottom: 130px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 20px;
+}
+
+.social-links a { color: white; font-size: 1.5rem; opacity: 0.7; transition: 0.3s; }
+.social-links a:hover { color: var(--primary-red); opacity: 1; }
