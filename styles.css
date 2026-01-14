@@ -9,6 +9,20 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Montserrat:wght@400;600&display=swap');
 
+
+
+/* ... (Mantener todo lo anterior y agregar/modificar esto) ... */
+
+@media (max-width: 768px) {
+  .PC-ONLY, .MOBILE-HIDDEN { 
+    display: none !important; 
+  }
+  #radioLogo { max-width: 80px; }
+  #songInfo { font-size: 1.3rem; padding: 0 10px; }
+}
+
+
+
 html, body {
   margin: 0; padding: 0;
   overflow: hidden;
