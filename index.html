@@ -1,48 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargando Total Music Radio...</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #121212;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            overflow: hidden;
-        }
-        .loading-message {
-            font-size: 1.5em;
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Total Music Radio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.158.0/three.min.js"></script>
 </head>
 <body>
-    <div class="loading-message">
-        Cargando la experiencia Total Music Radio...
+  <div id="starfield-container"></div>
+
+  <img id="radioLogo" src="https://raw.githubusercontent.com/alphakernnel/web_tmr/main/logo_tmr.png" alt="Logo Total Music Radio" class="top-right">
+
+  <div id="status-container">
+    <div id="radioStatusMessage" style="display:none;"></div>
+    <div id="loadingMessage" style="display:none;">Espera unos segundos xfa...</div> 
+    <div id="songInfo">Cargando señal...</div>
+  </div>
+
+  <div class="player-controls">
+    <div class="main-buttons">
+      <button id="playButton" class="btn-main"><i class="fas fa-play"></i></button>
+      <button id="stopButton" class="btn-main" style="display:none"><i class="fas fa-stop"></i></button>
     </div>
 
-    <script>
-        // Función para detectar si es un dispositivo móvil
-        function isMobileDevice() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            // Expresiones regulares comunes para detectar móviles
-            return /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(userAgent);
-        }
+    <div class="secondary-buttons">
+      <div class="volume-group PC-ONLY">
+        <i class="fas fa-volume-down"></i>
+        <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.7">
+        <i class="fas fa-volume-up"></i>
+      </div>
+      <button id="refreshButton" title="Recargar"><i class="fas fa-sync-alt"></i></button>
+      <button id="fullscreenButton" title="Pantalla Completa"><i class="fas fa-expand"></i></button>
+      <button id="infoButton" title="Información"><i class="fas fa-info"></i></button>
+    </div>
+  </div>
 
-        // Redireccionar según el dispositivo
-        window.onload = function() {
-            if (isMobileDevice()) {
-                window.location.replace("mobile.html");
-            } else {
-                window.location.replace("pc.html");
-            }
-        };
-    </script>
+  <audio id="audio" src="https://stream.zeno.fm/udgoxuccigfuv" crossorigin="anonymous"></audio>
+
+  <div class="social-links">
+    <a href="https://linktr.ee/tmradio.cl" target="_blank"><i class="fas fa-link"></i></a>
+    <a href="https://www.instagram.com/totalmusicradio.cl/" target="_blank"><i class="fab fa-instagram"></i></a>
+    <a href="https://www.facebook.com/profile.php?id=61556476971552" target="_blank"><i class="fab fa-facebook"></i></a>
+  </div>
+
+  <script src="scripts.js"></script>
 </body>
 </html>
