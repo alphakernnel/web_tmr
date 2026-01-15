@@ -8,6 +8,7 @@ const volumeControl = document.getElementById('volumeControl');
 let audioCtx, analyser, dataArray, source;
 let isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 let wakeLock = null;
+let eventSource = null;
 
 // --- GESTIÓN DE AUDIO ---
 async function initAudio() {
@@ -21,7 +22,6 @@ async function initAudio() {
             setupVisualizer();
         }
         
-        // Activar WakeLock solo en móviles para que no se apague la pantalla
         if (isMobile && 'wakeLock' in navigator) {
             requestWakeLock();
         }
@@ -32,7 +32,7 @@ async function initAudio() {
 
 function stopAudio() {
     audio.pause();
-    audio.src = audio.src; // Reset del stream
+    audio.src = audio.src; 
     playButton.style.display = 'inline-block';
     stopButton.style.display = 'none';
     radioLogo.classList.remove('playing');
@@ -42,29 +42,35 @@ function stopAudio() {
     }
 }
 
-// --- METADATA (ZENO API) ---
+// --- METADATA (ZENO API) - REFORZADA ---
 function connectMetadata() {
-    // Usamos el ID de tu mount point: udgoxuccigfuv
+    // Cerramos conexión previa si existe
+    if (eventSource) {
+        eventSource.close();
+    }
+
     const streamId = 'udgoxuccigfuv';
-    const eventSource = new EventSource(`https://api.zeno.fm/mounts/metadata/subscribe/${streamId}`);
+    // Nota: Usamos la URL completa y aseguramos que no haya caché
+    eventSource = new EventSource(`https://api.zeno.fm/mounts/metadata/subscribe/${streamId}?t=${Date.now()}`);
 
     eventSource.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data);
-            if (data.streamTitle) {
-                songInfo.innerText = data.streamTitle;
-                // Actualizar el título de la pestaña también
-                document.title = `TMR: ${data.streamTitle}`;
+            if (data && data.streamTitle) {
+                const title = data.streamTitle;
+                songInfo.innerText = title;
+                document.title = `TMR: ${title}`;
+                console.log("Metadata recibida:", title);
             }
         } catch (e) {
-            console.error("Error parseando metadata", e);
+            // Si no es JSON (ping de Zeno), lo ignoramos
         }
     };
 
-    eventSource.onerror = () => {
-        console.warn("Error en EventSource, reintentando...");
+    eventSource.onerror = (err) => {
+        console.warn("Conexión de metadatos perdida. Reintentando...");
         eventSource.close();
-        setTimeout(connectMetadata, 5000);
+        setTimeout(connectMetadata, 5000); // Reintento automático
     };
 }
 
@@ -73,6 +79,9 @@ let scene, camera, renderer, stars;
 function initStars() {
     if (isMobile) return; 
 
+    const container = document.getElementById('starfield-container');
+    if(!container) return;
+
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.z = 1;
@@ -80,7 +89,7 @@ function initStars() {
 
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('starfield-container').appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
 
     const starGeo = new THREE.BufferGeometry();
     const starCoords = [];
@@ -97,7 +106,7 @@ function initStars() {
 
 function animate() {
     requestAnimationFrame(animate);
-    stars.rotation.y += 0.001;
+    if(stars) stars.rotation.y += 0.001;
     
     if (analyser && !isMobile) {
         analyser.getByteFrequencyData(dataArray);
@@ -111,7 +120,7 @@ function animate() {
 async function requestWakeLock() {
     try {
         wakeLock = await navigator.wakeLock.request('screen');
-    } catch (err) { /* No soportado */ }
+    } catch (err) { }
 }
 
 // Listeners
@@ -120,7 +129,6 @@ stopButton.addEventListener('click', stopAudio);
 if(volumeControl) volumeControl.addEventListener('input', (e) => audio.volume = e.target.value);
 document.getElementById('refreshButton').addEventListener('click', () => location.reload());
 
-// Solo asignar fullscreen si el botón existe (no es móvil)
 const fsBtn = document.getElementById('fullscreenButton');
 if(fsBtn) {
     fsBtn.addEventListener('click', () => {
@@ -132,7 +140,17 @@ if(fsBtn) {
     });
 }
 
-window.onload = () => {
-    connectMetadata();
-    if(!isMobile) initStars();
-};
+// Movimiento del logo para evitar "quemado" de pantalla
+const positions = ['top-right', 'top-left', 'bottom-right', 'bottom-left'];
+setInterval(() => {
+    const current = positions.findIndex(p => radioLogo.classList.contains(p));
+    radioLogo.classList.remove(positions[current]);
+    const next = (current + 1) % positions.length;
+    radioLogo.classList.add(positions[next]);
+}, 60000);
+
+// INICIO DE LA APP
+document.addEventListener('DOMContentLoaded', () => {
+    connectMetadata(); // Primero conectamos los datos
+    if(!isMobile) initStars(); // Luego el visualizador si es PC
+});
